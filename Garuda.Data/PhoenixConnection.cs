@@ -3,55 +3,93 @@ using PhoenixSharp;
 using PhoenixSharp.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using pbc = Google.Protobuf.Collections;
 
-namespace GarudaUtil
+namespace Garuda.Data
 {
-    class PhoenixUtil : IDisposable
+    public class PhoenixConnection : IDbConnection
     {
+
+        private PhoenixClient _client = null;
+
+        private OpenConnectionResponse _openConnection = null;
+
         public ClusterCredentials Credentials { get; set; }
 
         public string ConnectionId { get; private set; }
 
         public RequestOptions Options { get; set; }
 
-        private PhoenixClient _client = null;
+        #region IDbConnection Interface
 
-        private OpenConnectionResponse _openConnection = null;
-
-        public PhoenixUtil()
+        public string ConnectionString
         {
-            this.ConnectionId = Guid.NewGuid().ToString();
+            get
+            {
+                return _connectionString;
+            }
 
-            this.Options = RequestOptions.GetVNetDefaultOptions();
+            set
+            {
+                ParseConnectionString(value);
+                _connectionString = value;
 
-            this.Credentials = new ClusterCredentials(new Uri("http://localhost/"), "", "");
+            }
+        }
+        private string _connectionString = null;
+
+        public int ConnectionTimeout
+        {
+            get { return this.Options.TimeoutMillis; }
+        }
+
+        public string Database
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public ConnectionState State { get; private set; }
+
+        public IDbTransaction BeginTransaction()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbTransaction BeginTransaction(IsolationLevel il)
+        {
+            throw new NotImplementedException();
         }
 
         public void Open()
         {
-            
             if (null != _client)
             {
                 // Already allocated
             }
             else
             {
+                // Update state....
+                this.State = ConnectionState.Connecting;
+
                 pbc::MapField<string, string> info = new pbc::MapField<string, string>();
 
+                // Spin up Microsoft.Phoenix.Client
                 _client = new PhoenixClient(this.Credentials);
 
+                // Initiate connection
                 var tOpen = _client.OpenConnectionRequestAsync(this.ConnectionId,
                     info,
                     this.Options);
                 tOpen.Wait();
-
                 _openConnection = tOpen.Result;
-
-
+                
                 // Syncing connection
                 ConnectionProperties connProperties = new ConnectionProperties
                 {
@@ -65,8 +103,50 @@ namespace GarudaUtil
                     IsDirty = true
                 };
                 _client.ConnectionSyncRequestAsync(this.ConnectionId, connProperties, this.Options).Wait();
+
+                // Connected.
+                this.State = ConnectionState.Open;
             }
         }
+
+        public void Close()
+        {
+            if (_openConnection != null)
+            {
+                _client.CloseConnectionRequestAsync(this.ConnectionId, this.Options).Wait();
+                _openConnection = null;
+                _client = null;
+
+                // Flag connection closed
+                this.State = ConnectionState.Closed;
+            }
+        }
+
+        public void ChangeDatabase(string databaseName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbCommand CreateCommand()
+        {
+            return new PhoenixCommand();
+        }
+
+        #endregion
+
+
+        public PhoenixConnection()
+        {
+            this.ConnectionId = Guid.NewGuid().ToString();
+
+            this.Options = RequestOptions.GetVNetDefaultOptions();
+
+            this.Credentials = null;
+
+            this.State = ConnectionState.Closed;
+        }
+
+        
 
         public void SystemTables()
         {
@@ -96,6 +176,20 @@ namespace GarudaUtil
             //Assert.AreEqual(6, tableTypeResponse.FirstFrame.Rows.Count);
         }
 
+        private void ParseConnectionString(string value)
+        {
+            string[] parts = value.Split(';');
+
+            foreach (string part in parts)
+            {
+                string[] tuple = part.Split('=');
+                if (tuple[0].Equals("Server", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    this.Options.AlternativeHost = tuple[1];
+                }
+            }
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -106,11 +200,7 @@ namespace GarudaUtil
                 if (disposing)
                 {
                     // Dispose managed state (managed objects).
-                    if (_openConnection != null)
-                    {
-                        _client.CloseConnectionRequestAsync(this.ConnectionId, this.Options).Wait();
-                        _openConnection = null;
-                    }
+                    Close();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -134,6 +224,8 @@ namespace GarudaUtil
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
+
+       
         #endregion
     }
 }

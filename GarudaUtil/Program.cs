@@ -1,6 +1,8 @@
-﻿using PhoenixSharp;
+﻿using Garuda.Data;
+using PhoenixSharp;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -32,14 +34,15 @@ namespace GarudaUtil
                             "");
 
                     // Command Line mode
-                    using (PhoenixUtil util = new PhoenixUtil())
+                    using (IDbConnection phConn = new PhoenixConnection())
                     {
-                        util.Options.AlternativeHost = "ec2-50-112-194-207.us-west-2.compute.amazonaws.com";
-                        util.Credentials = null;  
+                        phConn.ConnectionString = string.Format("Server={0}", args[0]);
+                        //phConn.Options.AlternativeHost = "ec2-50-112-194-207.us-west-2.compute.amazonaws.com";
+                        //phConn.Credentials = null;
 
-                        util.Open();
+                        phConn.Open();
 
-                        util.SystemTables();
+                        //util.SystemTables();
                     }
 
 
