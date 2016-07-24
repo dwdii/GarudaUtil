@@ -129,7 +129,7 @@ namespace Garuda.Data
 
         public IDbCommand CreateCommand()
         {
-            return new PhoenixCommand();
+            return new PhoenixCommand(this); 
         }
 
         #endregion
@@ -174,6 +174,19 @@ namespace Garuda.Data
             // List all table types
             ResultSetResponse tableTypeResponse = _client.TableTypesRequestAsync(this.ConnectionId, this.Options).Result;
             //Assert.AreEqual(6, tableTypeResponse.FirstFrame.Rows.Count);
+        }
+
+        internal ResultSetResponse Request(pbc.RepeatedField<string> list)
+        {
+            ResultSetResponse response = null;
+
+            Task<ResultSetResponse> tResp = _client.TablesRequestAsync("", "", "", list, true, this.ConnectionId, this.Options);
+
+            tResp.Wait();
+
+            response = tResp.Result;
+
+            return response;
         }
 
         private void ParseConnectionString(string value)

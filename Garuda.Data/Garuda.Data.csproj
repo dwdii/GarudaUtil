@@ -62,6 +62,9 @@
   <ItemGroup>
     <Compile Include="PhoenixCommand.cs" />
     <Compile Include="PhoenixConnection.cs" />
+    <Compile Include="PhoenixDataReader.cs" />
+    <Compile Include="PhoenixParameter.cs" />
+    <Compile Include="PhoenixParameterCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

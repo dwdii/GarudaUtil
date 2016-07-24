@@ -1,17 +1,22 @@
-﻿using System;
+﻿using Apache.Phoenix;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using pbc = Google.Protobuf.Collections;
 
 namespace Garuda.Data
 {
     public class PhoenixCommand : IDbCommand
     {
-        public PhoenixCommand()
+        public PhoenixCommand(PhoenixConnection connection)
         {
-
+            this.CommandType = System.Data.CommandType.Text;
+            this.Connection = connection;
+            this.Parameters = new PhoenixParameterCollection();
         }
 
         #region IDbCommand Interface
@@ -22,7 +27,12 @@ namespace Garuda.Data
 
         public CommandType CommandType { get; set; }
 
-        public IDbConnection Connection { get; set; }
+        public IDbConnection Connection
+        {
+            get { return _connection; }
+            set { _connection = (PhoenixConnection)value; }
+        }
+        private PhoenixConnection _connection;
 
         public IDataParameterCollection Parameters { get; private set; }
 
@@ -59,7 +69,7 @@ namespace Garuda.Data
 
         public IDbDataParameter CreateParameter()
         {
-            throw new NotImplementedException();
+            return new PhoenixParameter();
         }
 
         public int ExecuteNonQuery()
@@ -69,7 +79,7 @@ namespace Garuda.Data
 
         public IDataReader ExecuteReader()
         {
-            throw new NotImplementedException();
+            return new PhoenixDataReader(Execute());
         }
 
         public IDataReader ExecuteReader(CommandBehavior behavior)
@@ -123,5 +133,20 @@ namespace Garuda.Data
             // GC.SuppressFinalize(this);
         }
         #endregion
+
+        private ResultSetResponse Execute()
+        {
+            // List system tables
+            pbc.RepeatedField<string> list = new pbc.RepeatedField<string>();
+            ResultSetResponse response = null;
+
+            list.Add(this.CommandText);
+
+            response = _connection.Request(list);
+
+            return response;
+        }
+
     }
+
 }
