@@ -1,5 +1,7 @@
 # GarudaUtil
 
+[![License](https://img.shields.io/badge/license-APACHE-red.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+
 ## Garuda.Data
 
 A .NET assembly which provides System.Data interface implementations for [Apache Phoenix](https://phoenix.apache.org/)
