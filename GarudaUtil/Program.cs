@@ -17,7 +17,7 @@ namespace GarudaUtil
         [STAThread]
         static void Main(string[] args)
         {
-            bool showException = true;
+            GarudaUtilCmdLineArgs cmdLine = new GarudaUtilCmdLineArgs(args);
 
             try
             {
@@ -29,22 +29,47 @@ namespace GarudaUtil
                 }
                 else
                 {
-                    ClusterCredentials creds = new ClusterCredentials(new Uri("https://ec2-50-112-194-207.us-west-2.compute.amazonaws.com/"),
-                            "",
-                            "");
 
                     // Command Line mode
                     using (IDbConnection phConn = new PhoenixConnection())
                     {
-                        phConn.ConnectionString = string.Format("Server={0}", args[0]);
-                        //phConn.Options.AlternativeHost = "ec2-50-112-194-207.us-west-2.compute.amazonaws.com";
-                        //phConn.Credentials = null;
+                        phConn.ConnectionString = cmdLine.ConnectionString;
 
                         phConn.Open();
 
+                        (phConn as PhoenixConnection).SystemTables();
+
                         using (IDbCommand cmd = phConn.CreateCommand())
                         {
-                            cmd.CommandText = "SYSTEM TABLE";
+                            cmd.CommandText = "CREATE TABLE IF NOT EXISTS GARUDATEST (ID BIGINT PRIMARY KEY, AircraftIcaoNumber varchar(16))";
+                            cmd.ExecuteNonQuery();
+
+                            bool bCreateSequence = true;
+                            cmd.CommandText = "SELECT sequence_schema, sequence_name, start_with, increment_by, cache_size FROM SYSTEM.\"SEQUENCE\""; //  WHERE sequence_schema = 'garuda' AND sequence_name='testsequence'
+                            using (IDataReader reader = cmd.ExecuteReader())
+                            {
+                                while(reader.Read())
+                                {
+                                    if (reader.GetString(1).Equals("testsequence", StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        bCreateSequence = false;
+                                        break;
+                                    }
+
+                                }
+                            }
+
+                            if(bCreateSequence)
+                            {
+                                cmd.CommandText = "CREATE SEQUENCE garuda.testsequence";
+                                cmd.ExecuteNonQuery();
+                            }
+                            
+
+                            cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber) VALUES (NEXT VALUE FOR garuda.testsequence, 'N{0}')", DateTime.Now.ToString("hmmss"));
+                            cmd.ExecuteNonQuery();
+
+                            cmd.CommandText = "SELECT * FROM GARUDATEST";
                             using (IDataReader reader = cmd.ExecuteReader())
                             {
                                 while(reader.Read())
@@ -57,20 +82,15 @@ namespace GarudaUtil
                             }
                         }
 
-                        //util.SystemTables();
+                        
                     }
-
-
-
-
-
                 }
             }
             catch(Exception ex)
             {
                 System.Diagnostics.Trace.WriteLine(ex);
 
-                if(showException)
+                if(cmdLine.ShowException)
                 {
                     MessageBox.Show(ex.ToString(), ex.GetType().ToString());
                 }

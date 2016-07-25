@@ -10,13 +10,30 @@ namespace Garuda.Data
 {
     public class PhoenixDataReader : System.Data.Common.DbDataReader
     {
-        private ResultSetResponse _response = null;
+        private PhoenixCommand _command = null;
+
+        private uint _statementId = uint.MaxValue;
+
+        private List<ResultSetResponse> _response = null;
 
         private int _currentRowNdx = -1;
 
-        internal PhoenixDataReader(ResultSetResponse response)
+        private int _currentResultSet = 0;
+
+        internal PhoenixDataReader(PhoenixCommand cmd, GarudaExecuteResponse response)
         {
-            _response = response;
+            if(null == cmd)
+            {
+                throw new ArgumentNullException("cmd");
+            }
+            if(null == response)
+            {
+                throw new ArgumentNullException("response");
+            }
+
+            _command = cmd;
+            _response = response.Response.Results.ToList();
+            _statementId = response.StatementId;
         }
 
         #region DbDataReader Class
@@ -33,7 +50,7 @@ namespace Garuda.Data
         {
             get
             {
-                return _response.FirstFrame.Rows[_currentRowNdx].Value[ordinal];
+                return _response[_currentResultSet].FirstFrame.Rows[_currentRowNdx].Value[ordinal];
             }
         }
 
@@ -49,7 +66,7 @@ namespace Garuda.Data
         {
             get
             {
-                return _response.Signature.Columns.Count;
+                return _response[_currentResultSet].Signature.Columns.Count;
             }
         }
 
@@ -79,7 +96,7 @@ namespace Garuda.Data
 
         public override bool GetBoolean(int ordinal)
         {
-            throw new NotImplementedException();
+            return (bool)GetValue(ordinal);
         }
 
         public override byte GetByte(int ordinal)
@@ -119,7 +136,7 @@ namespace Garuda.Data
 
         public override double GetDouble(int ordinal)
         {
-            throw new NotImplementedException();
+            return (double)GetValue(ordinal);
         }
 
         public override IEnumerator GetEnumerator()
@@ -144,22 +161,22 @@ namespace Garuda.Data
 
         public override short GetInt16(int ordinal)
         {
-            throw new NotImplementedException();
+            return (short)GetValue(ordinal);
         }
 
         public override int GetInt32(int ordinal)
         {
-            throw new NotImplementedException();
+            return (int)GetValue(ordinal);
         }
 
         public override long GetInt64(int ordinal)
         {
-            throw new NotImplementedException();
+            return (long)GetValue(ordinal);
         }
 
         public override string GetName(int ordinal)
         {
-            return _response.Signature.Columns[ordinal].ColumnName;
+            return _response[_currentResultSet].Signature.Columns[ordinal].ColumnName;
         }
 
         public override int GetOrdinal(string name)
@@ -174,7 +191,31 @@ namespace Garuda.Data
 
         public override object GetValue(int ordinal)
         {
-            return _response.FirstFrame.Rows[_currentRowNdx].Value[ordinal].Value[0].ToString();
+            object o = null;
+            TypedValue val = CurrentRowValue(ordinal);
+
+            switch (val.Type)
+            {
+                case Rep.STRING:
+                    o = val.StringValue;
+                    break;
+
+                case Rep.DOUBLE:
+                    o = val.DoubleValue;
+                    break;
+
+                case Rep.BOOLEAN:
+                    o = val.BoolValue;
+                    break;
+
+                case Rep.INTEGER:
+                case Rep.LONG:
+                case Rep.NUMBER:
+                    o = val.NumberValue;
+                    break;
+            }
+
+            return o;
         }
 
         public override int GetValues(object[] values)
@@ -184,12 +225,18 @@ namespace Garuda.Data
 
         public override bool IsDBNull(int ordinal)
         {
-            throw new NotImplementedException();
+            return CurrentRowValue(ordinal).Null;
         }
 
         public override bool NextResult()
         {
-            throw new NotImplementedException();
+            bool ok = this._response.Count > _currentResultSet;
+            if (ok)
+            {
+                _currentResultSet++;
+            }
+
+            return ok;
         }
 
         public override bool Read()
@@ -197,9 +244,26 @@ namespace Garuda.Data
             // Crude, but will do for now...
             _currentRowNdx++;
 
-            return _response.FirstFrame.Rows.Count > _currentRowNdx;
+            return _response[_currentResultSet].FirstFrame.Rows.Count > _currentRowNdx;
+        }
+
+        public override void Close()
+        {
+            (_command.Connection as PhoenixConnection).CloseStatement(_statementId);
+
+            base.Close();
         }
 
         #endregion
+
+        private Row CurrentRow()
+        {
+            return _response[_currentResultSet].FirstFrame.Rows[_currentRowNdx];
+        }
+
+        private TypedValue CurrentRowValue(int ordinal)
+        {
+            return CurrentRow().Value[ordinal].Value[0];
+        }
     }
 }

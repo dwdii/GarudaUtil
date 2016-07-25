@@ -12,6 +12,8 @@ namespace Garuda.Data
 {
     public class PhoenixCommand : IDbCommand
     {
+        private GarudaExecuteResponse _response = null;
+
         public PhoenixCommand(PhoenixConnection connection)
         {
             this.CommandType = System.Data.CommandType.Text;
@@ -74,12 +76,15 @@ namespace Garuda.Data
 
         public int ExecuteNonQuery()
         {
-            throw new NotImplementedException();
+            GarudaExecuteResponse resp = Execute();
+
+            return -1;
         }
 
         public IDataReader ExecuteReader()
         {
-            return new PhoenixDataReader(Execute());
+            GarudaExecuteResponse resp = Execute();
+            return new PhoenixDataReader(this, resp);
         }
 
         public IDataReader ExecuteReader(CommandBehavior behavior)
@@ -108,7 +113,14 @@ namespace Garuda.Data
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects).
+                    // dispose managed state (managed objects).
+                    if(null != _response)
+                    {
+                        _connection.CloseStatement(_response.StatementId);
+                        _response = null;
+
+                        _connection = null;
+                    }
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -134,15 +146,9 @@ namespace Garuda.Data
         }
         #endregion
 
-        private ResultSetResponse Execute()
+        private GarudaExecuteResponse Execute()
         {
-            // List system tables
-            pbc.RepeatedField<string> list = new pbc.RepeatedField<string>();
-            ResultSetResponse response = null;
-
-            list.Add(this.CommandText);
-
-            response = _connection.Request(list);
+            GarudaExecuteResponse response = _connection.ExecuteRequest(this.CommandText);
 
             return response;
         }

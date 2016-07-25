@@ -13,10 +13,11 @@ namespace Garuda.Data
 {
     public class PhoenixConnection : IDbConnection
     {
-
+        #region Private Data Members
         private PhoenixClient _client = null;
 
         private OpenConnectionResponse _openConnection = null;
+        #endregion
 
         public ClusterCredentials Credentials { get; set; }
 
@@ -26,6 +27,16 @@ namespace Garuda.Data
 
         #region IDbConnection Interface
 
+        /// <summary>
+        /// Server=myphoenixserver.domain.com;User ID=myuser;Password=mypwd;CredentialUri=http://myazurecredurl;Request Timeout=30000" 
+        /// 
+        /// Credentials are only used by the Microsoft.Phoenix.Client in gateway-mode (Azure).
+        /// 
+        /// Request Timeout is in milliseconds.
+        /// 
+        /// 
+        /// </summary>
+        /// <seealso cref="https://github.com/Azure/hdinsight-phoenix-sharp/blob/master/PhoenixSharp/PhoenixClient.cs"/>
         public string ConnectionString
         {
             get
@@ -189,16 +200,101 @@ namespace Garuda.Data
             return response;
         }
 
+        internal GarudaExecuteResponse ExecuteRequest(string sql)
+        {
+            Task<CreateStatementResponse> tStmt = null;
+            Task<ExecuteResponse> tResp = null;
+            GarudaExecuteResponse ourResp = new GarudaExecuteResponse();
+
+            try
+            {
+                tStmt = _client.CreateStatementRequestAsync(this.ConnectionId, this.Options);
+                tStmt.Wait();
+                ourResp.StatementId = tStmt.Result.StatementId;
+
+                tResp = _client.PrepareAndExecuteRequestAsync(this.ConnectionId,
+                    sql,
+                    ulong.MaxValue,
+                    ourResp.StatementId,
+                    this.Options);
+                tResp.Wait();
+                ourResp.Response = tResp.Result;
+            }
+            catch(Exception ex)
+            {
+                if(tStmt.IsCompleted)
+                {
+                    CloseStatement(tStmt.Result.StatementId);
+                }
+                
+                throw;
+            }
+
+            return ourResp;
+        }
+
+        internal void CloseStatement(uint statementId)
+        {
+            _client.CloseStatementRequestAsync(this.ConnectionId, statementId, this.Options).Wait();
+        }
+
+        internal async Task<FetchResponse> FetchAsync(uint statementId, ulong offset, int max)
+        {
+            FetchResponse resp = await _client.FetchRequestAsync(this.ConnectionId, statementId, offset, (uint)max, this.Options);
+
+            return resp;
+        }
+
         private void ParseConnectionString(string value)
         {
             string[] parts = value.Split(';');
+            string credsUser = null;
+            string credsPasswd = null;
+            string credsUri = null;
 
             foreach (string part in parts)
             {
-                string[] tuple = part.Split('=');
-                if (tuple[0].Equals("Server", StringComparison.InvariantCultureIgnoreCase))
+                string[] tuple = part.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                if(tuple.Length == 2)
                 {
-                    this.Options.AlternativeHost = tuple[1];
+                    switch (tuple[0].ToLower())
+                    {
+                        case ("data source"):
+                        case ("server"):
+                            string[] serverAndPort = tuple[1].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            this.Options.AlternativeHost = serverAndPort[0];
+                            if(serverAndPort.Length > 1)
+                            {
+                                this.Options.Port = Convert.ToInt32(serverAndPort[1]);
+                            }
+                            break;
+
+                        case ("uid"):
+                        case ("userid"):
+                        case ("username"):
+                        case ("user id"):
+                            credsUser = tuple[1];
+                            break;
+
+                        case ("password"):
+                            credsPasswd = tuple[1];
+                            break;
+
+                        case ("credentialuri"):
+                            credsUri = tuple[1];
+                            break;
+
+                        case ("requesttimeout"):
+                        case ("request timeout"):
+                            this.Options.TimeoutMillis = Convert.ToInt32(tuple[1]);
+                            break;
+                    }
+                }
+
+                // Credentials
+                if(null != credsUser && null != credsPasswd && null != credsUri)
+                {
+                    this.Credentials = new ClusterCredentials(new Uri(credsUri), credsUser, credsPasswd);
                 }
             }
         }

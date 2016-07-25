@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GarudaExecuteResponse.cs" />
     <Compile Include="PhoenixCommand.cs" />
     <Compile Include="PhoenixConnection.cs" />
     <Compile Include="PhoenixDataReader.cs" />
