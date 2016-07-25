@@ -60,7 +60,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GarudaExecuteResponse.cs" />
+    <Compile Include="Internal\GarudaExecuteResponse.cs" />
+    <Compile Include="Internal\GarudaResultSet.cs" />
     <Compile Include="PhoenixCommand.cs" />
     <Compile Include="PhoenixConnection.cs" />
     <Compile Include="PhoenixDataReader.cs" />
@@ -76,7 +77,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>"nuget.exe" pack ..\..\Garuda.Data.csproj</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

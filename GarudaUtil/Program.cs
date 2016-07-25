@@ -65,9 +65,12 @@ namespace GarudaUtil
                                 cmd.ExecuteNonQuery();
                             }
                             
-
-                            cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber) VALUES (NEXT VALUE FOR garuda.testsequence, 'N{0}')", DateTime.Now.ToString("hmmss"));
-                            cmd.ExecuteNonQuery();
+                            // Insert a bunch of data...
+                            for(int i = 0; i < 10000; i++)
+                            {
+                                cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber) VALUES (NEXT VALUE FOR garuda.testsequence, 'N{0}')", DateTime.Now.ToString("hmmss"));
+                                cmd.ExecuteNonQuery();
+                            }
 
                             cmd.CommandText = "SELECT * FROM GARUDATEST";
                             using (IDataReader reader = cmd.ExecuteReader())

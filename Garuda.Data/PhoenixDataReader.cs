@@ -1,4 +1,5 @@
 ﻿using Apache.Phoenix;
+using Garuda.Data.Internal;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,11 +15,18 @@ namespace Garuda.Data
 
         private uint _statementId = uint.MaxValue;
 
-        private List<ResultSetResponse> _response = null;
+        //private List<ResultSetResponse> _response = null;
+        private List<GarudaResultSet> _resultSets = null;
 
-        private int _currentRowNdx = -1;
+        private int _currentFrameRowNdx = -1;
+
+        private ulong _currentRowCount = 0;
+
+        private int _currentFrame = 0;
 
         private int _currentResultSet = 0;
+
+        private PhoenixConnection PhoenixConnection {  get { return (PhoenixConnection)_command.Connection; } }
 
         internal PhoenixDataReader(PhoenixCommand cmd, GarudaExecuteResponse response)
         {
@@ -32,8 +40,15 @@ namespace Garuda.Data
             }
 
             _command = cmd;
-            _response = response.Response.Results.ToList();
             _statementId = response.StatementId;
+
+            //_response = response.Response.Results.ToList();
+            _resultSets = new List<GarudaResultSet>();
+            foreach(var res in response.Response.Results)
+            {
+                GarudaResultSet grs = new GarudaResultSet(res.Signature, res.FirstFrame);
+                _resultSets.Add(grs);
+            }
         }
 
         #region DbDataReader Class
@@ -50,7 +65,7 @@ namespace Garuda.Data
         {
             get
             {
-                return _response[_currentResultSet].FirstFrame.Rows[_currentRowNdx].Value[ordinal];
+                return CurrentRowValue(ordinal);
             }
         }
 
@@ -66,7 +81,7 @@ namespace Garuda.Data
         {
             get
             {
-                return _response[_currentResultSet].Signature.Columns.Count;
+                return _resultSets[_currentResultSet].Signature.Columns.Count;
             }
         }
 
@@ -176,7 +191,7 @@ namespace Garuda.Data
 
         public override string GetName(int ordinal)
         {
-            return _response[_currentResultSet].Signature.Columns[ordinal].ColumnName;
+            return _resultSets[_currentResultSet].Signature.Columns[ordinal].ColumnName;
         }
 
         public override int GetOrdinal(string name)
@@ -230,7 +245,7 @@ namespace Garuda.Data
 
         public override bool NextResult()
         {
-            bool ok = this._response.Count > _currentResultSet;
+            bool ok = this._resultSets.Count > _currentResultSet + 1;
             if (ok)
             {
                 _currentResultSet++;
@@ -242,9 +257,23 @@ namespace Garuda.Data
         public override bool Read()
         {
             // Crude, but will do for now...
-            _currentRowNdx++;
+            _currentRowCount++;
+            _currentFrameRowNdx++;
 
-            return _response[_currentResultSet].FirstFrame.Rows.Count > _currentRowNdx;
+            // Load more data?
+            bool bInCurrentFrame = CurrentFrame().Rows.Count > _currentFrameRowNdx;
+            if (!bInCurrentFrame && !CurrentFrame().Done)
+            {
+                Task<FetchResponse> tResp = this.PhoenixConnection.FetchAsync(this._statementId, _currentRowCount, 1000);
+                tResp.Wait();
+
+                _resultSets[_currentResultSet].Frames.Add(tResp.Result.Frame);
+                _currentFrame++;
+                _currentFrameRowNdx = 0;
+            }
+            
+
+            return CurrentFrame().Rows.Count > _currentFrameRowNdx;
         }
 
         public override void Close()
@@ -256,9 +285,14 @@ namespace Garuda.Data
 
         #endregion
 
+        private Frame CurrentFrame()
+        {
+            return _resultSets[_currentResultSet].Frames[_currentFrame];
+        }
+
         private Row CurrentRow()
         {
-            return _response[_currentResultSet].FirstFrame.Rows[_currentRowNdx];
+            return CurrentFrame().Rows[_currentFrameRowNdx];
         }
 
         private TypedValue CurrentRowValue(int ordinal)

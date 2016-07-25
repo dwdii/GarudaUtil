@@ -290,12 +290,12 @@ namespace Garuda.Data
                             break;
                     }
                 }
+            }
 
-                // Credentials
-                if(null != credsUser && null != credsPasswd && null != credsUri)
-                {
-                    this.Credentials = new ClusterCredentials(new Uri(credsUri), credsUser, credsPasswd);
-                }
+            // Credentials
+            if (null != credsUser && null != credsPasswd && null != credsUri)
+            {
+                this.Credentials = new ClusterCredentials(new Uri(credsUri), credsUser, credsPasswd);
             }
         }
 
