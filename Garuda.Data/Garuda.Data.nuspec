@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$-alpha</version>
+    <title>$title$</title>
+    <authors>Daniel Dittenhafer</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://raw.githubusercontent.com/dwdii/GarudaUtil/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/dwdii/GarudaUtil</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>System.Data implementation for Apache Phoenix including IDbConnection, IDbCommand and IDbDataReader.</description>
+    <releaseNotes>Ultra Alpha</releaseNotes>
+    <copyright>Copyright 2016 Daniel Ditenhafer</copyright>
+    <tags>Apache Phoenix HBase</tags>
+    <dependencies>
+      <dependency id="Google.ProtoBuf" version="3.0.0-alpha4" />
+      <dependency id="Microsoft.Phoenix.Client" version="1.0.0-preview" />
+      <dependency id="EnterpriseLibrary.TransientFaultHandling" version="6.0.1304" />
+    </dependencies>
+  </metadata>
+</package>
