@@ -1,1 +1,1 @@
-"nuget.exe" pack Garuda.Data.csproj
+"nuget.exe" pack Garuda.Data.csproj -Prop Configuration=Release

@@ -15,7 +15,6 @@ namespace Garuda.Data
 
         private uint _statementId = uint.MaxValue;
 
-        //private List<ResultSetResponse> _response = null;
         private List<GarudaResultSet> _resultSets = null;
 
         private int _currentFrameRowNdx = -1;
@@ -26,7 +25,10 @@ namespace Garuda.Data
 
         private int _currentResultSet = 0;
 
-        private PhoenixConnection PhoenixConnection {  get { return (PhoenixConnection)_command.Connection; } }
+        /// <summary>
+        /// Gets the PhoenixConnection associated with the SqlDataReader.
+        /// </summary>
+        public PhoenixConnection Connection {  get { return (PhoenixConnection)_command.Connection; } }
 
         internal PhoenixDataReader(PhoenixCommand cmd, GarudaExecuteResponse response)
         {
@@ -53,14 +55,24 @@ namespace Garuda.Data
 
         #region DbDataReader Class
 
+        /// <summary>
+        /// Gets the value of the specified column in its native format given the column name.(Overrides DbDataReader.Item[String].)
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public override object this[string name]
         {
             get
             {
-                throw new NotImplementedException();
+                return this[GetOrdinal(name)];
             }
         }
 
+        /// <summary>
+        /// Gets the value of the specified column in its native format given the column ordinal.(Overrides DbDataReader.Item[Int32].)
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override object this[int ordinal]
         {
             get
@@ -77,19 +89,25 @@ namespace Garuda.Data
             }
         }
 
+        /// <summary>
+        /// Gets the number of columns in the current row.(Overrides DbDataReader.FieldCount.)
+        /// </summary>
         public override int FieldCount
         {
             get
             {
-                return _resultSets[_currentResultSet].Signature.Columns.Count;
+                return CurrentResultSet().Signature.Columns.Count;
             }
         }
 
+        /// <summary>
+        /// Gets a value that indicates whether the SqlDataReader contains one or more rows.(Overrides DbDataReader.HasRows.)
+        /// </summary>
         public override bool HasRows
         {
             get
             {
-                throw new NotImplementedException();
+                return CurrentFrame().Rows.Count > 0;
             }
         }
 
@@ -136,12 +154,12 @@ namespace Garuda.Data
 
         public override string GetDataTypeName(int ordinal)
         {
-            throw new NotImplementedException();
+            return CurrentResultSet().Signature.Columns[ordinal].Type.Name;
         }
 
         public override DateTime GetDateTime(int ordinal)
         {
-            throw new NotImplementedException();
+            return (DateTime)GetValue(ordinal);
         }
 
         public override decimal GetDecimal(int ordinal)
@@ -191,12 +209,24 @@ namespace Garuda.Data
 
         public override string GetName(int ordinal)
         {
-            return _resultSets[_currentResultSet].Signature.Columns[ordinal].ColumnName;
+            return CurrentResultSet().Signature.Columns[ordinal].ColumnName;
         }
 
         public override int GetOrdinal(string name)
         {
-            throw new NotImplementedException();
+            int ordinal = -1;
+
+            for(int i = 0; i < this.FieldCount; i++)
+            {
+                var c = CurrentResultSet().Signature.Columns[i];
+                if (c.ColumnName.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ordinal = i;
+                    break;
+                }
+            }
+
+            return ordinal;
         }
 
         public override string GetString(int ordinal)
@@ -223,10 +253,31 @@ namespace Garuda.Data
                     o = val.BoolValue;
                     break;
 
+                case Rep.BYTE:
+                case Rep.SHORT:
                 case Rep.INTEGER:
                 case Rep.LONG:
                 case Rep.NUMBER:
                     o = val.NumberValue;
+                    break;
+
+                case Rep.NULL:
+                    o = DBNull.Value;
+                    break;
+
+                default:
+                    o = val.NumberValue;
+                    break;
+            }
+
+            switch(GetDataTypeName(ordinal))
+            {
+                case "DATE":
+                    o = FromPhoenixDate(val.NumberValue);
+                    break;
+
+                case "TIME":
+                    o = FromPhoenixTime(val.NumberValue);
                     break;
             }
 
@@ -264,30 +315,34 @@ namespace Garuda.Data
             bool bInCurrentFrame = CurrentFrame().Rows.Count > _currentFrameRowNdx;
             if (!bInCurrentFrame && !CurrentFrame().Done)
             {
-                Task<FetchResponse> tResp = this.PhoenixConnection.FetchAsync(this._statementId, _currentRowCount, 1000);
+                Task<FetchResponse> tResp = this.Connection.FetchAsync(this._statementId, _currentRowCount - 1, 1000);
                 tResp.Wait();
 
-                _resultSets[_currentResultSet].Frames.Add(tResp.Result.Frame);
+                CurrentResultSet().Frames.Add(tResp.Result.Frame);
                 _currentFrame++;
                 _currentFrameRowNdx = 0;
             }
-            
 
             return CurrentFrame().Rows.Count > _currentFrameRowNdx;
         }
 
         public override void Close()
         {
-            (_command.Connection as PhoenixConnection).CloseStatement(_statementId);
+            this.Connection.CloseStatement(_statementId);
 
             base.Close();
         }
 
         #endregion
 
+        private GarudaResultSet CurrentResultSet()
+        {
+            return _resultSets[_currentResultSet];
+        }
+
         private Frame CurrentFrame()
         {
-            return _resultSets[_currentResultSet].Frames[_currentFrame];
+            return CurrentResultSet().Frames[_currentFrame];
         }
 
         private Row CurrentRow()
@@ -298,6 +353,19 @@ namespace Garuda.Data
         private TypedValue CurrentRowValue(int ordinal)
         {
             return CurrentRow().Value[ordinal].Value[0];
+        }
+
+        private TimeSpan FromPhoenixTime(long time)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var dtTime = epoch.AddMilliseconds(time);
+            return dtTime.Subtract(epoch);
+        }
+
+        private DateTime FromPhoenixDate(long date)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return epoch.AddDays(date);
         }
     }
 }

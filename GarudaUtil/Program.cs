@@ -41,7 +41,10 @@ namespace GarudaUtil
 
                         using (IDbCommand cmd = phConn.CreateCommand())
                         {
-                            cmd.CommandText = "CREATE TABLE IF NOT EXISTS GARUDATEST (ID BIGINT PRIMARY KEY, AircraftIcaoNumber varchar(16))";
+                            cmd.CommandText = "DROP TABLE IF EXISTS GARUDATEST";
+                            cmd.ExecuteNonQuery();
+
+                            cmd.CommandText = "CREATE TABLE IF NOT EXISTS GARUDATEST (ID BIGINT PRIMARY KEY, AircraftIcaoNumber varchar(16), MyInt INTEGER, MyUint UNSIGNED_INT, MyUlong UNSIGNED_LONG, MyTingInt TINYINT, MyTime TIME, MyDate DATE, MyTimestamp TIMESTAMP, MyUnsignedTime UNSIGNED_TIME, MyFloat FLOAT, MyBinary BINARY(16), MyArray INTEGER[2] )";
                             cmd.ExecuteNonQuery();
 
                             bool bCreateSequence = true;
@@ -66,9 +69,9 @@ namespace GarudaUtil
                             }
                             
                             // Insert a bunch of data...
-                            for(int i = 0; i < 10000; i++)
+                            for(int i = 0; i < 10; i++)
                             {
-                                cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber) VALUES (NEXT VALUE FOR garuda.testsequence, 'N{0}')", DateTime.Now.ToString("hmmss"));
+                                cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, 'N{0}', 5, 4, 3, 2, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), 1.2 / .4)", DateTime.Now.ToString("hmmss"));
                                 cmd.ExecuteNonQuery();
                             }
 
@@ -79,7 +82,7 @@ namespace GarudaUtil
                                 {
                                     for(int i = 0; i < reader.FieldCount; i++)
                                     {
-                                        Console.WriteLine(string.Format("{0}: {1}", reader.GetName(i), reader.GetValue(i)));
+                                        Console.WriteLine(string.Format("{0}: {1} ({2})", reader.GetName(i), reader.GetValue(i), reader.GetDataTypeName(i)));
                                     }
                                 }
                             }

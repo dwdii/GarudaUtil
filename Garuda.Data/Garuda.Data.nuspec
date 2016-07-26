@@ -9,7 +9,7 @@
     <licenseUrl>https://raw.githubusercontent.com/dwdii/GarudaUtil/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/dwdii/GarudaUtil</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>System.Data implementation for Apache Phoenix including IDbConnection, IDbCommand and IDbDataReader.</description>
+    <description>.NET System.Data implementation for Apache Phoenix including IDbConnection, IDbCommand and IDbDataReader.</description>
     <releaseNotes>Ultra Alpha</releaseNotes>
     <copyright>Copyright 2016 Daniel Ditenhafer</copyright>
     <tags>Apache Phoenix HBase</tags>
