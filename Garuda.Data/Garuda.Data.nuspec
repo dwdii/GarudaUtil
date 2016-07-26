@@ -10,7 +10,11 @@
     <projectUrl>https://github.com/dwdii/GarudaUtil</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>.NET System.Data implementation for Apache Phoenix including IDbConnection, IDbCommand and IDbDataReader.</description>
-    <releaseNotes>Ultra Alpha</releaseNotes>
+    <releaseNotes>
+      Ultra Alpha
+      * Improved data type handling in PhoenixDataReader
+      * PhoenixDataReader now fetching next row set automatically once initial row set has been read.
+    </releaseNotes>
     <copyright>Copyright 2016 Daniel Ditenhafer</copyright>
     <tags>Apache Phoenix HBase</tags>
     <dependencies>

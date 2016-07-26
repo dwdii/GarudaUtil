@@ -1,1 +1,1 @@
-"nuget.exe" pack Garuda.Data.csproj -Prop Configuration=Release
+nuget.exe pack Garuda.Data.csproj -Prop Configuration=Release -Prop Platform=AnyCPU
