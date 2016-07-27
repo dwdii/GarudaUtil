@@ -17,6 +17,7 @@ namespace Garuda.Data
         private PhoenixClient _client = null;
 
         private OpenConnectionResponse _openConnection = null;
+
         #endregion
 
         public ClusterCredentials Credentials { get; set; }
@@ -25,17 +26,20 @@ namespace Garuda.Data
 
         public RequestOptions Options { get; set; }
 
+        internal ConnectionProperties ConnectionProperties { get; private set; }
+
         #region IDbConnection Interface
 
         /// <summary>
+        /// Gets or sets the string used to open a database.
+        /// 
         /// Server=myphoenixserver.domain.com;User ID=myuser;Password=mypwd;CredentialUri=http://myazurecredurl;Request Timeout=30000" 
         /// 
         /// Credentials are only used by the Microsoft.Phoenix.Client in gateway-mode (Azure).
         /// 
         /// Request Timeout is in milliseconds.
-        /// 
-        /// 
         /// </summary>
+        /// <remarks>The ConnectionString property can be set only while the connection is closed.</remarks>
         /// <seealso cref="https://github.com/Azure/hdinsight-phoenix-sharp/blob/master/PhoenixSharp/PhoenixClient.cs"/>
         public string ConnectionString
         {
@@ -46,9 +50,11 @@ namespace Garuda.Data
 
             set
             {
-                ParseConnectionString(value);
-                _connectionString = value;
-
+                if(this.State == ConnectionState.Closed)
+                {
+                    ParseConnectionString(value);
+                    _connectionString = value;
+                }
             }
         }
         private string _connectionString = null;
@@ -68,14 +74,25 @@ namespace Garuda.Data
 
         public ConnectionState State { get; private set; }
 
+        /// <summary>
+        /// Begins a database transaction.
+        /// </summary>
+        /// <remarks>Once the transaction has completed, you must explicitly commit or roll back the transaction by using the Commit or Rollback methods.</remarks>
+        /// <returns>An object representing the new transaction.</returns>
         public IDbTransaction BeginTransaction()
         {
-            throw new NotImplementedException();
+            // Update the transaction isolation for this connection, then return a transaction reference.
+            SyncConnectionProperties(false, PhoenixIsolationLevelMap.GetPhoenixLevel(IsolationLevel.ReadCommitted));
+
+            return new PhoenixTransaction(this);
         }
 
         public IDbTransaction BeginTransaction(IsolationLevel il)
         {
-            throw new NotImplementedException();
+            // Update the transaction isolation for this connection, then return a transaction reference.
+            SyncConnectionProperties(false, PhoenixIsolationLevelMap.GetPhoenixLevel(il));
+
+            return new PhoenixTransaction(this);
         }
 
         public void Open()
@@ -138,6 +155,10 @@ namespace Garuda.Data
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Creates and returns a Command object associated with the connection.
+        /// </summary>
+        /// <returns></returns>
         public IDbCommand CreateCommand()
         {
             return new PhoenixCommand(this); 
@@ -155,9 +176,9 @@ namespace Garuda.Data
             this.Credentials = null;
 
             this.State = ConnectionState.Closed;
-        }
 
-        
+            this.ConnectionProperties = DefaultConnectionProps();
+        }
 
         public void SystemTables()
         {
@@ -187,6 +208,7 @@ namespace Garuda.Data
             //Assert.AreEqual(6, tableTypeResponse.FirstFrame.Rows.Count);
         }
 
+        #region Internal Methods
         internal ResultSetResponse Request(pbc.RepeatedField<string> list)
         {
             ResultSetResponse response = null;
@@ -245,6 +267,45 @@ namespace Garuda.Data
             return resp;
         }
 
+        internal void SyncConnectionProperties(bool autoCommit, uint isolationLevel)
+        {
+            this.ConnectionProperties.AutoCommit = autoCommit;
+            this.ConnectionProperties.TransactionIsolation = isolationLevel;
+            this.ConnectionProperties.IsDirty = true;
+            Task<ConnectionSyncResponse> tResp = _client.ConnectionSyncRequestAsync(this.ConnectionId, 
+                this.ConnectionProperties, 
+                this.Options);
+            tResp.Wait();
+        }
+
+        internal void CommitTransaction()
+        {
+            Task<CommitResponse> tResp = this._client.CommitRequestAsync(this.ConnectionId, this.Options);
+            tResp.Wait();
+        }
+
+        internal void RollbackTransction()
+        {
+            Task<RollbackResponse> tResp = this._client.RollbackRequestAsync(this.ConnectionId, this.Options);
+            tResp.Wait();
+        }
+        #endregion
+
+        #region Private Methods
+        private ConnectionProperties DefaultConnectionProps()
+        {
+            return new ConnectionProperties()
+            {
+                HasAutoCommit = true,
+                AutoCommit = true,
+                HasReadOnly = true,
+                ReadOnly = false,
+                TransactionIsolation = 0,
+                Catalog = "",
+                Schema = "",
+                IsDirty = true
+            };
+        }
         private void ParseConnectionString(string value)
         {
             string[] parts = value.Split(';');
@@ -298,6 +359,7 @@ namespace Garuda.Data
                 this.Credentials = new ClusterCredentials(new Uri(credsUri), credsUser, credsPasswd);
             }
         }
+        #endregion
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls

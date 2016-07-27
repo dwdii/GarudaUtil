@@ -67,9 +67,20 @@ namespace GarudaUtil
                                 cmd.CommandText = "CREATE SEQUENCE garuda.testsequence";
                                 cmd.ExecuteNonQuery();
                             }
-                            
+
                             // Insert a bunch of data...
-                            for(int i = 0; i < 10; i++)
+                            using (IDbTransaction tx = phConn.BeginTransaction())
+                            {
+                                cmd.Transaction = tx;
+                                cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, 'NINTX1', 5, 4, 3, 2, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), 1.2 / .4)");
+                                cmd.ExecuteNonQuery();
+                                tx.Rollback();
+                            }
+
+
+                            // Insert a bunch of data...
+                            int recordsToInsert = 10;
+                            for (int i = 0; i < recordsToInsert; i++)
                             {
                                 cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, 'N{0}', 5, 4, 3, 2, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), 1.2 / .4)", DateTime.Now.ToString("hmmss"));
                                 cmd.ExecuteNonQuery();
@@ -78,12 +89,19 @@ namespace GarudaUtil
                             cmd.CommandText = "SELECT * FROM GARUDATEST";
                             using (IDataReader reader = cmd.ExecuteReader())
                             {
+                                int iRecords = 0;
                                 while(reader.Read())
                                 {
-                                    for(int i = 0; i < reader.FieldCount; i++)
+                                    iRecords++;
+                                    for (int i = 0; i < reader.FieldCount; i++)
                                     {
                                         Console.WriteLine(string.Format("{0}: {1} ({2})", reader.GetName(i), reader.GetValue(i), reader.GetDataTypeName(i)));
                                     }
+                                }
+
+                                if(iRecords != recordsToInsert)
+                                {
+                                    MessageBox.Show(string.Format("Expected {0}, got {1} records.", recordsToInsert, iRecords), "Warning");
                                 }
                             }
                         }

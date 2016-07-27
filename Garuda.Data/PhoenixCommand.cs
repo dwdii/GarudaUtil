@@ -40,16 +40,20 @@ namespace Garuda.Data
 
         public IDbTransaction Transaction
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get { return _transaction; }
 
             set
             {
-                throw new NotImplementedException();
+                _transaction = (PhoenixTransaction)value;
+
+                // Update connection isolation level.
+                bool autoCommit = _transaction == null;
+                uint isoLevel = autoCommit ? 0 : PhoenixIsolationLevelMap.GetPhoenixLevel(_transaction.IsolationLevel);
+                this._connection.SyncConnectionProperties(autoCommit, isoLevel);
             }
         }
+
+        private PhoenixTransaction _transaction = null;
 
         public UpdateRowSource UpdatedRowSource
         {
