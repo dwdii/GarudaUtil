@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-APACHE-red.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
-[![NuGet Pre Release](https://img.shields.io/nuget/vpre/Garuda.Data.svg?maxAge=2592000)]()
+[![NuGet Pre Release](https://img.shields.io/nuget/vpre/Garuda.Data.svg?maxAge=2592000)](https://www.nuget.org/packages/Garuda.Data/)
 
 ## Garuda.Data
 
