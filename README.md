@@ -14,6 +14,7 @@ A .NET assembly which provides System.Data interface implementations for [Apache
  * PhoenixConnection implementing IDbConnection
  * PhoenixCommand implementing IDbCommand
  * PhoenixDataReader implementing IDbDataReader
+ * PhoenixTransaction implementing IDbTransaction
 
 ### Connection string
 

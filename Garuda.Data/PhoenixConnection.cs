@@ -81,18 +81,12 @@ namespace Garuda.Data
         /// <returns>An object representing the new transaction.</returns>
         public IDbTransaction BeginTransaction()
         {
-            // Update the transaction isolation for this connection, then return a transaction reference.
-            SyncConnectionProperties(false, PhoenixIsolationLevelMap.GetPhoenixLevel(IsolationLevel.ReadCommitted));
-
-            return new PhoenixTransaction(this);
+            return new PhoenixTransaction(this, IsolationLevel.ReadCommitted);
         }
 
         public IDbTransaction BeginTransaction(IsolationLevel il)
         {
-            // Update the transaction isolation for this connection, then return a transaction reference.
-            SyncConnectionProperties(false, PhoenixIsolationLevelMap.GetPhoenixLevel(il));
-
-            return new PhoenixTransaction(this);
+            return new PhoenixTransaction(this, il);
         }
 
         public void Open()

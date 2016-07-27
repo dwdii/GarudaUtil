@@ -11,7 +11,7 @@ namespace Garuda.Data
     {
         private bool _hasCommitted = false;
 
-        internal PhoenixTransaction(PhoenixConnection connection)
+        internal PhoenixTransaction(PhoenixConnection connection, IsolationLevel il)
         {
             if (null == connection)
             {
@@ -19,6 +19,7 @@ namespace Garuda.Data
             }
 
             this._connection = connection;
+            this._phoneixTxIsoLevel = PhoenixIsolationLevelMap.GetPhoenixLevel(il);
         }
 
         #region IDbTransction Interface
@@ -31,8 +32,10 @@ namespace Garuda.Data
 
         public IsolationLevel IsolationLevel
         {
-            get { return PhoenixIsolationLevelMap.GetIsolationLevel(this._connection.ConnectionProperties.TransactionIsolation); }
+            get { return PhoenixIsolationLevelMap.GetIsolationLevel(this._phoneixTxIsoLevel); }
         }
+
+        private uint _phoneixTxIsoLevel = 0;
 
         public void Commit()
         {
