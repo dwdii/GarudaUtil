@@ -4,6 +4,7 @@ using PhoenixSharp.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,6 +65,7 @@ namespace Garuda.Data
             get { return this.Options.TimeoutMillis; }
         }
 
+        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string Database
         {
             get
@@ -174,6 +176,11 @@ namespace Garuda.Data
             this.ConnectionProperties = DefaultConnectionProps();
         }
 
+        public PhoenixConnection(string connectionString) : this()
+        {
+            this.ConnectionString = connectionString;
+        }
+
         public void SystemTables()
         {
             // List system tables
@@ -203,7 +210,7 @@ namespace Garuda.Data
         }
 
         #region Internal Methods
-        internal ResultSetResponse Request(pbc.RepeatedField<string> list)
+        internal ResultSetResponse InternalTablesRequest(pbc.RepeatedField<string> list)
         {
             ResultSetResponse response = null;
 
@@ -216,52 +223,74 @@ namespace Garuda.Data
             return response;
         }
 
-        internal GarudaExecuteResponse ExecuteRequest(string sql)
+        internal GarudaExecuteResponse InternalExecuteRequest(PrepareResponse prepared, string sql, 
+            PhoenixParameterCollection parameterValues)
         {
             Task<CreateStatementResponse> tStmt = null;
             Task<ExecuteResponse> tResp = null;
             GarudaExecuteResponse ourResp = new GarudaExecuteResponse();
 
-            try
+            if(null == prepared)
             {
-                tStmt = _client.CreateStatementRequestAsync(this.ConnectionId, this.Options);
-                tStmt.Wait();
-                ourResp.StatementId = tStmt.Result.StatementId;
-
-                tResp = _client.PrepareAndExecuteRequestAsync(this.ConnectionId,
-                    sql,
-                    ulong.MaxValue,
-                    ourResp.StatementId,
-                    this.Options);
-                tResp.Wait();
-                ourResp.Response = tResp.Result;
-            }
-            catch(Exception ex)
-            {
-                if(tStmt.IsCompleted)
+                try
                 {
-                    CloseStatement(tStmt.Result.StatementId);
+                    // Not prepared....
+                    tStmt = _client.CreateStatementRequestAsync(this.ConnectionId, this.Options);
+                    tStmt.Wait();
+                    ourResp.StatementId = tStmt.Result.StatementId;
+
+                    tResp = _client.PrepareAndExecuteRequestAsync(this.ConnectionId,
+                        sql,
+                        ulong.MaxValue,
+                        ourResp.StatementId,
+                        this.Options);
                 }
-                
-                throw;
+                catch (Exception ex)
+                {
+                    if (tStmt.IsCompleted)
+                    {
+                        InternalCloseStatement(tStmt.Result.StatementId);
+                    }
+
+                    throw;
+                }
             }
+            else
+            {
+                // Prepared and possibly with parameters.
+                pbc.RepeatedField<TypedValue> pbParamValues = parameterValues.AsRepeatedFieldTypedValue();
+
+                tResp = _client.ExecuteRequestAsync(prepared.Statement, pbParamValues, 100,
+                    parameterValues.Count > 0, this.Options);
+            }
+
+            tResp.Wait();
+            ourResp.Response = tResp.Result;
 
             return ourResp;
         }
 
-        internal void CloseStatement(uint statementId)
+        internal PrepareResponse InternalPrepareStatement(string sql)
+        {
+            Task<PrepareResponse> tResp = _client.PrepareRequestAsync(this.ConnectionId, sql, ulong.MaxValue, this.Options);
+            tResp.Wait();
+
+            return tResp.Result;
+        }
+
+        internal void InternalCloseStatement(uint statementId)
         {
             _client.CloseStatementRequestAsync(this.ConnectionId, statementId, this.Options).Wait();
         }
 
-        internal async Task<FetchResponse> FetchAsync(uint statementId, ulong offset, int max)
+        internal async Task<FetchResponse> InternalFetchAsync(uint statementId, ulong offset, int max)
         {
             FetchResponse resp = await _client.FetchRequestAsync(this.ConnectionId, statementId, offset, (uint)max, this.Options);
 
             return resp;
         }
 
-        internal void SyncConnectionProperties(bool autoCommit, uint isolationLevel)
+        internal void InternalSyncConnectionProperties(bool autoCommit, uint isolationLevel)
         {
             this.ConnectionProperties.AutoCommit = autoCommit;
             this.ConnectionProperties.TransactionIsolation = isolationLevel;
@@ -302,6 +331,11 @@ namespace Garuda.Data
         }
         private void ParseConnectionString(string value)
         {
+            if(null == value)
+            {
+                throw new ArgumentNullException("ConnectionString");
+            }
+
             string[] parts = value.Split(';');
             string credsUser = null;
             string credsPasswd = null;
@@ -309,7 +343,9 @@ namespace Garuda.Data
 
             foreach (string part in parts)
             {
+                // Split the tuple
                 string[] tuple = part.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                // Protect against missing values.
                 if(tuple.Length == 2)
                 {
                     switch (tuple[0].ToLower())

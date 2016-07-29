@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace Garuda.Data
     public class PhoenixCommand : IDbCommand
     {
         private GarudaExecuteResponse _response = null;
+
+        private PrepareResponse _prepared = null;
 
         public PhoenixCommand(PhoenixConnection connection)
         {
@@ -36,7 +39,9 @@ namespace Garuda.Data
         }
         private PhoenixConnection _connection;
 
-        public IDataParameterCollection Parameters { get; private set; }
+        IDataParameterCollection IDbCommand.Parameters { get { return this.Parameters; } }
+
+        public PhoenixParameterCollection Parameters { get; private set; }
 
         public IDbTransaction Transaction
         {
@@ -49,12 +54,13 @@ namespace Garuda.Data
                 // Update connection isolation level.
                 bool autoCommit = _transaction == null;
                 uint isoLevel = autoCommit ? 0 : PhoenixIsolationLevelMap.GetPhoenixLevel(_transaction.IsolationLevel);
-                this._connection.SyncConnectionProperties(autoCommit, isoLevel);
+                this._connection.InternalSyncConnectionProperties(autoCommit, isoLevel);
             }
         }
 
         private PhoenixTransaction _transaction = null;
 
+        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public UpdateRowSource UpdatedRowSource
         {
             get
@@ -103,7 +109,7 @@ namespace Garuda.Data
 
         public void Prepare()
         {
-            throw new NotImplementedException();
+            _prepared = this._connection.InternalPrepareStatement(this.CommandText);
         }
 
         #endregion
@@ -120,7 +126,7 @@ namespace Garuda.Data
                     // dispose managed state (managed objects).
                     if(null != _response)
                     {
-                        _connection.CloseStatement(_response.StatementId);
+                        _connection.InternalCloseStatement(_response.StatementId);
                         _response = null;
 
                         _connection = null;
@@ -152,7 +158,8 @@ namespace Garuda.Data
 
         private GarudaExecuteResponse Execute()
         {
-            GarudaExecuteResponse response = _connection.ExecuteRequest(this.CommandText);
+            GarudaExecuteResponse response = _connection.InternalExecuteRequest(this._prepared, 
+                this.CommandText, this.Parameters);
 
             return response;
         }

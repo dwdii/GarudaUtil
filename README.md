@@ -53,5 +53,23 @@ using (IDbConnection phConn = new PhoenixConnection())
         }
     }                        
 }
- ```
+```
  
+### Transactions
+
+At any given time, only a single transaction is supported on a given connection.  This appears to be a limitation of 
+the Phoenix client or Phoenix itself (to be determined). Currently PhoenixConnection.BeginTransaction will allow creation
+of > 1 transaction, but which ever is last active wins.
+
+### Parameters
+
+Support for parameters has been added. Refer to the Phoenix documentation for details on usage. Basically,
+the question mark (?) and positional (:1) notations are supported as in the following:
+ 
+```
+UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber) VALUES (NEXT VALUE FOR garuda.testsequence, :1)
+```
+ 
+Initial testing has been successful for string 
+parameters, but integer parameters produce a ProtoBuf error. It is unclear if this is an issue with the underlying 
+ProtoBuf API (the version we are using is an alpha release), a Phoenix Client issue, or a bug in Garuda.Data.

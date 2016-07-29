@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Apache.Phoenix;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using pbc = Google.Protobuf.Collections;
 
 namespace Garuda.Data
 {
@@ -55,16 +57,6 @@ namespace Garuda.Data
             }
         }
 
-        public int Add(object value)
-        {
-            return this.Add(value as PhoenixParameter);
-        }
-        
-        public bool Contains(object value)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool Contains(string parameterName)
         {
             throw new NotImplementedException();
@@ -75,30 +67,25 @@ namespace Garuda.Data
             throw new NotImplementedException();
         }
 
-
-        public int IndexOf(object value)
-        {
-            throw new NotImplementedException();
-        }
-
         public int IndexOf(string parameterName)
         {
             throw new NotImplementedException();
         }
 
-        public void Insert(int index, object value)
-        {
-            this.Insert(index, value as PhoenixParameter);
-        }
-
-        public void Remove(object value)
-        {
-            this.Remove(value as PhoenixParameter);
-        }
-
         public void RemoveAt(string parameterName)
         {
             throw new NotImplementedException();
+        }
+
+        public pbc.RepeatedField<TypedValue> AsRepeatedFieldTypedValue()
+        {
+            pbc.RepeatedField<TypedValue> pbParamValues = new pbc.RepeatedField<TypedValue>();
+            foreach (var p in this)
+            {
+                pbParamValues.Add(p.AsPhoenixTypedValue());
+            }
+
+            return pbParamValues;
         }
     }
 }

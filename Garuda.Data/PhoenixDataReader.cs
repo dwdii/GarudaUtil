@@ -3,6 +3,7 @@ using Garuda.Data.Internal;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -81,6 +82,7 @@ namespace Garuda.Data
             }
         }
 
+        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public override int Depth
         {
             get
@@ -111,6 +113,7 @@ namespace Garuda.Data
             }
         }
 
+        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public override bool IsClosed
         {
             get
@@ -119,6 +122,7 @@ namespace Garuda.Data
             }
         }
 
+        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public override int RecordsAffected
         {
             get
@@ -315,7 +319,7 @@ namespace Garuda.Data
             bool bInCurrentFrame = CurrentFrame().Rows.Count > _currentFrameRowNdx;
             if (!bInCurrentFrame && !CurrentFrame().Done)
             {
-                Task<FetchResponse> tResp = this.Connection.FetchAsync(this._statementId, _currentRowCount - 1, 1000);
+                Task<FetchResponse> tResp = this.Connection.InternalFetchAsync(this._statementId, _currentRowCount - 1, 1000);
                 tResp.Wait();
 
                 CurrentResultSet().Frames.Add(tResp.Result.Frame);
@@ -328,7 +332,7 @@ namespace Garuda.Data
 
         public override void Close()
         {
-            this.Connection.CloseStatement(_statementId);
+            this.Connection.InternalCloseStatement(_statementId);
 
             base.Close();
         }

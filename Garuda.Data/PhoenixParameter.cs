@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Apache.Phoenix;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -28,6 +29,46 @@ namespace Garuda.Data
         public override void ResetDbType()
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Converts this parameter to and returns the Apache Phoenix TypedValue structure.
+        /// </summary>
+        /// <returns></returns>
+        public TypedValue AsPhoenixTypedValue()
+        {
+            var tv = new TypedValue();
+
+            if(this.Value == null)
+            {
+                tv.Null = true;
+            }
+            else
+            {
+                Type pt = this.Value.GetType();
+                if (pt == typeof(int) || pt == typeof(long))
+                {
+                    tv.NumberValue = Convert.ToInt64(this.Value);
+                    tv.Type = Rep.BIG_INTEGER;
+                }
+                else if(pt == typeof(float) || pt == typeof(double))
+                {
+                    tv.DoubleValue = Convert.ToDouble(this.Value);
+                    tv.Type = Rep.DOUBLE;
+                }
+                else if (pt == typeof(string))
+                {
+                    tv.StringValue = Convert.ToString(this.Value);
+                    tv.Type = Rep.STRING;
+                }
+                else if (this.Value == DBNull.Value)
+                {
+                    tv.Null = true;
+                    tv.Type = Rep.NULL;
+                }
+            }
+
+            return tv;
         }
     }
 }
