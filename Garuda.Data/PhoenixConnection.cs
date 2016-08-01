@@ -41,7 +41,7 @@ namespace Garuda.Data
         /// Request Timeout is in milliseconds.
         /// </summary>
         /// <remarks>The ConnectionString property can be set only while the connection is closed.</remarks>
-        /// <seealso cref="https://github.com/Azure/hdinsight-phoenix-sharp/blob/master/PhoenixSharp/PhoenixClient.cs"/>
+        /// <see cref="https://github.com/Azure/hdinsight-phoenix-sharp/blob/master/PhoenixSharp/PhoenixClient.cs"/>
         public string ConnectionString
         {
             get

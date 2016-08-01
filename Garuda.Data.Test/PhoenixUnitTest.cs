@@ -94,7 +94,7 @@ namespace Garuda.Data.Test
                 c.ConnectionString = this.ConnectionString();
                 c.Open();
 
-                CreateTestTableIfNotExists(c);
+                ReCreateTestTableIfNotExists(c);
 
                 using (IDbCommand cmd = c.CreateCommand())
                 using (IDbTransaction tx = c.BeginTransaction())
@@ -119,7 +119,7 @@ namespace Garuda.Data.Test
                 c.ConnectionString = this.ConnectionString();
                 c.Open();
 
-                CreateTestTableIfNotExists(c);
+                ReCreateTestTableIfNotExists(c);
 
                 using (IDbCommand cmd = c.CreateCommand())
                 using (IDbTransaction tx = c.BeginTransaction())
@@ -144,7 +144,7 @@ namespace Garuda.Data.Test
                 c.ConnectionString = this.ConnectionString();
                 c.Open();
 
-                CreateTestTableIfNotExists(c);
+                ReCreateTestTableIfNotExists(c);
 
                 using (IDbTransaction tx = c.BeginTransaction())
                 {
@@ -175,7 +175,7 @@ namespace Garuda.Data.Test
                 c.ConnectionString = this.ConnectionString();
                 c.Open();
 
-                CreateTestTableIfNotExists(c);
+                ReCreateTestTableIfNotExists(c);
 
                 using (IDbTransaction tx = c.BeginTransaction())
                 {
@@ -187,6 +187,7 @@ namespace Garuda.Data.Test
 
                         for (int i = 0; i < toInsert; i++)
                         {
+                            // Create a parameter used in the query
                             var p1 = cmd.CreateParameter();
                             p1.Value = string.Format("N{0}", DateTime.Now.ToString("hmmss"));
                             cmd.Parameters.Add(p1);
@@ -194,6 +195,92 @@ namespace Garuda.Data.Test
                             //var p2 = cmd.CreateParameter();
                             //p2.Value = DateTime.Now.Second.ToString();
                             //cmd.Parameters.Add(p2);
+
+                            cmd.ExecuteNonQuery();
+                            cmd.Parameters.Clear();
+                        }
+                    }
+
+                    tx.Commit();
+                }
+
+                Assert.AreEqual(toInsert, QueryAllRows(c));
+            }
+        }
+
+        [TestMethod]
+        public void CommandPrepareWith2StringParamsTest()
+        {
+            int toInsert = 10;
+
+            using (IDbConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                ReCreateTestTableIfNotExists(c);
+
+                using (IDbTransaction tx = c.BeginTransaction())
+                {
+                    using (IDbCommand cmd = c.CreateCommand())
+                    {
+                        cmd.Transaction = tx;
+                        cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 12, 14, 87, 45, CURRENT_TIME(), CURRENT_DATE(), :2,  CURRENT_TIME(), 1.2 / .4)");
+                        cmd.Prepare();
+
+                        for (int i = 0; i < toInsert; i++)
+                        {
+                            // Create a parameter used in the query
+                            var p1 = cmd.CreateParameter();
+                            p1.Value = string.Format("N{0}", DateTime.Now.ToString("hmmss"));
+                            cmd.Parameters.Add(p1);
+
+                            var p2 = cmd.CreateParameter();
+                            p2.Value = "2016-07-25 22:28:00"; // DateTime.Now.Second.ToString();
+                            cmd.Parameters.Add(p2);
+
+                            cmd.ExecuteNonQuery();
+                            cmd.Parameters.Clear();
+                        }
+                    }
+
+                    tx.Commit();
+                }
+
+                Assert.AreEqual(toInsert, QueryAllRows(c));
+            }
+        }
+
+        [TestMethod]
+        public void CommandPrepareWith1String1IntParamsTest()
+        {
+            int toInsert = 10;
+
+            using (IDbConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                ReCreateTestTableIfNotExists(c);
+
+                using (IDbTransaction tx = c.BeginTransaction())
+                {
+                    using (IDbCommand cmd = c.CreateCommand())
+                    {
+                        cmd.Transaction = tx;
+                        cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 12, 14, 87, :2, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), 1.2 / .4)");
+                        cmd.Prepare();
+
+                        for (int i = 0; i < toInsert; i++)
+                        {
+                            // Create a parameter used in the query
+                            var p1 = cmd.CreateParameter();
+                            p1.Value = string.Format("N{0}", DateTime.Now.ToString("hmmss"));
+                            cmd.Parameters.Add(p1);
+
+                            var p2 = cmd.CreateParameter();
+                            p2.Value = DateTime.Now.Millisecond;
+                            cmd.Parameters.Add(p2);
 
                             cmd.ExecuteNonQuery();
                             cmd.Parameters.Clear();
@@ -227,7 +314,7 @@ namespace Garuda.Data.Test
             return recCount;
         }
 
-        private static void CreateTestTableIfNotExists(IDbConnection phConn)
+        private static void ReCreateTestTableIfNotExists(IDbConnection phConn)
         {
             using (IDbCommand cmd = phConn.CreateCommand())
             {

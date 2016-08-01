@@ -77,12 +77,16 @@ namespace Garuda.Data
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Creates and returns a ProtoBuf representation of this collection.
+        /// </summary>
+        /// <returns></returns>
         public pbc.RepeatedField<TypedValue> AsRepeatedFieldTypedValue()
         {
             pbc.RepeatedField<TypedValue> pbParamValues = new pbc.RepeatedField<TypedValue>();
-            foreach (var p in this)
+            for(int i = 0; i < this.Count; i++)
             {
-                pbParamValues.Add(p.AsPhoenixTypedValue());
+                pbParamValues.Add(this[i].AsPhoenixTypedValue());
             }
 
             return pbParamValues;
