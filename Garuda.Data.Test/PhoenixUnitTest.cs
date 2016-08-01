@@ -7,6 +7,8 @@ namespace Garuda.Data.Test
     [TestClass]
     public class PhoenixUnitTest
     {
+        public TestContext TestContext { get; set; }
+
         /// <summary>
         /// Tests the construction of PhoenixConnection as well
         /// as setting of the connection string property and 
@@ -381,7 +383,7 @@ namespace Garuda.Data.Test
             }
         }
 
-        private static long QueryAllRows(IDbConnection c)
+        private long QueryAllRows(IDbConnection c)
         {
             long recCount = 0;
             object oVal = null;
@@ -399,7 +401,7 @@ namespace Garuda.Data.Test
                         for(int i = 0; i < reader.FieldCount; i++)
                         {
                             oVal = reader.GetValue(i);
-                            System.Diagnostics.Debug.WriteLine(string.Format("{0}: {1} ({2})", reader.GetName(i), oVal, reader.GetDataTypeName(i)));
+                            this.TestContext.WriteLine(string.Format("{0}: {1} ({2})", reader.GetName(i), oVal, reader.GetDataTypeName(i)));
                         }
                     }
                 }
