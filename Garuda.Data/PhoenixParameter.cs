@@ -42,6 +42,7 @@ namespace Garuda.Data
             if(this.Value == null)
             {
                 tv.Null = true;
+                tv.Type = Rep.NULL;
             }
             else
             {
@@ -49,7 +50,7 @@ namespace Garuda.Data
                 if (pt == typeof(int) || pt == typeof(long))
                 {
                     tv.NumberValue = Convert.ToInt64(this.Value);
-                    tv.Type = Rep.BIG_INTEGER;
+                    tv.Type = Rep.LONG;
                 }
                 else if(pt == typeof(float) || pt == typeof(double))
                 {
