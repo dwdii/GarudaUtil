@@ -64,12 +64,16 @@ of > 1 transaction, but which ever is last active wins.
 ### Parameters
 
 Support for parameters has been added. Refer to the Phoenix documentation for details on usage. Basically,
-the question mark (?) and positional (:1) notations are supported as in the following:
+the question mark (?) and positional (:1) notations are supported:
  
 ```
 UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber) VALUES (NEXT VALUE FOR garuda.testsequence, :1)
 ```
  
-Initial testing has been successful for string 
-parameters, but integer parameters produce a ProtoBuf error. It is unclear if this is an issue with the underlying 
-ProtoBuf API (the version we are using is an alpha release), a Phoenix Client issue, or a bug in Garuda.Data.
+The following data types have been tested successfully:
+
+* string
+* int
+* long
+* float
+

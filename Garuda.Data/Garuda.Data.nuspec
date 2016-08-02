@@ -13,11 +13,13 @@
     <description>A .NET Framework System.Data implementation for Apache Phoenix including IDbConnection, IDbCommand, IDbTransaction and IDbDataReader.</description>
     <releaseNotes>
       Ultra Alpha
+      * Tested against Hortonworks HDP 2.4 (HBASE 1.1.2 / Phoenix 4.4)
       * Prepared commands 
-      * Parameterized queries for string parameters
+      * Parameterized queries for string, int, long and float parameters data types
       * Initial support for transactions via PhoenixTransaction class
       * Improved data type handling in PhoenixDataReader
       * PhoenixDataReader now fetching next row set automatically once initial row set has been read.
+      
       
       Please submit issues to the project repo: https://github.com/dwdii/GarudaUtil/issues
     </releaseNotes>

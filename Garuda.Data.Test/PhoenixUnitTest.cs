@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
+using System.Collections.Generic;
 
 namespace Garuda.Data.Test
 {
@@ -194,10 +195,6 @@ namespace Garuda.Data.Test
                             p1.Value = string.Format("N{0}", DateTime.Now.ToString("hmmss"));
                             cmd.Parameters.Add(p1);
 
-                            //var p2 = cmd.CreateParameter();
-                            //p2.Value = DateTime.Now.Second.ToString();
-                            //cmd.Parameters.Add(p2);
-
                             cmd.ExecuteNonQuery();
                             cmd.Parameters.Clear();
                         }
@@ -213,138 +210,58 @@ namespace Garuda.Data.Test
         [TestMethod]
         public void CommandPrepareWith2StringParamsTest()
         {
-            int toInsert = 10;
+            int rowsToInsert = 10;
+            List<Func<object>> pFuncs = new List<Func<object>>();
+            pFuncs.Add(() => string.Format("N{0}", DateTime.Now.ToString("hmmss")));
+            pFuncs.Add(() => "2016-07-25 22:28:00");
 
-            using (IDbConnection c = new PhoenixConnection())
-            {
-                c.ConnectionString = this.ConnectionString();
-                c.Open();
-
-                ReCreateTestTableIfNotExists(c);
-
-                using (IDbTransaction tx = c.BeginTransaction())
-                {
-                    using (IDbCommand cmd = c.CreateCommand())
-                    {
-                        cmd.Transaction = tx;
-                        cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 12, 14, 87, 45, CURRENT_TIME(), CURRENT_DATE(), :2,  CURRENT_TIME(), 1.2 / .4)");
-                        cmd.Prepare();
-
-                        for (int i = 0; i < toInsert; i++)
-                        {
-                            // Create a parameter used in the query
-                            var p1 = cmd.CreateParameter();
-                            p1.Value = string.Format("N{0}", DateTime.Now.ToString("hmmss"));
-                            cmd.Parameters.Add(p1);
-
-                            var p2 = cmd.CreateParameter();
-                            p2.Value = "2016-07-25 22:28:00"; // DateTime.Now.Second.ToString();
-                            cmd.Parameters.Add(p2);
-
-                            cmd.ExecuteNonQuery();
-                            cmd.Parameters.Clear();
-                        }
-                    }
-
-                    tx.Commit();
-                }
-
-                Assert.AreEqual(toInsert, QueryAllRows(c));
-            }
+            PreparedCmdParameterTest(rowsToInsert,
+                "UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 12, 14, 87, 45, CURRENT_TIME(), CURRENT_DATE(), :2,  CURRENT_TIME(), 1.2 / .4)",
+                pFuncs);
         }
 
         [TestMethod]
         public void CommandPrepareWith1String1IntParamsTest()
         {
-            int toInsert = 10;
+            int rowsToInsert = 10;
+            List<Func<object>> pFuncs = new List<Func<object>>();
+            pFuncs.Add(() => string.Format("N{0}", DateTime.Now.ToString("hmmss")));
+            pFuncs.Add(() => DateTime.Now.Millisecond);
 
-            using (IDbConnection c = new PhoenixConnection())
-            {
-                c.ConnectionString = this.ConnectionString();
-                c.Open();
-
-                ReCreateTestTableIfNotExists(c);
-
-                using (IDbTransaction tx = c.BeginTransaction())
-                {
-                    using (IDbCommand cmd = c.CreateCommand())
-                    {
-                        cmd.Transaction = tx;
-                        cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, :2, 14, 87, 45, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), 1.2 / .4)");
-                        cmd.Prepare();
-
-                        for (int i = 0; i < toInsert; i++)
-                        {
-                            // Create a parameter used in the query
-                            var p1 = cmd.CreateParameter();
-                            p1.Value = string.Format("N{0}", DateTime.Now.ToString("hmmss"));
-                            cmd.Parameters.Add(p1);
-
-                            var p2 = cmd.CreateParameter();
-                            p2.Value = DateTime.Now.Millisecond;
-                            cmd.Parameters.Add(p2);
-
-                            cmd.ExecuteNonQuery();
-                            cmd.Parameters.Clear();
-                        }
-                    }
-
-                    tx.Commit();
-                }
-
-                Assert.AreEqual(toInsert, QueryAllRows(c));
-            }
+            PreparedCmdParameterTest(rowsToInsert,
+                "UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, :2, 14, 87, 45, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), 1.2 / .4)",
+                pFuncs);
         }
 
         [TestMethod]
         public void CommandPrepareWith1String1UlongParamsTest()
         {
-            int toInsert = 10;
+            int rowsToInsert = 10;
+            List<Func<object>> pFuncs = new List<Func<object>>();
+            pFuncs.Add(() => string.Format("N{0}", DateTime.Now.ToString("hmmss")));
+            pFuncs.Add(() => DateTime.Now.Ticks);
 
-            using (IDbConnection c = new PhoenixConnection())
-            {
-                c.ConnectionString = this.ConnectionString();
-                c.Open();
-
-                ReCreateTestTableIfNotExists(c);
-
-                using (IDbTransaction tx = c.BeginTransaction())
-                {
-                    using (IDbCommand cmd = c.CreateCommand())
-                    {
-                        cmd.Transaction = tx;
-                        cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 123, 14, :2, 45, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), 1.2 / .4)");
-                        cmd.Prepare();
-
-                        for (int i = 0; i < toInsert; i++)
-                        {
-                            // Create a parameter used in the query
-                            var p1 = cmd.CreateParameter();
-                            p1.Value = string.Format("N{0}", DateTime.Now.ToString("hmmss"));
-                            cmd.Parameters.Add(p1);
-
-                            var p2 = cmd.CreateParameter();
-                            p2.Value = DateTime.Now.Ticks;
-                            cmd.Parameters.Add(p2);
-
-                            cmd.ExecuteNonQuery();
-                            cmd.Parameters.Clear();
-                        }
-                    }
-
-                    tx.Commit();
-                }
-
-                Assert.AreEqual(toInsert, QueryAllRows(c));
-            }
+            PreparedCmdParameterTest(rowsToInsert,
+                "UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 19, 14, :2, 45, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), 1.2 / .4)",
+                pFuncs);
         }
 
 
         [TestMethod]
         public void CommandPrepareWith1String1FloatParamsTest()
         {
-            int toInsert = 10;
+            int rowsToInsert = 10;
+            List<Func<object>> pFuncs = new List<Func<object>>();
+            pFuncs.Add(() => string.Format("N{0}", DateTime.Now.ToString("hmmss")));
+            pFuncs.Add(() => Convert.ToSingle(0.2 / 0.14));
 
+            PreparedCmdParameterTest(rowsToInsert, 
+                "UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 19, 14, 87, 45, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), :2)",
+                pFuncs);
+        }
+
+        private void PreparedCmdParameterTest(int rowsToInsert, string sql, List<Func<object>> pFunc)
+        {
             using (IDbConnection c = new PhoenixConnection())
             {
                 c.ConnectionString = this.ConnectionString();
@@ -357,19 +274,19 @@ namespace Garuda.Data.Test
                     using (IDbCommand cmd = c.CreateCommand())
                     {
                         cmd.Transaction = tx;
-                        cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 19, 14, 87, 45, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), :2)");
+                        cmd.CommandText = sql;
                         cmd.Prepare();
 
-                        for (int i = 0; i < toInsert; i++)
+                        for (int i = 0; i < rowsToInsert; i++)
                         {
-                            // Create a parameter used in the query
-                            var p1 = cmd.CreateParameter();
-                            p1.Value = string.Format("N{0}", DateTime.Now.ToString("hmmss"));
-                            cmd.Parameters.Add(p1);
-
-                            var p2 = cmd.CreateParameter();
-                            p2.Value = Convert.ToSingle(0.2 / 0.14);
-                            cmd.Parameters.Add(p2);
+                            // Parameters loop
+                            foreach(var pf in pFunc)
+                            {
+                                // Create a parameter used in the query
+                                var p = cmd.CreateParameter();
+                                p.Value = pf();
+                                cmd.Parameters.Add(p);
+                            }
 
                             cmd.ExecuteNonQuery();
                             cmd.Parameters.Clear();
@@ -379,7 +296,7 @@ namespace Garuda.Data.Test
                     tx.Commit();
                 }
 
-                Assert.AreEqual(toInsert, QueryAllRows(c));
+                Assert.AreEqual(rowsToInsert, QueryAllRows(c));
             }
         }
 
