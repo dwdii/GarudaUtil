@@ -283,6 +283,10 @@ namespace Garuda.Data
                 case "TIME":
                     o = FromPhoenixTime(val.NumberValue);
                     break;
+
+                case "TIMESTAMP":
+                    o = FromPhoenixTimestamp(val.NumberValue);
+                    break;
             }
 
             return o;
@@ -361,15 +365,18 @@ namespace Garuda.Data
 
         private TimeSpan FromPhoenixTime(long time)
         {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var dtTime = epoch.AddMilliseconds(time);
-            return dtTime.Subtract(epoch);
+            var dtTime = PhoenixParameter.Constants.Epoch.AddMilliseconds(time);
+            return dtTime.Subtract(PhoenixParameter.Constants.Epoch);
         }
 
         private DateTime FromPhoenixDate(long date)
         {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return epoch.AddDays(date);
+            return PhoenixParameter.Constants.Epoch.AddDays(date);
+        }
+
+        private DateTime FromPhoenixTimestamp(long timestamp)
+        {
+            return PhoenixParameter.Constants.Epoch.AddMilliseconds(timestamp);
         }
     }
 }
