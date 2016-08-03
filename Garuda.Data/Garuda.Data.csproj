@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="Internal\GarudaExecuteResponse.cs" />
     <Compile Include="Internal\GarudaResultSet.cs" />
+    <Compile Include="PhoenixBulkCopy.cs" />
     <Compile Include="PhoenixCommand.cs" />
     <Compile Include="PhoenixConnection.cs" />
     <Compile Include="PhoenixDataReader.cs" />
