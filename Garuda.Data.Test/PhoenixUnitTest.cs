@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
+using System.IO;
 
 namespace Garuda.Data.Test
 {
@@ -302,6 +304,7 @@ namespace Garuda.Data.Test
         [TestMethod]
         public void ExecuteQueryBigTable()
         {
+            Stopwatch sw = new Stopwatch();
             using (IDbConnection c = new PhoenixConnection())
             {
                 c.ConnectionString = this.ConnectionString();
@@ -309,8 +312,11 @@ namespace Garuda.Data.Test
 
                 CreateBigTestTableIfNotExists(c, false);
 
-                // Query the table
+                // Query the table and measure performance
+                sw.Start();
                 long rows = QueryAllRows(c, "bigtable", 10);
+                sw.Stop();
+                WriteQueryRowsPerf(rows, sw.ElapsedMilliseconds);
 
                 // How many rows did we get back?
                 this.TestContext.WriteLine("Queried Rows: {0}", rows);
@@ -318,6 +324,17 @@ namespace Garuda.Data.Test
                 // More than zero?
                 Assert.IsTrue(rows > 0);
             }
+        }
+
+        private void WriteQueryRowsPerf(long rows, long milliseconds)
+        {
+            string file = System.Configuration.ConfigurationManager.AppSettings["QueryRowsPerfFile"];
+            if(!File.Exists(file))
+            {
+                File.AppendAllText(file, "Timestamp,Rows,Duration(ms)\r\n");
+            }
+
+            File.AppendAllText(file, string.Format("{0},{1},{2}\r\n", DateTime.Now.ToString(), rows, milliseconds));
         }
 
         private void PreparedCmdParameterTest(int rowsToInsert, string sql, List<Func<object>> pFunc, bool assertTotalRows = true)
