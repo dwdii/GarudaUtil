@@ -83,10 +83,19 @@ namespace Garuda.Data
         /// <returns></returns>
         public pbc.RepeatedField<TypedValue> AsRepeatedFieldTypedValue()
         {
+            return PhoenixParameterCollection.AsRepeatedFieldTypedValue(this);
+        }
+
+        /// <summary>
+        /// Creates and returns a ProtoBuf representation of the specified collection.
+        /// </summary>
+        /// <returns></returns>
+        public static pbc.RepeatedField<TypedValue> AsRepeatedFieldTypedValue(PhoenixParameterCollection collection)
+        {
             pbc.RepeatedField<TypedValue> pbParamValues = new pbc.RepeatedField<TypedValue>();
-            for(int i = 0; i < this.Count; i++)
+            for (int i = 0; i < collection.Count; i++)
             {
-                pbParamValues.Add(this[i].AsPhoenixTypedValue());
+                pbParamValues.Add(collection[i].AsPhoenixTypedValue());
             }
 
             return pbParamValues;

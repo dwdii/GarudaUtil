@@ -58,6 +58,7 @@ namespace Garuda.Data
                 }
             }
         }
+
         private string _connectionString = null;
 
         public int ConnectionTimeout
@@ -210,6 +211,15 @@ namespace Garuda.Data
         }
 
         #region Internal Methods
+
+        internal ResultSetResponse InternalColumnsRequest(string catalog, string schemaPattern, string tablePattern, string columnPattern)
+        {
+            Task<ResultSetResponse> tResp =_client.ColumnsRequestAsync(catalog, schemaPattern, tablePattern, columnPattern, this.ConnectionId, this.Options);
+            tResp.Wait();
+
+            return tResp.Result;
+        }
+
         internal ResultSetResponse InternalTablesRequest(pbc.RepeatedField<string> list)
         {
             ResultSetResponse response = null;
@@ -273,6 +283,14 @@ namespace Garuda.Data
         internal PrepareResponse InternalPrepareStatement(string sql)
         {
             Task<PrepareResponse> tResp = _client.PrepareRequestAsync(this.ConnectionId, sql, ulong.MaxValue, this.Options);
+            tResp.Wait();
+
+            return tResp.Result;
+        }
+
+        internal ExecuteBatchResponse InternalExecuteBatch(uint statementId, pbc::RepeatedField<UpdateBatch> updates)
+        {
+            Task<ExecuteBatchResponse> tResp = _client.ExecuteBatchRequestAsync(this.ConnectionId, statementId, updates, this.Options);
             tResp.Wait();
 
             return tResp.Result;

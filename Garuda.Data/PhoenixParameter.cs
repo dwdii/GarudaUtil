@@ -84,16 +84,30 @@ namespace Garuda.Data
         /// <returns></returns>
         public TypedValue AsPhoenixTypedValue()
         {
+            return PhoenixParameter.AsPhoenixTypedValue(this);
+        }
+
+        public static TypedValue AsPhoenixTypedValue(PhoenixParameter parameter)
+        {
+            return PhoenixParameter.AsPhoenixTypedValue(parameter.Value);
+        }
+
+        /// <summary>
+        /// Converts this parameter to and returns the Apache Phoenix TypedValue structure.
+        /// </summary>
+        /// <returns></returns>
+        public static TypedValue AsPhoenixTypedValue(object val)
+        {
             var tv = new TypedValue();
 
-            if(this.Value == null)
+            if(val == null)
             {
                 tv.Null = true;
                 tv.Type = Rep.NULL;
             }
             else
             {
-                Type pt = this.Value.GetType();
+                Type pt = val.GetType();
                 if (pt == typeof(int) || 
                     pt == typeof(long) ||
                     pt == typeof(uint) || 
@@ -101,25 +115,25 @@ namespace Garuda.Data
                     pt == typeof(short) ||
                     pt == typeof(ushort))
                 {
-                    tv.NumberValue = Convert.ToInt64(this.Value);
+                    tv.NumberValue = Convert.ToInt64(val);
                     tv.Type = Rep.LONG;
                 }
                 else if(pt == typeof(float) || pt == typeof(double))
                 {
-                    tv.DoubleValue = Convert.ToDouble(this.Value);
+                    tv.DoubleValue = Convert.ToDouble(val);
                     tv.Type = Rep.DOUBLE;
                 }
                 else if (pt == typeof(string))
                 {
-                    tv.StringValue = Convert.ToString(this.Value);
+                    tv.StringValue = Convert.ToString(val);
                     tv.Type = Rep.STRING;
                 }
                 else if(pt == typeof(DateTime))
                 {
-                    tv.NumberValue = Convert.ToInt64(Convert.ToDateTime(this.Value).Subtract(PhoenixParameter.Constants.Epoch).TotalMilliseconds);
+                    tv.NumberValue = Convert.ToInt64(Convert.ToDateTime(val).Subtract(PhoenixParameter.Constants.Epoch).TotalMilliseconds);
                     tv.Type = Rep.JAVA_SQL_TIMESTAMP;
                 }
-                else if (this.Value == DBNull.Value)
+                else if (val == DBNull.Value)
                 {
                     tv.Null = true;
                     tv.Type = Rep.NULL;

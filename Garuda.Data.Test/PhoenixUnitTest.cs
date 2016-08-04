@@ -326,10 +326,90 @@ namespace Garuda.Data.Test
             }
         }
 
+        [TestMethod]
+        public void BulkCopyTest1()
+        {
+            Stopwatch sw = new Stopwatch();
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                CreateBulkCopyTableIfNotExists(c, false);
+
+                PhoenixBulkCopy bc = new PhoenixBulkCopy(c);
+                DataTable dt = ConvertCSVtoDataTable(System.Configuration.ConfigurationManager.AppSettings["BulkCopyCsvTestFile"]);
+                
+                // Query the table and measure performance
+                sw.Start();
+
+                bc.DestinationTableName = "BulkCopyTest";
+                bc.SequenceMappings.Add("ID", "NEXT VALUE FOR garuda.BulkCopyTestSequence");
+                bc.BatchSize = 100;
+                bc.WriteToServer(dt);
+
+                sw.Stop();
+                WriteBulkCopyPerf(dt.Rows.Count, sw.ElapsedMilliseconds);
+
+                // How many rows did we get back?
+                this.TestContext.WriteLine("Bulk Copy Rows: {0}", dt.Rows.Count);
+                this.TestContext.WriteLine("Bulk Copy Time: {0}ms", sw.ElapsedMilliseconds);
+
+                // More than zero?
+                Assert.IsTrue(dt.Rows.Count > 0);
+            }
+        }
+
+
+        #region Private Methods
+
+        /// <summary>
+        /// Care of: http://stackoverflow.com/questions/1050112/how-to-read-a-csv-file-into-a-net-datatable
+        /// </summary>
+        /// <param name="strFilePath"></param>
+        /// <returns></returns>
+        public static DataTable ConvertCSVtoDataTable(string strFilePath)
+        {
+            DataTable dt = new DataTable();
+            using (StreamReader sr = new StreamReader(strFilePath))
+            {
+                string[] headers = sr.ReadLine().Split(',');
+                foreach (string header in headers)
+                {
+                    dt.Columns.Add(header);
+                }
+                while (!sr.EndOfStream)
+                {
+                    string[] rows = sr.ReadLine().Split(',');
+                    DataRow dr = dt.NewRow();
+                    for (int i = 0; i < headers.Length; i++)
+                    {
+                        dr[i] = rows[i];
+                    }
+                    dt.Rows.Add(dr);
+                }
+
+            }
+
+
+            return dt;
+        }
+
         private void WriteQueryRowsPerf(long rows, long milliseconds)
         {
             string file = System.Configuration.ConfigurationManager.AppSettings["QueryRowsPerfFile"];
             if(!File.Exists(file))
+            {
+                File.AppendAllText(file, "Timestamp,Rows,Duration(ms)\r\n");
+            }
+
+            File.AppendAllText(file, string.Format("{0},{1},{2}\r\n", DateTime.Now.ToString(), rows, milliseconds));
+        }
+
+        private void WriteBulkCopyPerf(long rows, long milliseconds)
+        {
+            string file = System.Configuration.ConfigurationManager.AppSettings["BulkCopyPerfFile"];
+            if (!File.Exists(file))
             {
                 File.AppendAllText(file, "Timestamp,Rows,Duration(ms)\r\n");
             }
@@ -380,6 +460,7 @@ namespace Garuda.Data.Test
                 
             }
         }
+
 
         private long QueryAllRows(IDbConnection c)
         {
@@ -491,6 +572,13 @@ namespace Garuda.Data.Test
                 true, dropIfExists);
         }
 
+        private static void CreateBulkCopyTableIfNotExists(IDbConnection phConn, bool dropIfExists)
+        {
+            ReCreateTestTableIfNotExists(phConn, "BulkCopyTest",
+                "CREATE TABLE IF NOT EXISTS BulkCopyTest (ID BIGINT PRIMARY KEY, AircraftIcaoNumber varchar(16), LruFlightKey varchar(64), MyTimestamp TIMESTAMP )",
+                true, dropIfExists);
+        }
+
         private static void ReCreateTestTableIfNotExists(IDbConnection phConn, string table, string createStmt, bool createSequence, bool dropIfExists)
         {
             if(dropIfExists)
@@ -543,6 +631,8 @@ namespace Garuda.Data.Test
         {
             return System.IO.File.ReadAllText(@"..\..\..\GarudaUtil\myconnection.txt");
         }
+
+        #endregion
     }
 
 }

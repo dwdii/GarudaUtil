@@ -64,6 +64,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Results\BulkCopyPerfFile.csv" />
+    <None Include="Results\QueryRowsPerfFile.csv" />
+    <None Include="TestData\BulkCopyTest.csv" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
