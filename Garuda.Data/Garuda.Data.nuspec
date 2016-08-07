@@ -14,7 +14,8 @@
     <releaseNotes>
       Ultra Alpha
       * Tested against Hortonworks HDP 2.4 (HBASE 1.1.2 / Phoenix 4.4)
-      * Bulk copy functionality
+      * PhoenixDataReader::GetSchemaTable and support for DataTable::Load
+      * Bulk copy functionality introduced
       * Prepared commands 
       * Parameterized queries for string, int, long and float parameters data types
       * Initial support for transactions via PhoenixTransaction class

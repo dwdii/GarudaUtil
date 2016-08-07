@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.IO;
+using System.Data.SqlClient;
 
 namespace Garuda.Data.Test
 {
@@ -258,7 +259,7 @@ namespace Garuda.Data.Test
             pFuncs.Add(() => string.Format("N{0}", DateTime.Now.ToString("hmmss")));
             pFuncs.Add(() => Convert.ToSingle(0.2 / 0.14));
 
-            PreparedCmdParameterTest(rowsToInsert, 
+            PreparedCmdParameterTest(rowsToInsert,
                 "UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 19, 14, 87, 45, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), :2)",
                 pFuncs);
         }
@@ -339,7 +340,7 @@ namespace Garuda.Data.Test
 
                 PhoenixBulkCopy bc = new PhoenixBulkCopy(c);
                 DataTable dt = ConvertCSVtoDataTable(System.Configuration.ConfigurationManager.AppSettings["BulkCopyCsvTestFile"]);
-                
+
                 // Query the table and measure performance
                 sw.Start();
 
@@ -360,6 +361,37 @@ namespace Garuda.Data.Test
             }
         }
 
+        [TestMethod]
+        public void DataTableLoadFromPhoenixDataReader()
+        {
+        //    using (IDbConnection c = new SqlConnection())
+        //    {
+        //        c.ConnectionString = "server=DWD-LT8;Trusted_Connection=True";
+        //        c.Open();
+        //        using (IDbCommand cmd = c.CreateCommand())
+        //        {
+        //            cmd.CommandText = "SELECT * FROM "
+        //        }
+        //    }
+
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                using (IDbCommand cmd = c.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT * FROM BIGTABLE";
+                    using (IDataReader dr = cmd.ExecuteReader())
+                    {
+                        DataTable dt = new DataTable();
+                        dt.Load(dr);
+
+                        Assert.IsTrue(dt.Rows.Count > 0);
+                    }
+                }
+            }
+        }
 
         #region Private Methods
 

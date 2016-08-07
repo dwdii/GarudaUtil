@@ -14,6 +14,9 @@ namespace GarudaUtil
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+        /// <remarks>
+        /// -ConnectionStringFile "myconnection.txt" -ShowException
+        /// </remarks>
         [STAThread]
         static void Main(string[] args)
         {

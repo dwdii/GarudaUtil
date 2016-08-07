@@ -94,45 +94,10 @@ namespace Garuda.Data
 
         public void Open()
         {
-            if (null != _client)
-            {
-                // Already allocated
-            }
-            else
-            {
-                // Update state....
-                this.State = ConnectionState.Connecting;
-
-                pbc::MapField<string, string> info = new pbc::MapField<string, string>();
-
-                // Spin up Microsoft.Phoenix.Client
-                _client = new PhoenixClient(this.Credentials);
-
-                // Initiate connection
-                var tOpen = _client.OpenConnectionRequestAsync(this.ConnectionId,
-                    info,
-                    this.Options);
-                tOpen.Wait();
-                _openConnection = tOpen.Result;
-                
-                // Syncing connection
-                ConnectionProperties connProperties = new ConnectionProperties
-                {
-                    HasAutoCommit = true,
-                    AutoCommit = true,
-                    HasReadOnly = true,
-                    ReadOnly = false,
-                    TransactionIsolation = 0,
-                    Catalog = "",
-                    Schema = "",
-                    IsDirty = true
-                };
-                _client.ConnectionSyncRequestAsync(this.ConnectionId, connProperties, this.Options).Wait();
-
-                // Connected.
-                this.State = ConnectionState.Open;
-            }
+            Task.Run(() => PrivateOpenAsync()).Wait();
         }
+
+        
 
         public void Close()
         {
@@ -233,11 +198,11 @@ namespace Garuda.Data
             return response;
         }
 
-        internal GarudaExecuteResponse InternalExecuteRequest(PrepareResponse prepared, string sql, 
+        internal async Task<GarudaExecuteResponse> InternalExecuteRequestAsync(PrepareResponse prepared, string sql, 
             PhoenixParameterCollection parameterValues)
         {
-            Task<CreateStatementResponse> tStmt = null;
-            Task<ExecuteResponse> tResp = null;
+            CreateStatementResponse tStmt = null;
+            ExecuteResponse tResp = null;
             GarudaExecuteResponse ourResp = new GarudaExecuteResponse();
 
             if(null == prepared)
@@ -245,11 +210,11 @@ namespace Garuda.Data
                 try
                 {
                     // Not prepared....
-                    tStmt = _client.CreateStatementRequestAsync(this.ConnectionId, this.Options);
-                    tStmt.Wait();
-                    ourResp.StatementId = tStmt.Result.StatementId;
+                    tStmt = await _client.CreateStatementRequestAsync(this.ConnectionId, this.Options);
+                    //tStmt.Wait();
+                    ourResp.StatementId = tStmt.StatementId;
 
-                    tResp = _client.PrepareAndExecuteRequestAsync(this.ConnectionId,
+                    tResp = await _client.PrepareAndExecuteRequestAsync(this.ConnectionId,
                         sql,
                         ulong.MaxValue,
                         ourResp.StatementId,
@@ -257,10 +222,7 @@ namespace Garuda.Data
                 }
                 catch (Exception ex)
                 {
-                    if (tStmt.IsCompleted)
-                    {
-                        InternalCloseStatement(tStmt.Result.StatementId);
-                    }
+                    InternalCloseStatement(tStmt.StatementId);
 
                     throw;
                 }
@@ -270,12 +232,12 @@ namespace Garuda.Data
                 // Prepared and possibly with parameters.
                 pbc.RepeatedField<TypedValue> pbParamValues = parameterValues.AsRepeatedFieldTypedValue();
 
-                tResp = _client.ExecuteRequestAsync(prepared.Statement, pbParamValues, 100,
+                tResp = await _client.ExecuteRequestAsync(prepared.Statement, pbParamValues, 100,
                     parameterValues.Count > 0, this.Options);
             }
 
-            tResp.Wait();
-            ourResp.Response = tResp.Result;
+            //tResp.Wait();
+            ourResp.Response = tResp;
 
             return ourResp;
         }
@@ -296,9 +258,9 @@ namespace Garuda.Data
             return tResp.Result;
         }
 
-        internal void InternalCloseStatement(uint statementId)
+        internal async void InternalCloseStatement(uint statementId)
         {
-            _client.CloseStatementRequestAsync(this.ConnectionId, statementId, this.Options).Wait();
+            await _client.CloseStatementRequestAsync(this.ConnectionId, statementId, this.Options);
         }
 
         internal async Task<FetchResponse> InternalFetchAsync(uint statementId, ulong offset, int max)
@@ -405,6 +367,48 @@ namespace Garuda.Data
             if (null != credsUser && null != credsPasswd && null != credsUri)
             {
                 this.Credentials = new ClusterCredentials(new Uri(credsUri), credsUser, credsPasswd);
+            }
+        }
+
+        private async Task PrivateOpenAsync()
+        {
+            if (null != _client)
+            {
+                // Already allocated
+            }
+            else
+            {
+                // Update state....
+                this.State = ConnectionState.Connecting;
+
+                pbc::MapField<string, string> info = new pbc::MapField<string, string>();
+
+                // Spin up Microsoft.Phoenix.Client
+                _client = new PhoenixClient(this.Credentials);
+
+                // Initiate connection
+                var tOpen = await _client.OpenConnectionRequestAsync(this.ConnectionId,
+                    info,
+                    this.Options);
+                //tOpen.Wait();
+                _openConnection = tOpen;
+
+                // Syncing connection
+                ConnectionProperties connProperties = new ConnectionProperties
+                {
+                    HasAutoCommit = true,
+                    AutoCommit = true,
+                    HasReadOnly = true,
+                    ReadOnly = false,
+                    TransactionIsolation = 0,
+                    Catalog = "",
+                    Schema = "",
+                    IsDirty = true
+                };
+                await _client.ConnectionSyncRequestAsync(this.ConnectionId, connProperties, this.Options);
+
+                // Connected.
+                this.State = ConnectionState.Open;
             }
         }
         #endregion

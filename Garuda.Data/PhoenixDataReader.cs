@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace Garuda.Data
 {
@@ -113,15 +114,22 @@ namespace Garuda.Data
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the DbDataReader is closed.
+        /// </summary>
         [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public override bool IsClosed
         {
             get
             {
-                throw new NotImplementedException();
+                return !(CurrentFrame().Rows.Count > _currentFrameRowNdx);
             }
         }
 
+        /// <summary>
+        /// Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public override int RecordsAffected
         {
@@ -131,6 +139,49 @@ namespace Garuda.Data
             }
         }
 
+        /// <summary>
+        /// Returns a DataTable that describes the column metadata of the DbDataReader.
+        /// </summary>
+        /// <returns></returns>
+        public override DataTable GetSchemaTable()
+        {
+            DataTable dt = new DataTable();
+
+            DataColumn dcNullable = dt.Columns.Add();
+            dcNullable.ColumnName = "AllowDBNull";
+
+            DataColumn dcColName = dt.Columns.Add();
+            dcColName.ColumnName = "ColumnName";
+
+            DataColumn dcColOrdinal = dt.Columns.Add();
+            dcColOrdinal.ColumnName = "ColumnOrdinal";
+
+            DataColumn dcColSize = dt.Columns.Add();
+            dcColSize.ColumnName = "ColumnSize";
+            
+
+
+
+            foreach (var col in CurrentResultSet().Signature.Columns)
+            {
+                DataRow row = dt.NewRow();
+
+                row[dcColName] = col.ColumnName;
+                row[dcColOrdinal] = col.Ordinal;
+                row[dcNullable] = Convert.ToBoolean(col.Nullable);
+                row[dcColSize] = col.DisplaySize;
+
+                dt.Rows.Add(row);
+            }
+
+            return dt;
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a Boolean.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override bool GetBoolean(int ordinal)
         {
             return (bool)GetValue(ordinal);
@@ -181,41 +232,83 @@ namespace Garuda.Data
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Gets the Type information corresponding to the type of Object that would be returned from GetValue.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override Type GetFieldType(int ordinal)
         {
-            throw new NotImplementedException();
+            return PhoenixDataTypeMap.GetDotNetType(CurrentResultSet().Signature.Columns[ordinal].Type.Rep, 
+                this.GetDataTypeName(ordinal));
         }
 
+        /// <summary>
+        /// Gets the single-precision floating point number of the specified field.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override float GetFloat(int ordinal)
         {
-            throw new NotImplementedException();
+            return(float)GetValue(ordinal);
         }
 
+        /// <summary>
+        /// Returns the GUID value of the specified field.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public override Guid GetGuid(int ordinal)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Gets the 16-bit signed integer value of the specified field.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override short GetInt16(int ordinal)
         {
             return (short)GetValue(ordinal);
         }
 
+        /// <summary>
+        /// Gets the 32-bit signed integer value of the specified field.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override int GetInt32(int ordinal)
         {
             return (int)GetValue(ordinal);
         }
 
+        /// <summary>
+        /// Gets the 64-bit signed integer value of the specified field.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override long GetInt64(int ordinal)
         {
             return (long)GetValue(ordinal);
         }
 
+        /// <summary>
+        /// Gets the name for the field to find.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override string GetName(int ordinal)
         {
             return CurrentResultSet().Signature.Columns[ordinal].ColumnName;
         }
 
+        /// <summary>
+        /// Return the index of the named field.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public override int GetOrdinal(string name)
         {
             int ordinal = -1;
@@ -233,11 +326,21 @@ namespace Garuda.Data
             return ordinal;
         }
 
+        /// <summary>
+        /// Gets the string value of the specified field.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override string GetString(int ordinal)
         {
             return GetValue(ordinal) as string;
         }
 
+        /// <summary>
+        /// Return the value of the specified field.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override object GetValue(int ordinal)
         {
             object o = null;
@@ -292,16 +395,35 @@ namespace Garuda.Data
             return o;
         }
 
+        /// <summary>
+        /// Populates an array of objects with the column values of the current record.
+        /// </summary>
+        /// <param name="values">An array of Object to copy the attribute fields into.</param>
+        /// <returns>The number of instances of Object in the array.</returns>
         public override int GetValues(object[] values)
         {
-            throw new NotImplementedException();
+            for(int i = 0; i < this.FieldCount; i++)
+            {
+                values[i] = GetValue(i);
+            }
+
+            return this.FieldCount;
         }
 
+        /// <summary>
+        /// Return whether the specified field is set to null.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override bool IsDBNull(int ordinal)
         {
             return CurrentRowValue(ordinal).Null;
         }
 
+        /// <summary>
+        /// Advances the data reader to the next result, when reading the results of batch SQL statements.
+        /// </summary>
+        /// <returns></returns>
         public override bool NextResult()
         {
             bool ok = this._resultSets.Count > _currentResultSet + 1;
@@ -313,6 +435,10 @@ namespace Garuda.Data
             return ok;
         }
 
+        /// <summary>
+        /// Advances the IDataReader to the next record.
+        /// </summary>
+        /// <returns></returns>
         public override bool Read()
         {
             // Crude, but will do for now...
@@ -323,7 +449,7 @@ namespace Garuda.Data
             bool bInCurrentFrame = CurrentFrame().Rows.Count > _currentFrameRowNdx;
             if (!bInCurrentFrame && !CurrentFrame().Done)
             {
-                Task<FetchResponse> tResp = this.Connection.InternalFetchAsync(this._statementId, _currentRowCount - 1, 1000);
+                Task<FetchResponse> tResp = Task.Run(() => this.Connection.InternalFetchAsync(this._statementId, _currentRowCount - 1, 1000));
                 tResp.Wait();
 
                 CurrentResultSet().Frames.Add(tResp.Result.Frame);

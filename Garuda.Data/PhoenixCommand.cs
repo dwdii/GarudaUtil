@@ -232,10 +232,10 @@ namespace Garuda.Data
 
         private GarudaExecuteResponse Execute()
         {
-            GarudaExecuteResponse response = _connection.InternalExecuteRequest(this._prepared, 
-                this.CommandText, this.Parameters);
+            var response = Task.Run(() => _connection.InternalExecuteRequestAsync(this._prepared, 
+                this.CommandText, this.Parameters));
 
-            return response;
+            return response.Result;
         }
 
     }
