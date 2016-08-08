@@ -345,7 +345,7 @@ namespace Garuda.Data.Test
                 sw.Start();
 
                 bc.DestinationTableName = "BulkCopyTest";
-                bc.SequenceMappings.Add("ID", "NEXT VALUE FOR garuda.BulkCopyTestSequence");
+                bc.ColumnMappings.Add("ID", new PhoenixBulkCopyColumnMapping("NEXT VALUE FOR garuda.BulkCopyTestSequence"));
                 bc.BatchSize = 100;
                 bc.WriteToServer(dt);
 
@@ -364,16 +364,6 @@ namespace Garuda.Data.Test
         [TestMethod]
         public void DataTableLoadFromPhoenixDataReader()
         {
-        //    using (IDbConnection c = new SqlConnection())
-        //    {
-        //        c.ConnectionString = "server=DWD-LT8;Trusted_Connection=True";
-        //        c.Open();
-        //        using (IDbCommand cmd = c.CreateCommand())
-        //        {
-        //            cmd.CommandText = "SELECT * FROM "
-        //        }
-        //    }
-
             using (PhoenixConnection c = new PhoenixConnection())
             {
                 c.ConnectionString = this.ConnectionString();
@@ -388,6 +378,65 @@ namespace Garuda.Data.Test
                         dt.Load(dr);
 
                         Assert.IsTrue(dt.Rows.Count > 0);
+                        Assert.IsTrue(dt.Columns.Count > 0);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void PhoenixDataReaderGetSchemaTable()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                using (IDbCommand cmd = c.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT * FROM BIGTABLE";
+                    using (IDataReader dr = cmd.ExecuteReader())
+                    {
+                        DataTable dt = dr.GetSchemaTable();
+
+                        Assert.IsTrue(dt.Columns.Count > 0);
+
+                        DataColumn dcColName = dt.Columns["ColumnName"];
+                        Assert.IsNotNull(dcColName, "ColumnName");
+
+                        DataColumn dcColSize = dt.Columns["ColumnSize"];
+                        Assert.IsNotNull(dcColSize, "ColumnSize");
+                        
+                        DataColumn dcColOrdinal = dt.Columns["ColumnOrdinal"];
+                        Assert.IsNotNull(dcColName, "ColumnOrdinal");
+
+                        DataColumn dcNullable = dt.Columns["AllowDBNull"];
+                        Assert.IsNotNull(dcNullable, "AllowDBNull");
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void PhoenixDataReaderGetFieldType()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                using (IDbCommand cmd = c.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT * FROM BIGTABLE";
+                    using (IDataReader dr = cmd.ExecuteReader())
+                    {
+                        dr.Read();
+
+                        for(int i = 0; i < dr.FieldCount; i++)
+                        {
+                            Type t = dr.GetFieldType(i);
+                            Assert.IsNotNull(t, "GetFieldType returned null!");
+                        }
                     }
                 }
             }

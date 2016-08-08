@@ -18,6 +18,8 @@ namespace GarudaUtil
         public MainForm()
         {
             InitializeComponent();
+
+            _tsslCurrent.Text = "Ready";
         }
 
         private async void _tsbConnect_Click(object sender, EventArgs e)
@@ -28,14 +30,23 @@ namespace GarudaUtil
 
                 if(DialogResult.OK == frmLogin.ShowDialog())
                 {
+                    _tsslCurrent.Text = "Connecting...";
+                    this.Refresh();
+
                     _connection = new PhoenixConnection();
                     _connection.ConnectionString = string.Format("server={0};Request Timeout=15000", frmLogin.Server);
                     _connection.Open();
+
+                    _tsslConnection.Text = frmLogin.Server;
                 }
             }
             catch(Exception ex)
             {
                 HandleException(ex);
+            }
+            finally
+            {
+                _tsslCurrent.Text = "Ready";
             }
         }
 

@@ -11,7 +11,9 @@ namespace Garuda.Data
     {
         static Dictionary<Rep, Type> _map = new Dictionary<Rep, Type>();
 
-        public static List<string> _chronoTypes = new List<string>();
+        public static List<string> _dateTypes = new List<string>();
+
+        public static List<string> _timeTypes = new List<string>();
 
         static PhoenixDataTypeMap()
         {
@@ -27,9 +29,9 @@ namespace Garuda.Data
             _map.Add(Rep.PRIMITIVE_FLOAT, typeof(float));
             _map.Add(Rep.DOUBLE, typeof(double));
 
-            _chronoTypes.Add("TIMESTAMP");
-            _chronoTypes.Add("DATE");
-            _chronoTypes.Add("TIME");
+            _dateTypes.Add("TIMESTAMP");
+            _dateTypes.Add("DATE");
+            _timeTypes.Add("TIME");
 
         }
 
@@ -41,9 +43,26 @@ namespace Garuda.Data
         public static Type GetDotNetType(Rep rep, string typeName)
         {
             Type t;
-            if(_chronoTypes.Contains(typeName))
+            if(_dateTypes.Contains(typeName))
             {
                 t = typeof(DateTime);
+            }
+            else if (_timeTypes.Contains(typeName))
+            {
+                t = typeof(TimeSpan);
+            }
+            else if(Rep.OBJECT == rep)
+            {
+                switch(typeName)
+                {
+                    case "DECIMAL":
+                        t = typeof(decimal);
+                        break;
+
+                    default:
+                        t = typeof(object);
+                        break;
+                }
             }
             else
             {

@@ -22,7 +22,7 @@ namespace Garuda.Data
 
             this._connection = connection;
 
-            this.SequenceMappings = new Dictionary<string, string>();
+            this.ColumnMappings = new Dictionary<string, PhoenixBulkCopyColumnMapping>();
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Garuda.Data
         }
         private string _destinationTableName;
 
-        public Dictionary<string, string> SequenceMappings { get; private set; }
+        public Dictionary<string, PhoenixBulkCopyColumnMapping> ColumnMappings { get; private set; }
 
         /// <summary>
         /// Copies all rows in the supplied DataTable to a destination table specified by the DestinationTableName property of the PhoenixBulkCopy object.
@@ -112,9 +112,9 @@ namespace Garuda.Data
                 colList.Append(colName);
 
                 // Parameter or Sequence?
-                if (this.SequenceMappings.ContainsKey(colName))
+                if (this.ColumnMappings.ContainsKey(colName))
                 {
-                    paramList.Append(this.SequenceMappings[colName]);
+                    paramList.Append(this.ColumnMappings[colName].DefaultValue);
                 }
                 else
                 {

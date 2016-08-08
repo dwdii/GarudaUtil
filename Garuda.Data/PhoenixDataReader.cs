@@ -160,8 +160,6 @@ namespace Garuda.Data
             dcColSize.ColumnName = "ColumnSize";
             
 
-
-
             foreach (var col in CurrentResultSet().Signature.Columns)
             {
                 DataRow row = dt.NewRow();
@@ -366,6 +364,12 @@ namespace Garuda.Data
                 case Rep.LONG:
                 case Rep.NUMBER:
                     o = val.NumberValue;
+                    if(val.DoubleValue > 0)
+                    {
+                        // Saw this once... Rep.NUMBER but DoubleValue was 
+                        // where the value was stored.
+                        o = val.DoubleValue;
+                    }
                     break;
 
                 case Rep.NULL:
