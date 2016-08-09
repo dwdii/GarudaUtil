@@ -175,6 +175,44 @@ namespace Garuda.Data
             //Assert.AreEqual(6, tableTypeResponse.FirstFrame.Rows.Count);
         }
 
+        public DataTable Tables()
+        {
+            // List system tables
+            pbc.RepeatedField<string> list = new pbc.RepeatedField<string>();
+            //list.Add("SYSTEM TABLE");
+            Task<ResultSetResponse> tablesResponse = Task.Factory.StartNew(() => _client.TablesRequestAsync("", "", "", list, false, this.ConnectionId, this.Options).Result);
+            tablesResponse.Wait();
+            
+            DataTable dt = new DataTable("Phoenix Tables");
+            dt.TableNewRow += Dt_TableNewRow;
+            dt.RowChanged += Dt_RowChanged;
+            dt.RowChanging += Dt_RowChanging;
+            using (IDataReader dr = new PhoenixDataReader(this, tablesResponse.Result))
+            {
+                dt.BeginLoadData();
+                dt.Load(dr);
+                dt.EndLoadData();
+                
+            }
+
+            return dt;
+        }
+
+        private void Dt_RowChanging(object sender, DataRowChangeEventArgs e)
+        {
+            Console.WriteLine(e.Row.ItemArray.ToString());
+        }
+
+        private void Dt_RowChanged(object sender, DataRowChangeEventArgs e)
+        {
+            Console.WriteLine(e.Row.ItemArray.ToString());
+        }
+
+        private void Dt_TableNewRow(object sender, DataTableNewRowEventArgs e)
+        {
+            Console.WriteLine(e.Row.ItemArray.ToString());
+        }
+
         #region Internal Methods
 
         internal ResultSetResponse InternalColumnsRequest(string catalog, string schemaPattern, string tablePattern, string columnPattern)
@@ -222,7 +260,7 @@ namespace Garuda.Data
                 }
                 catch (Exception ex)
                 {
-                    InternalCloseStatement(tStmt.StatementId);
+                    InternalCloseStatementAsync(tStmt.StatementId);
 
                     throw;
                 }
@@ -258,9 +296,14 @@ namespace Garuda.Data
             return tResp.Result;
         }
 
-        internal async void InternalCloseStatement(uint statementId)
+        internal async void InternalCloseStatementAsync(uint statementId)
         {
             await _client.CloseStatementRequestAsync(this.ConnectionId, statementId, this.Options);
+        }
+
+        internal void InternalCloseStatement(uint statementId)
+        {
+            Task.Factory.StartNew(() => InternalCloseStatementAsync(statementId)).Wait();
         }
 
         internal async Task<FetchResponse> InternalFetchAsync(uint statementId, ulong offset, int max)

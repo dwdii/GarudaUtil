@@ -13,11 +13,11 @@ namespace Garuda.Data
 {
     public class PhoenixDataReader : System.Data.Common.DbDataReader
     {
-        private PhoenixCommand _command = null;
+        private PhoenixConnection _connection = null;
 
         private uint _statementId = uint.MaxValue;
 
-        private List<GarudaResultSet> _resultSets = null;
+        private List<GarudaResultSet> _resultSets = new List<GarudaResultSet>();
 
         private int _currentFrameRowNdx = -1;
 
@@ -30,7 +30,7 @@ namespace Garuda.Data
         /// <summary>
         /// Gets the PhoenixConnection associated with the SqlDataReader.
         /// </summary>
-        public PhoenixConnection Connection {  get { return (PhoenixConnection)_command.Connection; } }
+        public PhoenixConnection Connection {  get { return _connection; } }
 
         internal PhoenixDataReader(PhoenixCommand cmd, GarudaExecuteResponse response)
         {
@@ -43,7 +43,7 @@ namespace Garuda.Data
                 throw new ArgumentNullException("response");
             }
 
-            _command = cmd;
+            _connection = (PhoenixConnection)cmd.Connection;
             _statementId = response.StatementId;
 
             //_response = response.Response.Results.ToList();
@@ -53,6 +53,23 @@ namespace Garuda.Data
                 GarudaResultSet grs = new GarudaResultSet(res.Signature, res.FirstFrame);
                 _resultSets.Add(grs);
             }
+        }
+
+        internal PhoenixDataReader(PhoenixConnection connection, ResultSetResponse response)
+        {
+            if (null == connection)
+            {
+                throw new ArgumentNullException(nameof(connection));
+            }
+            if (null == response)
+            {
+                throw new ArgumentNullException(nameof(response));
+            }
+
+            _connection = connection;
+
+            GarudaResultSet grs = new GarudaResultSet(response.Signature, response.FirstFrame);
+            _resultSets.Add(grs);
         }
 
         #region DbDataReader Class
@@ -373,7 +390,7 @@ namespace Garuda.Data
                     break;
 
                 case Rep.NULL:
-                    o = DBNull.Value;
+                    o = null;// DBNull.Value;
                     break;
 
                 default:
@@ -406,12 +423,12 @@ namespace Garuda.Data
         /// <returns>The number of instances of Object in the array.</returns>
         public override int GetValues(object[] values)
         {
-            for(int i = 0; i < this.FieldCount; i++)
+            for(int i = 0; i < values.Length; i++)
             {
                 values[i] = GetValue(i);
             }
 
-            return this.FieldCount;
+            return values.Length;
         }
 
         /// <summary>
@@ -464,9 +481,15 @@ namespace Garuda.Data
             return CurrentFrame().Rows.Count > _currentFrameRowNdx;
         }
 
+        /// <summary>
+        /// Closes the IDataReader Object.
+        /// </summary>
         public override void Close()
         {
-            this.Connection.InternalCloseStatement(_statementId);
+            if(uint.MaxValue > _statementId)
+            {
+                this.Connection.InternalCloseStatement(_statementId);
+            }
 
             base.Close();
         }

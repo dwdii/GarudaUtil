@@ -200,7 +200,7 @@ namespace Garuda.Data
                     // dispose managed state (managed objects).
                     if(null != _response)
                     {
-                        _connection.InternalCloseStatement(_response.StatementId);
+                        _connection.InternalCloseStatementAsync(_response.StatementId);
                         _response = null;
 
                         _connection = null;

@@ -20,6 +20,7 @@ namespace GarudaUtil
             InitializeComponent();
 
             _tsslCurrent.Text = "Ready";
+
         }
 
         private async void _tsbConnect_Click(object sender, EventArgs e)
@@ -30,6 +31,7 @@ namespace GarudaUtil
 
                 if(DialogResult.OK == frmLogin.ShowDialog())
                 {
+                    this.UseWaitCursor = true;
                     _tsslCurrent.Text = "Connecting...";
                     this.Refresh();
 
@@ -38,6 +40,24 @@ namespace GarudaUtil
                     _connection.Open();
 
                     _tsslConnection.Text = frmLogin.Server;
+
+                    TreeNode root = _treeView.Nodes.Add(frmLogin.Server);
+                    root.Tag = _connection;
+                    root.ImageIndex = 0;
+
+                    DataTable tables = _connection.Tables();
+                    foreach (DataRow row in tables.Rows)
+                    {
+                        string name = string.Format("{0}.{1} ({2})", row[tables.Columns["TABLE_SCHEM"]], row["TABLE_NAME"], row[0]);
+                        TreeNode t = root.Nodes.Add(name);
+                        t.Tag = row;
+                        t.ImageIndex = 2;
+                        t.SelectedImageIndex = t.ImageIndex;
+                        
+                    }
+
+                    dataGridView1.DataSource = tables;
+
                 }
             }
             catch(Exception ex)
@@ -47,6 +67,7 @@ namespace GarudaUtil
             finally
             {
                 _tsslCurrent.Text = "Ready";
+                this.UseWaitCursor = false;
             }
         }
 
@@ -90,6 +111,26 @@ namespace GarudaUtil
                 }
             }
             catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        private void _treeView_DoubleClick(object sender, EventArgs e)
+        {
+            try
+            {
+                MouseEventArgs m = (MouseEventArgs)e;
+                TreeViewHitTestInfo hit = _treeView.HitTest(m.Location);
+
+                if(null != hit.Node)
+                {
+
+                }
+
+                
+            }
+            catch(Exception ex)
             {
                 HandleException(ex);
             }

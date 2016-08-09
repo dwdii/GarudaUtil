@@ -385,7 +385,7 @@ namespace Garuda.Data.Test
         }
 
         [TestMethod]
-        public void PhoenixDataReaderGetSchemaTable()
+        public void DataReaderGetSchemaTable()
         {
             using (PhoenixConnection c = new PhoenixConnection())
             {
@@ -418,7 +418,7 @@ namespace Garuda.Data.Test
         }
 
         [TestMethod]
-        public void PhoenixDataReaderGetFieldType()
+        public void DataReaderGetFieldType()
         {
             using (PhoenixConnection c = new PhoenixConnection())
             {
@@ -441,6 +441,61 @@ namespace Garuda.Data.Test
                 }
             }
         }
+
+        [TestMethod]
+        public void ConnectionTablesDataTable()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                DataTable tables = c.Tables();
+                Assert.IsTrue(tables.Rows.Count > 0);
+            }
+        }
+
+        [TestMethod]
+        public void DataReaderGetValues()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                ReCreateTestTableIfNotExists(c, "DataReaderGetValuesTest",
+                    "CREATE TABLE IF NOT EXISTS DataReaderGetValuesTest (ID BIGINT PRIMARY KEY, FirstCol varchar(16), SecondCol varchar(64))",
+                    true, true);
+
+                List<Func<object>> pFuncs = new List<Func<object>>();
+                pFuncs.Add(() => "First");
+                pFuncs.Add(() => "Second");
+
+                PreparedCmdParameterTest(2,
+                "UPSERT INTO DataReaderGetValuesTest (ID, FirstCol, SecondCol) VALUES (NEXT VALUE FOR garuda.DataReaderGetValuesTestSequence, :1, :2)",
+                pFuncs, false);
+
+                using (IDbCommand cmd = c.CreateCommand())
+                {
+                    
+                    cmd.CommandText = "SELECT * FROM DataReaderGetValuesTest";
+                    using (IDataReader dr = cmd.ExecuteReader())
+                    {
+                        object[] values = new object[dr.FieldCount];
+
+                        while(dr.Read())
+                        {
+                            dr.GetValues(values);
+                            Assert.AreEqual("First", values[1]);
+                            Assert.AreEqual("Second", values[2]);
+                        }
+
+                    }
+                }
+            }
+        }
+
+
 
         #region Private Methods
 
