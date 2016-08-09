@@ -175,7 +175,10 @@ namespace Garuda.Data
 
             DataColumn dcColSize = dt.Columns.Add();
             dcColSize.ColumnName = "ColumnSize";
-            
+
+
+            DataColumn dcIsKey = dt.Columns.Add();
+            dcIsKey.ColumnName = "IsKey";
 
             foreach (var col in CurrentResultSet().Signature.Columns)
             {
@@ -185,9 +188,12 @@ namespace Garuda.Data
                 row[dcColOrdinal] = col.Ordinal;
                 row[dcNullable] = Convert.ToBoolean(col.Nullable);
                 row[dcColSize] = col.DisplaySize;
+                
 
                 dt.Rows.Add(row);
             }
+
+            
 
             return dt;
         }
@@ -367,6 +373,11 @@ namespace Garuda.Data
                     o = val.StringValue;
                     break;
 
+                case Rep.BYTE_STRING:
+                    o = val.BytesValues.ToString();
+                    break;
+
+                case Rep.PRIMITIVE_DOUBLE:
                 case Rep.DOUBLE:
                     o = val.DoubleValue;
                     break;
@@ -377,11 +388,12 @@ namespace Garuda.Data
 
                 case Rep.BYTE:
                 case Rep.SHORT:
+                case Rep.PRIMITIVE_SHORT:
                 case Rep.INTEGER:
                 case Rep.LONG:
                 case Rep.NUMBER:
                     o = val.NumberValue;
-                    if(val.DoubleValue > 0)
+                    if(val.NumberValue == 0 && val.DoubleValue != 0)
                     {
                         // Saw this once... Rep.NUMBER but DoubleValue was 
                         // where the value was stored.

@@ -20,17 +20,34 @@ namespace Garuda.Data
             _map.Add(Rep.LONG, typeof(long));
             _map.Add(Rep.PRIMITIVE_LONG, typeof(long));
             _map.Add(Rep.BIG_INTEGER, typeof(long));
+
             _map.Add(Rep.INTEGER, typeof(int));
             _map.Add(Rep.PRIMITIVE_INT, typeof(int));
+
+            _map.Add(Rep.SHORT, typeof(short));
+            _map.Add(Rep.PRIMITIVE_SHORT, typeof(short));
+
             _map.Add(Rep.STRING, typeof(string));
+            _map.Add(Rep.BYTE_STRING, typeof(string));
+
+
             _map.Add(Rep.BOOLEAN, typeof(bool));
             _map.Add(Rep.PRIMITIVE_BOOLEAN, typeof(bool));
+
             _map.Add(Rep.FLOAT, typeof(float));
             _map.Add(Rep.PRIMITIVE_FLOAT, typeof(float));
+
             _map.Add(Rep.DOUBLE, typeof(double));
+            _map.Add(Rep.PRIMITIVE_DOUBLE, typeof(double));
+
+            _map.Add(Rep.PRIMITIVE_BYTE, typeof(byte));
+
+
+
 
             _dateTypes.Add("TIMESTAMP");
             _dateTypes.Add("DATE");
+
             _timeTypes.Add("TIME");
 
         }

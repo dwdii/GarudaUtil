@@ -41,21 +41,37 @@ namespace GarudaUtil
 
                     _tsslConnection.Text = frmLogin.Server;
 
+                    // Add the server root to the tree
                     TreeNode root = _treeView.Nodes.Add(frmLogin.Server);
                     root.Tag = _connection;
                     root.ImageIndex = 0;
 
+                    // Get list of tables and show in tree
                     DataTable tables = _connection.Tables();
                     foreach (DataRow row in tables.Rows)
                     {
-                        string name = string.Format("{0}.{1} ({2})", row[tables.Columns["TABLE_SCHEM"]], row["TABLE_NAME"], row[0]);
+                        string schema = Convert.ToString(row["TABLE_SCHEM"]);
+                        string table = Convert.ToString(row["TABLE_NAME"]);
+
+                        string name;
+                        if(string.IsNullOrWhiteSpace(schema))
+                        {
+                            name = table;
+                        }
+                        else
+                        {
+                            name = string.Format("{0}.{1}", schema, table);
+                        }
+
                         TreeNode t = root.Nodes.Add(name);
                         t.Tag = row;
                         t.ImageIndex = 2;
                         t.SelectedImageIndex = t.ImageIndex;
-                        
                     }
 
+                    root.Expand();
+
+                    // Show tables in grid view for now.
                     dataGridView1.DataSource = tables;
 
                 }

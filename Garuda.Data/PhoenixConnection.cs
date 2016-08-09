@@ -181,18 +181,23 @@ namespace Garuda.Data
             pbc.RepeatedField<string> list = new pbc.RepeatedField<string>();
             //list.Add("SYSTEM TABLE");
             Task<ResultSetResponse> tablesResponse = Task.Factory.StartNew(() => _client.TablesRequestAsync("", "", "", list, false, this.ConnectionId, this.Options).Result);
-            tablesResponse.Wait();
-            
+            //tablesResponse.Wait();
+
             DataTable dt = new DataTable("Phoenix Tables");
-            dt.TableNewRow += Dt_TableNewRow;
-            dt.RowChanged += Dt_RowChanged;
-            dt.RowChanging += Dt_RowChanging;
-            using (IDataReader dr = new PhoenixDataReader(this, tablesResponse.Result))
+            using (IDbCommand cmd = this.CreateCommand())
             {
-                dt.BeginLoadData();
-                dt.Load(dr);
-                dt.EndLoadData();
-                
+                cmd.CommandText = "SELECT TABLE_SCHEM, TABLE_NAME, TABLE_TYPE FROM SYSTEM.CATALOG WHERE TABLE_TYPE IS NOT NULL";
+
+                dt.TableNewRow += Dt_TableNewRow;
+                dt.RowChanged += Dt_RowChanged;
+                dt.RowChanging += Dt_RowChanging;
+                using (IDataReader dr = cmd.ExecuteReader())
+                {
+                    dt.BeginLoadData();
+                    dt.Load(dr);
+                    dt.EndLoadData();
+
+                }
             }
 
             return dt;
