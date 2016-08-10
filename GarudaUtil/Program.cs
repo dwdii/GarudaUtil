@@ -40,7 +40,7 @@ namespace GarudaUtil
 
                         phConn.Open();
 
-                        (phConn as PhoenixConnection).SystemTables();
+                        //(phConn as PhoenixConnection).SystemTables();
 
                         using (IDbCommand cmd = phConn.CreateCommand())
                         {

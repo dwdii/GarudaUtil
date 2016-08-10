@@ -78,14 +78,24 @@ namespace Garuda.Data
 
                 // If we reached the batch size, then send to server... ?
                 batchCount++;
+                if(batchCount >= this.BatchSize)
+                {
+                    // Send to server
+                    _connection.InternalExecuteBatch(pResp.Statement.Id, updates);
+                    updates.Clear();
+
+                    // Reset batch counter
+                    batchCount = 0;
+                }
             }
 
-            // Send to server
-            _connection.InternalExecuteBatch(pResp.Statement.Id, updates);
-            updates.Clear();
-
-            // Reset batch counter.
-            batchCount = 0;
+            // Last batch   
+            if(batchCount > 0)
+            {
+                // Send to server
+                _connection.InternalExecuteBatch(pResp.Statement.Id, updates);
+                updates.Clear();
+            }
         }
 
         private string BuildStatement()

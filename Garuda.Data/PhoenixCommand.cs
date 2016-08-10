@@ -232,8 +232,8 @@ namespace Garuda.Data
 
         private GarudaExecuteResponse Execute()
         {
-            var response = Task.Run(() => _connection.InternalExecuteRequestAsync(this._prepared, 
-                this.CommandText, this.Parameters));
+            var response = Task.Factory.StartNew(() => _connection.InternalExecuteRequestAsync(this._prepared, 
+                this.CommandText, this.Parameters)).Result;
 
             return response.Result;
         }

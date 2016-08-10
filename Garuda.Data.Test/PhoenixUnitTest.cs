@@ -27,7 +27,11 @@ namespace Garuda.Data.Test
                 c.ConnectionString = this.ConnectionString();
                 c.Open();
 
+                TestContext.WriteLine("ConnectionId: {0}", c.ConnectionId);
+
                 Assert.AreEqual<ConnectionState>(ConnectionState.Open, c.State);
+                Assert.IsNotNull(c.ConnectionId);
+                Assert.IsNotNull(c.ConnectionString);
             }
         }
 
@@ -37,13 +41,44 @@ namespace Garuda.Data.Test
         /// opening/disposal of the connection.
         /// </summary>
         [TestMethod]
-        public void ConstructorConnectionBasicOpenDisposeTest()
+        public void ConnectionConstructorBasicOpenDisposeTest()
         {
             using (PhoenixConnection c = new PhoenixConnection(this.ConnectionString()))
             {
                 c.Open();
 
+                TestContext.WriteLine("ConnectionId: {0}", c.ConnectionId);
+
                 Assert.AreEqual<ConnectionState>(ConnectionState.Open, c.State);
+                Assert.IsNotNull(c.ConnectionId);
+                Assert.IsNotNull(c.ConnectionString);
+            }
+        }
+
+        [TestMethod]
+        public void ConnectionConstructorBasicOpenCloseTest()
+        {
+            using (PhoenixConnection c = new PhoenixConnection(this.ConnectionString()))
+            {
+                c.Open();
+
+                TestContext.WriteLine("ConnectionId: {0}", c.ConnectionId);
+
+                Assert.AreEqual<ConnectionState>(ConnectionState.Open, c.State);
+                Assert.IsNotNull(c.ConnectionId);
+                Assert.IsNotNull(c.ConnectionString);
+
+                c.Close();
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void ConnectionChangeDatabase()
+        {
+            using (PhoenixConnection c = new PhoenixConnection(this.ConnectionString()))
+            {
+                c.ChangeDatabase("whatever");
             }
         }
 
@@ -450,7 +485,7 @@ namespace Garuda.Data.Test
                 c.ConnectionString = this.ConnectionString();
                 c.Open();
 
-                DataTable tables = c.Tables();
+                DataTable tables = c.GetTables();
                 Assert.IsTrue(tables.Rows.Count > 0);
             }
         }

@@ -33,7 +33,9 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this._tsbConnect = new System.Windows.Forms.ToolStripButton();
             this._treeView = new System.Windows.Forms.TreeView();
+            this._imgListTree = new System.Windows.Forms.ImageList(this.components);
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -42,12 +44,10 @@
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this._tspExecute = new System.Windows.Forms.ToolStripButton();
             this._statusStrip = new System.Windows.Forms.StatusStrip();
             this._tsslCurrent = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslConnection = new System.Windows.Forms.ToolStripStatusLabel();
-            this._imgListTree = new System.Windows.Forms.ImageList(this.components);
-            this._tsbConnect = new System.Windows.Forms.ToolStripButton();
-            this._tspExecute = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -105,6 +105,16 @@
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
+            // _tsbConnect
+            // 
+            this._tsbConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._tsbConnect.Image = global::GarudaUtil.Properties.Resources.Connected_64;
+            this._tsbConnect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tsbConnect.Name = "_tsbConnect";
+            this._tsbConnect.Size = new System.Drawing.Size(23, 22);
+            this._tsbConnect.Text = "Connect...";
+            this._tsbConnect.Click += new System.EventHandler(this._tsbConnect_Click);
+            // 
             // _treeView
             // 
             this._treeView.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -117,6 +127,16 @@
             this._treeView.Size = new System.Drawing.Size(199, 371);
             this._treeView.TabIndex = 1;
             this._treeView.DoubleClick += new System.EventHandler(this._treeView_DoubleClick);
+            // 
+            // _imgListTree
+            // 
+            this._imgListTree.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("_imgListTree.ImageStream")));
+            this._imgListTree.TransparentColor = System.Drawing.Color.Transparent;
+            this._imgListTree.Images.SetKeyName(0, "Cloud Storage Filled-50.png");
+            this._imgListTree.Images.SetKeyName(1, "Database-50.png");
+            this._imgListTree.Images.SetKeyName(2, "Insert Table Filled-50.png");
+            this._imgListTree.Images.SetKeyName(3, "Origami-50.png");
+            this._imgListTree.Images.SetKeyName(4, "List-52.png");
             // 
             // tableLayoutPanel3
             // 
@@ -212,6 +232,15 @@
             this.toolStrip2.TabIndex = 1;
             this.toolStrip2.Text = "toolStrip2";
             // 
+            // _tspExecute
+            // 
+            this._tspExecute.Image = global::GarudaUtil.Properties.Resources.Fire_Element_Filled_50;
+            this._tspExecute.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tspExecute.Name = "_tspExecute";
+            this._tspExecute.Size = new System.Drawing.Size(67, 22);
+            this._tspExecute.Text = "Execute";
+            this._tspExecute.Click += new System.EventHandler(this._tspExecute_Click);
+            // 
             // _statusStrip
             // 
             this._statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -236,34 +265,6 @@
             this._tsslConnection.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
             this._tsslConnection.Name = "_tsslConnection";
             this._tsslConnection.Size = new System.Drawing.Size(4, 17);
-            // 
-            // _imgListTree
-            // 
-            this._imgListTree.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("_imgListTree.ImageStream")));
-            this._imgListTree.TransparentColor = System.Drawing.Color.Transparent;
-            this._imgListTree.Images.SetKeyName(0, "Cloud Storage Filled-50.png");
-            this._imgListTree.Images.SetKeyName(1, "Database-50.png");
-            this._imgListTree.Images.SetKeyName(2, "Insert Table Filled-50.png");
-            this._imgListTree.Images.SetKeyName(3, "Origami-50.png");
-            // 
-            // _tsbConnect
-            // 
-            this._tsbConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this._tsbConnect.Image = global::GarudaUtil.Properties.Resources.Connected_64;
-            this._tsbConnect.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._tsbConnect.Name = "_tsbConnect";
-            this._tsbConnect.Size = new System.Drawing.Size(23, 22);
-            this._tsbConnect.Text = "Connect...";
-            this._tsbConnect.Click += new System.EventHandler(this._tsbConnect_Click);
-            // 
-            // _tspExecute
-            // 
-            this._tspExecute.Image = ((System.Drawing.Image)(resources.GetObject("_tspExecute.Image")));
-            this._tspExecute.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._tspExecute.Name = "_tspExecute";
-            this._tspExecute.Size = new System.Drawing.Size(67, 22);
-            this._tspExecute.Text = "Execute";
-            this._tspExecute.Click += new System.EventHandler(this._tspExecute_Click);
             // 
             // MainForm
             // 

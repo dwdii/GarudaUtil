@@ -1,4 +1,5 @@
 ﻿using Garuda.Data;
+using GarudaUtil.MetaData;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -47,7 +48,7 @@ namespace GarudaUtil
                     root.ImageIndex = 0;
 
                     // Get list of tables and show in tree
-                    DataTable tables = _connection.Tables();
+                    DataTable tables = _connection.GetTables();
                     foreach (DataRow row in tables.Rows)
                     {
                         string schema = Convert.ToString(row["TABLE_SCHEM"]);
@@ -64,7 +65,7 @@ namespace GarudaUtil
                         }
 
                         TreeNode t = root.Nodes.Add(name);
-                        t.Tag = row;
+                        t.Tag = new GarudaPhoenixTable(row);
                         t.ImageIndex = 2;
                         t.SelectedImageIndex = t.ImageIndex;
                     }
@@ -141,7 +142,28 @@ namespace GarudaUtil
 
                 if(null != hit.Node)
                 {
+                    if(typeof(GarudaPhoenixTable) == hit.Node.Tag.GetType())
+                    {
+                        var tmd = (GarudaPhoenixTable)hit.Node.Tag;
+                        if(hit.Node.Nodes.Count == 0)
+                        {
+                            var columns = tmd.GetColumns(_connection);
+                            foreach (DataRow row in columns.Rows)
+                            {
+                                string col = Convert.ToString(row["COLUMN_NAME"]);
+                                TreeNode t = hit.Node.Nodes.Add(col);
+                                t.Tag = row;
+                                t.ImageIndex = 4;
+                                t.SelectedImageIndex = t.ImageIndex;
+                            }
 
+                            hit.Node.Expand();
+
+                            // Show columns in grid view for now.
+                            dataGridView1.DataSource = columns;
+                        }
+
+                    }
                 }
 
                 

@@ -12,7 +12,10 @@ using pbc = Google.Protobuf.Collections;
 
 namespace Garuda.Data
 {
-    public class PhoenixConnection : IDbConnection
+    /// <summary>
+    /// Represents an open connection to a Phoenix Query Server. This class cannot be inherited.
+    /// </summary>
+    public sealed class PhoenixConnection : IDbConnection
     {
         #region Private Data Members
         private PhoenixClient _client = null;
@@ -21,10 +24,26 @@ namespace Garuda.Data
 
         #endregion
 
+        internal struct Constants
+        {
+            public const string SqlSelectTableMetaData = "SELECT TABLE_SCHEM, TABLE_NAME, TABLE_TYPE FROM SYSTEM.CATALOG WHERE TABLE_TYPE IS NOT NULL";
+
+            public const string NamePhoenixTables = "Phoenix Tables";
+        }
+
+        /// <summary>
+        /// Gets or sets the ClusterCredentials object for this connection.
+        /// </summary>
         public ClusterCredentials Credentials { get; set; }
 
+        /// <summary>
+        /// The connection ID of the connection.
+        /// </summary>
         public string ConnectionId { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the Phoenix request options
+        /// </summary>
         public RequestOptions Options { get; set; }
 
         internal ConnectionProperties ConnectionProperties { get; private set; }
@@ -61,11 +80,18 @@ namespace Garuda.Data
 
         private string _connectionString = null;
 
+        /// <summary>
+        /// Gets the time to wait while trying to establish a connection before terminating the attempt and generating an error.
+        /// </summary>
         public int ConnectionTimeout
         {
-            get { return this.Options.TimeoutMillis; }
+            get { return this.Options.TimeoutMillis / 1000; }
         }
 
+        /// <summary>
+        /// Throws NotImplementedException.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string Database
         {
@@ -75,6 +101,9 @@ namespace Garuda.Data
             }
         }
 
+        /// <summary>
+        /// Indicates the state of the PhoenixConnection during the most recent network operation performed on the connection.
+        /// </summary>
         public ConnectionState State { get; private set; }
 
         /// <summary>
@@ -84,26 +113,36 @@ namespace Garuda.Data
         /// <returns>An object representing the new transaction.</returns>
         public IDbTransaction BeginTransaction()
         {
-            return new PhoenixTransaction(this, IsolationLevel.ReadCommitted);
+            return this.BeginTransaction(IsolationLevel.ReadCommitted);
         }
 
+        /// <summary>
+        /// Starts a database transaction with the specified isolation level.
+        /// </summary>
+        /// <param name="il"></param>
+        /// <returns></returns>
         public IDbTransaction BeginTransaction(IsolationLevel il)
         {
             return new PhoenixTransaction(this, il);
         }
 
+        /// <summary>
+        /// Opens a database connection with the property settings specified by the ConnectionString.
+        /// </summary>
         public void Open()
         {
             Task.Run(() => PrivateOpenAsync()).Wait();
         }
 
-        
 
+        /// <summary>
+        /// Closes the connection to the database. This is the preferred method of closing any open connection.
+        /// </summary>
         public void Close()
         {
             if (_openConnection != null)
             {
-                _client.CloseConnectionRequestAsync(this.ConnectionId, this.Options).Wait();
+                Task.Factory.StartNew(() =>_client.CloseConnectionRequestAsync(this.ConnectionId, this.Options)).Wait();
                 _openConnection = null;
                 _client = null;
 
@@ -112,6 +151,10 @@ namespace Garuda.Data
             }
         }
 
+        /// <summary>
+        /// Throws NotImplementedException.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         public void ChangeDatabase(string databaseName)
         {
             throw new NotImplementedException();
@@ -128,7 +171,9 @@ namespace Garuda.Data
 
         #endregion
 
-
+        /// <summary>
+        /// Initializes a new instance of the PhoenixConnection class.
+        /// </summary>
         public PhoenixConnection()
         {
             this.ConnectionId = Guid.NewGuid().ToString();
@@ -142,80 +187,40 @@ namespace Garuda.Data
             this.ConnectionProperties = DefaultConnectionProps();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the PhoenixConnection class when given a 
+        /// string that contains the connection string.
+        /// </summary>
+        /// <param name="connectionString"></param>
         public PhoenixConnection(string connectionString) : this()
         {
             this.ConnectionString = connectionString;
         }
 
-        public void SystemTables()
+        /// <summary>
+        /// Returns a DataTable containing meta data about the available tables.
+        /// </summary>
+        /// <returns></returns>
+        public DataTable GetTables()
         {
-            // List system tables
-            pbc.RepeatedField<string> list = new pbc.RepeatedField<string>();
-            list.Add("SYSTEM TABLE");
-            ResultSetResponse tablesResponse = _client.TablesRequestAsync("", "", "", list, true, this.ConnectionId, this.Options).Result;
-            //Assert.AreEqual(4, tablesResponse.FirstFrame.Rows.Count);
-
-            foreach(var c in tablesResponse.Signature.Columns)
+            if(this.State != ConnectionState.Open)
             {
-                Console.Write(string.Format("{0} |", c.ColumnName));
-            }
-            Console.WriteLine();
-
-            foreach (var t in tablesResponse.FirstFrame.Rows)
-            {
-                foreach(var v in t.Value)
-                {
-                    Console.Write(string.Format("{0} |", v.Value[0].ToString()));
-                }
-                Console.WriteLine();
+                throw new InvalidOperationException(string.Format("ConnectionState must be Open. Currently {0}.", this.State));
             }
 
-            // List all table types
-            ResultSetResponse tableTypeResponse = _client.TableTypesRequestAsync(this.ConnectionId, this.Options).Result;
-            //Assert.AreEqual(6, tableTypeResponse.FirstFrame.Rows.Count);
-        }
-
-        public DataTable Tables()
-        {
-            // List system tables
-            pbc.RepeatedField<string> list = new pbc.RepeatedField<string>();
-            //list.Add("SYSTEM TABLE");
-            Task<ResultSetResponse> tablesResponse = Task.Factory.StartNew(() => _client.TablesRequestAsync("", "", "", list, false, this.ConnectionId, this.Options).Result);
-            //tablesResponse.Wait();
-
-            DataTable dt = new DataTable("Phoenix Tables");
+            DataTable dt = new DataTable(Constants.NamePhoenixTables);
             using (IDbCommand cmd = this.CreateCommand())
             {
-                cmd.CommandText = "SELECT TABLE_SCHEM, TABLE_NAME, TABLE_TYPE FROM SYSTEM.CATALOG WHERE TABLE_TYPE IS NOT NULL";
-
-                dt.TableNewRow += Dt_TableNewRow;
-                dt.RowChanged += Dt_RowChanged;
-                dt.RowChanging += Dt_RowChanging;
+                cmd.CommandText = Constants.SqlSelectTableMetaData;
                 using (IDataReader dr = cmd.ExecuteReader())
                 {
                     dt.BeginLoadData();
                     dt.Load(dr);
                     dt.EndLoadData();
-
                 }
             }
 
             return dt;
-        }
-
-        private void Dt_RowChanging(object sender, DataRowChangeEventArgs e)
-        {
-            Console.WriteLine(e.Row.ItemArray.ToString());
-        }
-
-        private void Dt_RowChanged(object sender, DataRowChangeEventArgs e)
-        {
-            Console.WriteLine(e.Row.ItemArray.ToString());
-        }
-
-        private void Dt_TableNewRow(object sender, DataTableNewRowEventArgs e)
-        {
-            Console.WriteLine(e.Row.ItemArray.ToString());
         }
 
         #region Internal Methods
@@ -254,7 +259,7 @@ namespace Garuda.Data
                 {
                     // Not prepared....
                     tStmt = await _client.CreateStatementRequestAsync(this.ConnectionId, this.Options);
-                    //tStmt.Wait();
+                    
                     ourResp.StatementId = tStmt.StatementId;
 
                     tResp = await _client.PrepareAndExecuteRequestAsync(this.ConnectionId,
@@ -279,7 +284,6 @@ namespace Garuda.Data
                     parameterValues.Count > 0, this.Options);
             }
 
-            //tResp.Wait();
             ourResp.Response = tResp;
 
             return ourResp;
@@ -287,17 +291,15 @@ namespace Garuda.Data
 
         internal PrepareResponse InternalPrepareStatement(string sql)
         {
-            Task<PrepareResponse> tResp = _client.PrepareRequestAsync(this.ConnectionId, sql, ulong.MaxValue, this.Options);
-            tResp.Wait();
+            Task<PrepareResponse> tResp = Task.Factory.StartNew(() => _client.PrepareRequestAsync(this.ConnectionId, sql, ulong.MaxValue, this.Options)).Result;
 
             return tResp.Result;
         }
 
         internal ExecuteBatchResponse InternalExecuteBatch(uint statementId, pbc::RepeatedField<UpdateBatch> updates)
         {
-            Task<ExecuteBatchResponse> tResp = _client.ExecuteBatchRequestAsync(this.ConnectionId, statementId, updates, this.Options);
-            tResp.Wait();
-
+            Task<ExecuteBatchResponse> tResp = Task.Factory.StartNew(() => _client.ExecuteBatchRequestAsync(this.ConnectionId, statementId, updates, this.Options)).Result;
+            
             return tResp.Result;
         }
 
@@ -318,27 +320,27 @@ namespace Garuda.Data
             return resp;
         }
 
-        internal void InternalSyncConnectionProperties(bool autoCommit, uint isolationLevel)
+        internal ConnectionSyncResponse InternalSyncConnectionProperties(bool autoCommit, uint isolationLevel)
         {
             this.ConnectionProperties.AutoCommit = autoCommit;
             this.ConnectionProperties.TransactionIsolation = isolationLevel;
             this.ConnectionProperties.IsDirty = true;
-            Task<ConnectionSyncResponse> tResp = _client.ConnectionSyncRequestAsync(this.ConnectionId, 
+            Task<ConnectionSyncResponse> tResp = Task.Factory.StartNew(() => _client.ConnectionSyncRequestAsync(this.ConnectionId, 
                 this.ConnectionProperties, 
-                this.Options);
+                this.Options)).Result;
             tResp.Wait();
+
+            return tResp.Result;
         }
 
         internal void CommitTransaction()
         {
-            Task<CommitResponse> tResp = this._client.CommitRequestAsync(this.ConnectionId, this.Options);
-            tResp.Wait();
+           Task.Factory.StartNew(() => this._client.CommitRequestAsync(this.ConnectionId, this.Options)).Wait();
         }
 
         internal void RollbackTransction()
         {
-            Task<RollbackResponse> tResp = this._client.RollbackRequestAsync(this.ConnectionId, this.Options);
-            tResp.Wait();
+            Task.Factory.StartNew(() => this._client.RollbackRequestAsync(this.ConnectionId, this.Options)).Wait();
         }
         #endregion
 
@@ -464,7 +466,7 @@ namespace Garuda.Data
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
@@ -487,7 +489,9 @@ namespace Garuda.Data
         //   Dispose(false);
         // }
 
-        // This code added to correctly implement the disposable pattern.
+        /// <summary>
+        /// Releases all resources used by the Component.
+        /// </summary>
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.

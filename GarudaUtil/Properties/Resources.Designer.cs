@@ -79,5 +79,15 @@ namespace GarudaUtil.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Fire_Element_Filled_50 {
+            get {
+                object obj = ResourceManager.GetObject("Fire_Element_Filled_50", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }
