@@ -291,9 +291,11 @@ namespace Garuda.Data
 
         internal PrepareResponse InternalPrepareStatement(string sql)
         {
-            Task<PrepareResponse> tResp = Task.Factory.StartNew(() => _client.PrepareRequestAsync(this.ConnectionId, sql, ulong.MaxValue, this.Options)).Result;
+            var tResp = Task.Factory.StartNew(() => _client.PrepareRequestAsync(this.ConnectionId, sql, ulong.MaxValue, this.Options));
+            tResp.Wait();
+            tResp.Result.Wait();
 
-            return tResp.Result;
+            return tResp.Result.Result;
         }
 
         internal ExecuteBatchResponse InternalExecuteBatch(uint statementId, pbc::RepeatedField<UpdateBatch> updates)

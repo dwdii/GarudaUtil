@@ -239,13 +239,14 @@ namespace Garuda.Data
         {
             _stopwatch.Restart();
 
-            var response = Task.Factory.StartNew(() => _connection.InternalExecuteRequestAsync(this._prepared, 
-                this.CommandText, this.Parameters)).Result;
+            var response = Task.Factory.StartNew(() => _connection.InternalExecuteRequestAsync(this._prepared,
+                this.CommandText, this.Parameters));
             response.Wait();
+            response.Result.Wait();
 
             _stopwatch.Stop();
 
-            return response.Result;
+            return response.Result.Result;
         }
 
     }
