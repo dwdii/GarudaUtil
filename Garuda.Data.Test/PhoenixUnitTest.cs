@@ -129,6 +129,35 @@ namespace Garuda.Data.Test
         }
 
         [TestMethod]
+        public void CommandExecuteNonQueryElapsedGreaterThanZero()
+        {
+            using (IDbConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                ReCreateTestTableIfNotExists(c);
+
+                using (IDbCommand cmd = c.CreateCommand())
+                {
+                    cmd.CommandText = string.Format("UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, 'NINTX1', 5, 4, 3, 2, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), 1.2 / .4)");
+                    cmd.ExecuteNonQuery();
+
+                    // Confirm PhoenixCommand.Elapsed is working a bit.
+                    PhoenixCommand phCmd = cmd as PhoenixCommand;
+                    Assert.IsNotNull(phCmd);
+                    Assert.IsNotNull(phCmd.Elapsed);
+                    Assert.AreNotEqual(0, phCmd.Elapsed.TotalMilliseconds, nameof(phCmd.Elapsed.TotalMilliseconds));
+                    this.TestContext.WriteLine("PhoenixCommand.Elapsed: {0}", phCmd.Elapsed);
+
+                }
+
+                Assert.AreEqual(1, QueryAllRows(c));
+            }
+        }
+
+
+        [TestMethod]
         public void TransactionRollbackTest()
         {
             using (IDbConnection c = new PhoenixConnection())
@@ -441,12 +470,15 @@ namespace Garuda.Data.Test
 
                         DataColumn dcColSize = dt.Columns["ColumnSize"];
                         Assert.IsNotNull(dcColSize, "ColumnSize");
+                        Assert.AreEqual(dcColSize.DataType, typeof(int));
                         
                         DataColumn dcColOrdinal = dt.Columns["ColumnOrdinal"];
-                        Assert.IsNotNull(dcColName, "ColumnOrdinal");
+                        Assert.IsNotNull(dcColOrdinal, "ColumnOrdinal");
+                        Assert.AreEqual(dcColOrdinal.DataType, typeof(int));
 
                         DataColumn dcNullable = dt.Columns["AllowDBNull"];
                         Assert.IsNotNull(dcNullable, "AllowDBNull");
+                        Assert.AreEqual(dcNullable.DataType, typeof(bool));
                     }
                 }
             }
