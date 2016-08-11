@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,8 @@ namespace Garuda.Data
 
         private PrepareResponse _prepared = null;
 
+        private Stopwatch _stopwatch = new Stopwatch();
+
         /// <summary>
         /// Constructs a new instance of a PhoenixCommand class associated with the
         /// specified PhoenixConnection.
@@ -31,6 +34,8 @@ namespace Garuda.Data
             this.Connection = connection;
             this.Parameters = new PhoenixParameterCollection();
         }
+
+        public TimeSpan Elapsed { get { return _stopwatch.Elapsed; } }
 
         #region IDbCommand Interface
 
@@ -232,8 +237,13 @@ namespace Garuda.Data
 
         private GarudaExecuteResponse Execute()
         {
+            _stopwatch.Restart();
+
             var response = Task.Factory.StartNew(() => _connection.InternalExecuteRequestAsync(this._prepared, 
                 this.CommandText, this.Parameters)).Result;
+            response.Wait();
+
+            _stopwatch.Stop();
 
             return response.Result;
         }

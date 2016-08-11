@@ -166,19 +166,21 @@ namespace Garuda.Data
 
             DataColumn dcNullable = dt.Columns.Add();
             dcNullable.ColumnName = "AllowDBNull";
+            dcNullable.DataType = typeof(bool);
 
             DataColumn dcColName = dt.Columns.Add();
             dcColName.ColumnName = "ColumnName";
 
             DataColumn dcColOrdinal = dt.Columns.Add();
             dcColOrdinal.ColumnName = "ColumnOrdinal";
+            dcColOrdinal.DataType = typeof(int);
 
             DataColumn dcColSize = dt.Columns.Add();
             dcColSize.ColumnName = "ColumnSize";
+            dcColSize.DataType = typeof(int);
 
-
-            DataColumn dcIsKey = dt.Columns.Add();
-            dcIsKey.ColumnName = "IsKey";
+            //DataColumn dcIsKey = dt.Columns.Add();
+            //dcIsKey.ColumnName = "IsKey";
 
             foreach (var col in CurrentResultSet().Signature.Columns)
             {
@@ -192,8 +194,6 @@ namespace Garuda.Data
 
                 dt.Rows.Add(row);
             }
-
-            
 
             return dt;
         }
@@ -402,7 +402,11 @@ namespace Garuda.Data
                     break;
 
                 case Rep.NULL:
-                    o = null;// DBNull.Value;
+                    o = DBNull.Value;
+                    break;
+
+                case Rep.ARRAY:
+                    o = DBNull.Value;
                     break;
 
                 default:
@@ -410,19 +414,23 @@ namespace Garuda.Data
                     break;
             }
 
-            switch(GetDataTypeName(ordinal))
+            // Chronotypes
+            if(Rep.NULL != val.Type)
             {
-                case "DATE":
-                    o = FromPhoenixDate(val.NumberValue);
-                    break;
+                switch (GetDataTypeName(ordinal))
+                {
+                    case "DATE":
+                        o = FromPhoenixDate(val.NumberValue);
+                        break;
 
-                case "TIME":
-                    o = FromPhoenixTime(val.NumberValue);
-                    break;
+                    case "TIME":
+                        o = FromPhoenixTime(val.NumberValue);
+                        break;
 
-                case "TIMESTAMP":
-                    o = FromPhoenixTimestamp(val.NumberValue);
-                    break;
+                    case "TIMESTAMP":
+                        o = FromPhoenixTimestamp(val.NumberValue);
+                        break;
+                }
             }
 
             return o;

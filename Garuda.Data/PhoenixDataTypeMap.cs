@@ -42,7 +42,7 @@ namespace Garuda.Data
 
             _map.Add(Rep.PRIMITIVE_BYTE, typeof(byte));
 
-
+            _map.Add(Rep.ARRAY, typeof(Array));
 
 
             _dateTypes.Add("TIMESTAMP");
