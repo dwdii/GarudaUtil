@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>$version$-alpha</version>
+    <version>$version$-beta</version>
     <title>$title$</title>
     <authors>Daniel Dittenhafer</authors>
     <owners>$author$</owners>
@@ -14,7 +14,7 @@
     <releaseNotes>
       Ultra Alpha
       * PhoenixCommand::Explain, PhoenixCommand::GetTables methods added
-      * Fixed GetSchemaTable column data types
+      * Fixed GetSchemaTable column data types, compatible with DataGridView
       * Tested against Hortonworks HDP 2.4 (HBASE 1.1.2 / Phoenix 4.4)
       * Improved async handling with UI threads.
       * PhoenixDataReader::GetSchemaTable and support for DataTable::Load
