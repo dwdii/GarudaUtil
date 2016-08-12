@@ -13,6 +13,8 @@
     <description>A .NET Framework System.Data implementation for Apache Phoenix including IDbConnection, IDbCommand, IDbTransaction and IDbDataReader.</description>
     <releaseNotes>
       Ultra Alpha
+      * PhoenixCommand::Explain, PhoenixCommand::GetTables methods added
+      * Fixed GetSchemaTable column data types
       * Tested against Hortonworks HDP 2.4 (HBASE 1.1.2 / Phoenix 4.4)
       * Improved async handling with UI threads.
       * PhoenixDataReader::GetSchemaTable and support for DataTable::Load

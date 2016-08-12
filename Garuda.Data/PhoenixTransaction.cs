@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Garuda.Data
 {
+    /// <summary>
+    /// Represents a transaction to be made in a Apache Phoenix Query Server. This class cannot be inherited.
+    /// </summary>
     public sealed class PhoenixTransaction : IDbTransaction
     {
         private bool _hasCommitted = false;
@@ -30,6 +33,9 @@ namespace Garuda.Data
         public IDbConnection Connection { get { return _connection; } }
         private PhoenixConnection _connection = null;
 
+        /// <summary>
+        /// Specifies the IsolationLevel for this transaction.
+        /// </summary>
         public IsolationLevel IsolationLevel
         {
             get { return PhoenixIsolationLevelMap.GetIsolationLevel(this._phoneixTxIsoLevel); }
@@ -37,12 +43,18 @@ namespace Garuda.Data
 
         private uint _phoneixTxIsoLevel = 0;
 
+        /// <summary>
+        /// Commits the database transaction.
+        /// </summary>
         public void Commit()
         {
             this._connection.CommitTransaction();
             this._hasCommitted = true;
         }
 
+        /// <summary>
+        /// Rolls back a transaction from a pending state.
+        /// </summary>
         public void Rollback()
         {
             this._connection.RollbackTransction();
@@ -78,7 +90,9 @@ namespace Garuda.Data
         //   Dispose(false);
         // }
 
-        // This code added to correctly implement the disposable pattern.
+        /// <summary>
+        /// Releases the unmanaged resources used by the PhoenixTransaction.
+        /// </summary>
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.

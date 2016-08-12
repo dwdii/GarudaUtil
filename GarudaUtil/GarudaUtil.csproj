@@ -133,6 +133,7 @@
     <None Include="Images\Fire Element Filled-50.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Images\Training Filled-50.png" />
     <Content Include="Origami-50.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

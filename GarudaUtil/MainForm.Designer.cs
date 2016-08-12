@@ -45,10 +45,12 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this._tspExecute = new System.Windows.Forms.ToolStripButton();
+            this._tsbExecutionPlan = new System.Windows.Forms.ToolStripButton();
             this._statusStrip = new System.Windows.Forms.StatusStrip();
             this._tsslCurrent = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslConnection = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslElapsed = new System.Windows.Forms.ToolStripStatusLabel();
+            this._tsslRowCount = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -80,7 +82,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tableLayoutPanel3);
-            this.splitContainer1.Size = new System.Drawing.Size(858, 391);
+            this.splitContainer1.Size = new System.Drawing.Size(860, 430);
             this.splitContainer1.SplitterDistance = 285;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -96,7 +98,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(285, 391);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(285, 430);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // toolStrip1
@@ -128,7 +130,7 @@
             this._treeView.Name = "_treeView";
             this._treeView.SelectedImageIndex = 0;
             this._treeView.ShowRootLines = false;
-            this._treeView.Size = new System.Drawing.Size(279, 371);
+            this._treeView.Size = new System.Drawing.Size(279, 399);
             this._treeView.TabIndex = 1;
             this._treeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this._treeView_NodeMouseDoubleClick);
             // 
@@ -141,6 +143,7 @@
             this._imgListTree.Images.SetKeyName(2, "Insert Table Filled-50.png");
             this._imgListTree.Images.SetKeyName(3, "Origami-50.png");
             this._imgListTree.Images.SetKeyName(4, "List-52.png");
+            this._imgListTree.Images.SetKeyName(5, "Training Filled-50.png");
             // 
             // tableLayoutPanel3
             // 
@@ -154,7 +157,7 @@
             this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(569, 391);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(571, 430);
             this.tableLayoutPanel3.TabIndex = 1;
             // 
             // tabControl1
@@ -165,7 +168,7 @@
             this.tabControl1.Location = new System.Drawing.Point(3, 28);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(563, 390);
+            this.tabControl1.Size = new System.Drawing.Size(565, 399);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -174,7 +177,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(555, 364);
+            this.tabPage1.Size = new System.Drawing.Size(557, 373);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -193,16 +196,19 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this._dataGridView1);
-            this.splitContainer2.Size = new System.Drawing.Size(549, 358);
-            this.splitContainer2.SplitterDistance = 179;
+            this.splitContainer2.Size = new System.Drawing.Size(551, 367);
+            this.splitContainer2.SplitterDistance = 183;
             this.splitContainer2.TabIndex = 2;
             // 
             // _rtbQuery
             // 
+            this._rtbQuery.AcceptsTab = true;
             this._rtbQuery.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._rtbQuery.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this._rtbQuery.Location = new System.Drawing.Point(0, 0);
             this._rtbQuery.Name = "_rtbQuery";
-            this._rtbQuery.Size = new System.Drawing.Size(549, 179);
+            this._rtbQuery.ShowSelectionMargin = true;
+            this._rtbQuery.Size = new System.Drawing.Size(551, 183);
             this._rtbQuery.TabIndex = 0;
             this._rtbQuery.Text = "";
             // 
@@ -211,12 +217,14 @@
             this._dataGridView1.AllowUserToAddRows = false;
             this._dataGridView1.AllowUserToDeleteRows = false;
             this._dataGridView1.AllowUserToOrderColumns = true;
+            this._dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            this._dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
             this._dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this._dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this._dataGridView1.Location = new System.Drawing.Point(0, 0);
             this._dataGridView1.Name = "_dataGridView1";
             this._dataGridView1.ReadOnly = true;
-            this._dataGridView1.Size = new System.Drawing.Size(549, 175);
+            this._dataGridView1.Size = new System.Drawing.Size(551, 180);
             this._dataGridView1.TabIndex = 1;
             // 
             // tabPage2
@@ -232,10 +240,11 @@
             // toolStrip2
             // 
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._tspExecute});
+            this._tspExecute,
+            this._tsbExecutionPlan});
             this.toolStrip2.Location = new System.Drawing.Point(0, 0);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(569, 25);
+            this.toolStrip2.Size = new System.Drawing.Size(571, 25);
             this.toolStrip2.TabIndex = 1;
             this.toolStrip2.Text = "toolStrip2";
             // 
@@ -248,15 +257,26 @@
             this._tspExecute.Text = "Execute";
             this._tspExecute.Click += new System.EventHandler(this._tspExecute_Click);
             // 
+            // _tsbExecutionPlan
+            // 
+            this._tsbExecutionPlan.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._tsbExecutionPlan.Image = global::GarudaUtil.Properties.Resources.Training_Filled_50;
+            this._tsbExecutionPlan.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tsbExecutionPlan.Name = "_tsbExecutionPlan";
+            this._tsbExecutionPlan.Size = new System.Drawing.Size(23, 22);
+            this._tsbExecutionPlan.Text = "Execution Plan";
+            this._tsbExecutionPlan.Click += new System.EventHandler(this._tsbExecutionPlan_Click);
+            // 
             // _statusStrip
             // 
             this._statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._tsslCurrent,
             this._tsslConnection,
-            this._tsslElapsed});
-            this._statusStrip.Location = new System.Drawing.Point(0, 391);
+            this._tsslElapsed,
+            this._tsslRowCount});
+            this._statusStrip.Location = new System.Drawing.Point(0, 430);
             this._statusStrip.Name = "_statusStrip";
-            this._statusStrip.Size = new System.Drawing.Size(858, 22);
+            this._statusStrip.Size = new System.Drawing.Size(860, 22);
             this._statusStrip.TabIndex = 1;
             this._statusStrip.Text = "statusStrip1";
             // 
@@ -287,11 +307,17 @@
             this._tsslElapsed.Size = new System.Drawing.Size(250, 17);
             this._tsslElapsed.Text = "00:00";
             // 
+            // _tsslRowCount
+            // 
+            this._tsslRowCount.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+            this._tsslRowCount.Name = "_tsslRowCount";
+            this._tsslRowCount.Size = new System.Drawing.Size(4, 17);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(858, 413);
+            this.ClientSize = new System.Drawing.Size(860, 452);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this._statusStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -344,6 +370,8 @@
         private System.Windows.Forms.ImageList _imgListTree;
         private System.Windows.Forms.ToolStripStatusLabel _tsslElapsed;
         private System.Windows.Forms.SplitContainer splitContainer2;
+        private System.Windows.Forms.ToolStripButton _tsbExecutionPlan;
+        private System.Windows.Forms.ToolStripStatusLabel _tsslRowCount;
     }
 }
 

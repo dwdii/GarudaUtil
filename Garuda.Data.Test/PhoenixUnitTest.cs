@@ -449,6 +449,66 @@ namespace Garuda.Data.Test
         }
 
         [TestMethod]
+        public void DataReaderItemInt32Indexer()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                using (IDbCommand cmd = c.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT * FROM BIGTABLE";
+                    using (IDataReader dr = cmd.ExecuteReader())
+                    {
+                        while(dr.Read())
+                        {
+                            for(int i = 0; i < dr.FieldCount; i++)
+                            {
+                                object o = dr[i];
+
+                                object o2 = dr.GetValue(i);
+
+                                Assert.AreEqual(o2, o, "Mismatch on field {0}", i);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void DataReaderItemStringIndexer()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                using (IDbCommand cmd = c.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT * FROM BIGTABLE";
+                    using (IDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            for (int i = 0; i < dr.FieldCount; i++)
+                            {
+                                string name = dr.GetName(i);
+
+                                object o = dr[name];
+
+                                object o2 = dr.GetValue(i);
+
+                                Assert.AreEqual(o2, o, "Mismatch on field {0}", name);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
         public void DataReaderGetSchemaTable()
         {
             using (PhoenixConnection c = new PhoenixConnection())
@@ -521,6 +581,48 @@ namespace Garuda.Data.Test
                 Assert.IsTrue(tables.Rows.Count > 0);
             }
         }
+
+        [TestMethod]
+        public void CommandExplain()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                using (PhoenixCommand cmd = new PhoenixCommand(c))
+                {
+                    cmd.CommandText = "SELECT * FROM BIGTABLE WHERE ID < 1000";
+
+                    DataTable dt = cmd.Explain();
+
+                    Assert.IsNotNull(dt);
+                }
+
+            }
+        }
+
+        [TestMethod]
+        public void CommandExecuteScalar()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                using (PhoenixCommand cmd = new PhoenixCommand(c))
+                {
+                    cmd.CommandText = "SELECT COUNT(*) FROM BIGTABLE WHERE ID < 1000";
+
+                    object oVal = cmd.ExecuteScalar();
+
+                    Assert.IsNotNull(oVal);
+                    Assert.IsInstanceOfType(oVal, typeof(long));
+                }
+
+            }
+        }
+
 
         [TestMethod]
         public void DataReaderGetValues()

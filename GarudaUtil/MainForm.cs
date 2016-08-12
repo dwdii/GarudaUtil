@@ -87,7 +87,7 @@ namespace GarudaUtil
             root.Expand();
 
             // Show tables in grid view for now.
-            _dataGridView1.DataSource = tables;
+            UpdateDataGrid(tables);
         }
 
         private void UpdateBusyWaitState(bool useWaitCursor, string statusText)
@@ -115,8 +115,6 @@ namespace GarudaUtil
             {
                 MessageBox.Show(this, ex.Message, ex.GetType().Name);
             }
-            
-
         }
 
         private void _tspExecute_Click(object sender, EventArgs e)
@@ -135,19 +133,11 @@ namespace GarudaUtil
                         DataTable dt = new DataTable();
                         dt.Load(dr);
 
-                        this._dataGridView1.AutoGenerateColumns = true;
-                        this._dataGridView1.DataSource = dt;
-
-                        // Automatically resize the visible rows.
-                        _dataGridView1.AutoSizeRowsMode =
-                            DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
-
-                        // Set the DataGridView control's border.
-                        _dataGridView1.BorderStyle = BorderStyle.Fixed3D;
+                        UpdateDataGrid(dt);
 
                         // How long did the command take?
                         sw.Stop();
-                        _tsslElapsed.Text = string.Format("{0} [Cmd: {1}]", sw.Elapsed, cmd.Elapsed);
+                        UpdateElapsedStatus(sw, cmd);
                     }
                 }
             }
@@ -161,9 +151,46 @@ namespace GarudaUtil
             }
         }
 
-        private void _treeView_DoubleClick(object sender, EventArgs e)
+        private void _tsbExecutionPlan_Click(object sender, EventArgs e)
         {
-            
+            Stopwatch sw = new Stopwatch();
+
+            try
+            {
+                sw.Start();
+                UpdateBusyWaitState(true, "Executing...");
+                using (PhoenixCommand cmd = new PhoenixCommand(_connection))
+                {
+                    cmd.CommandText = _rtbQuery.Text;
+                    DataTable dt = cmd.Explain();
+
+                    UpdateDataGrid(dt);
+
+                    // How long did the command take?
+                    sw.Stop();
+                    UpdateElapsedStatus(sw, cmd);
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            finally
+            {
+                UpdateBusyWaitState(false, null);
+            }
+        }
+
+        private void UpdateElapsedStatus(Stopwatch sw, PhoenixCommand cmd)
+        {
+            _tsslElapsed.Text = string.Format("{0} [Cmd: {1}]", sw.Elapsed, cmd.Elapsed);
+        }
+
+        private void UpdateDataGrid(DataTable dt)
+        {
+            _dataGridView1.AutoGenerateColumns = true;
+            _dataGridView1.DataSource = dt;
+            _tsslRowCount.Text = string.Format("{0} rows", dt.Rows.Count);
         }
 
         private void OnTreeTableDoubleClick(TreeNodeMouseClickEventArgs e)
@@ -185,10 +212,8 @@ namespace GarudaUtil
                 e.Node.Expand();
 
                 // Show columns in grid view for now.
-                _dataGridView1.DataSource = columns;
+                UpdateDataGrid(columns);
             }
-
-
         }
 
         private void _treeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -198,7 +223,6 @@ namespace GarudaUtil
                 if (typeof(GarudaPhoenixTable) == e.Node.Tag.GetType())
                 {
                     OnTreeTableDoubleClick(e);
-
                 }
             }
             catch (Exception ex)

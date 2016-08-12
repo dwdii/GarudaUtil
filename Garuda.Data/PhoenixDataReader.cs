@@ -11,7 +11,15 @@ using System.Data;
 
 namespace Garuda.Data
 {
-    public class PhoenixDataReader : System.Data.Common.DbDataReader
+    /// <summary>
+    /// Provides a way of reading a forward-only stream of rows from an Apache Phoenix Query Server. 
+    /// This class cannot be inherited.
+    /// </summary>
+    /// <remarks>
+    /// To create a PhoenixDataReader, you must call the ExecuteReader method of the PhoenixCommand object, 
+    /// instead of directly using a constructor.
+    /// </remarks>
+    public sealed class PhoenixDataReader : System.Data.Common.DbDataReader
     {
         private PhoenixConnection _connection = null;
 
@@ -26,6 +34,8 @@ namespace Garuda.Data
         private int _currentFrame = 0;
 
         private int _currentResultSet = 0;
+
+        private bool _isClosed = false;
 
         /// <summary>
         /// Gets the PhoenixConnection associated with the SqlDataReader.
@@ -96,10 +106,13 @@ namespace Garuda.Data
         {
             get
             {
-                return CurrentRowValue(ordinal);
+                return GetValue(ordinal);
             }
         }
 
+        /// <summary>
+        /// Not currently implemented.
+        /// </summary>
         [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public override int Depth
         {
@@ -134,12 +147,11 @@ namespace Garuda.Data
         /// <summary>
         /// Gets a value indicating whether the DbDataReader is closed.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public override bool IsClosed
         {
             get
             {
-                return !(CurrentFrame().Rows.Count > _currentFrameRowNdx);
+                return _isClosed;
             }
         }
 
@@ -179,9 +191,6 @@ namespace Garuda.Data
             dcColSize.ColumnName = "ColumnSize";
             dcColSize.DataType = typeof(int);
 
-            //DataColumn dcIsKey = dt.Columns.Add();
-            //dcIsKey.ColumnName = "IsKey";
-
             foreach (var col in CurrentResultSet().Signature.Columns)
             {
                 DataRow row = dt.NewRow();
@@ -189,8 +198,18 @@ namespace Garuda.Data
                 row[dcColName] = col.ColumnName;
                 row[dcColOrdinal] = col.Ordinal;
                 row[dcNullable] = Convert.ToBoolean(col.Nullable);
-                row[dcColSize] = col.DisplaySize;
-                
+
+                if(col.Type.Rep == Rep.STRING &&
+                    col.ColumnName == "PLAN")
+                {
+                    row[dcColSize] = int.MaxValue;
+                }
+                else
+                {
+                    row[dcColSize] = col.DisplaySize;
+                }
+
+
 
                 dt.Rows.Add(row);
             }
@@ -509,6 +528,7 @@ namespace Garuda.Data
             if(uint.MaxValue > _statementId)
             {
                 this.Connection.InternalCloseStatement(_statementId);
+                _isClosed = true;
             }
 
             base.Close();

@@ -9,10 +9,17 @@ using pbc = Google.Protobuf.Collections;
 
 namespace Garuda.Data
 {
+    /// <summary>
+    /// Lets you efficiently bulk load an Apache Phoenix Query Server table with data from another source.
+    /// </summary>
     public class PhoenixBulkCopy
     {
         private PhoenixConnection _connection = null;
 
+        /// <summary>
+        /// Initializes a new instance of the SqlBulkCopy class using the specified open instance of PhoenixConnection.
+        /// </summary>
+        /// <param name="connection"></param>
         public PhoenixBulkCopy(PhoenixConnection connection)
         {
             if(null == connection)
@@ -52,6 +59,10 @@ namespace Garuda.Data
         }
         private string _destinationTableName;
 
+        /// <summary>
+        /// Returns a dictionary of PhoenixBulkCopyColumnMapping items. The dictionary key
+        /// is the column name.
+        /// </summary>
         public Dictionary<string, PhoenixBulkCopyColumnMapping> ColumnMappings { get; private set; }
 
         /// <summary>
@@ -97,6 +108,8 @@ namespace Garuda.Data
                 updates.Clear();
             }
         }
+
+        #region Private Methods
 
         private string BuildStatement()
         {
@@ -149,5 +162,7 @@ namespace Garuda.Data
 
             throw new KeyNotFoundException(name);
         }
+
+        #endregion
     }
 }

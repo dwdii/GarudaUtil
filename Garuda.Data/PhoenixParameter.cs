@@ -11,13 +11,22 @@ namespace Garuda.Data
     /// <summary>
     /// Encapsulates a parameter for a Phoenix command.
     /// </summary>
-    public class PhoenixParameter : System.Data.Common.DbParameter
+    public sealed class PhoenixParameter : System.Data.Common.DbParameter
     {
+        /// <summary>
+        /// Structure to encapsulate constants
+        /// </summary>
         public struct Constants
         {
-            public static string TimestampFormat = "yyyy-MM-dd hh:mm:ss.fffffff";
+            /// <summary>
+            /// The string format associated with the TIMESTAMP data type.
+            /// </summary>
+            public const string TimestampFormat = "yyyy-MM-dd hh:mm:ss.fffffff";
 
-            public static DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            /// <summary>
+            /// The Epoch value January 1, 1970
+            /// </summary>
+            public static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         }
 
         /// <summary>
@@ -31,7 +40,7 @@ namespace Garuda.Data
         /// Creates a new instance of a Phoenix parameter with the specified value.
         /// </summary>
         /// <param name="value"></param>
-        public PhoenixParameter(object value)
+        public PhoenixParameter(object value) : this()
         {
             this.Value = value;
         }
@@ -66,6 +75,9 @@ namespace Garuda.Data
         /// </summary>
         public override string SourceColumn { get; set; }
 
+        /// <summary>
+        /// Unused
+        /// </summary>
         public override bool SourceColumnNullMapping { get; set; }
 
         /// <summary>
@@ -73,6 +85,9 @@ namespace Garuda.Data
         /// </summary>
         public override object Value { get; set; }
 
+        /// <summary>
+        /// Not implemented
+        /// </summary>
         public override void ResetDbType()
         {
             throw new NotImplementedException();
@@ -87,6 +102,10 @@ namespace Garuda.Data
             return PhoenixParameter.AsPhoenixTypedValue(this);
         }
 
+        /// <summary>
+        /// Converts the specified parameter to and returns the Apache Phoenix TypedValue structure.
+        /// </summary>
+        /// <returns></returns>
         public static TypedValue AsPhoenixTypedValue(PhoenixParameter parameter)
         {
             return PhoenixParameter.AsPhoenixTypedValue(parameter.Value);
