@@ -134,6 +134,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Images\Training Filled-50.png" />
+    <Content Include="Images\Database-50.png" />
+    <Content Include="Images\Insert Table Filled-50.png" />
+    <Content Include="Images\List-52.png" />
+    <Content Include="Images\Origami-50.ico" />
+    <Content Include="Images\Origami-50.png" />
     <Content Include="Origami-50.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
