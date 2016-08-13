@@ -37,7 +37,6 @@
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this._tsbConnect = new System.Windows.Forms.ToolStripButton();
             this._statusStrip = new System.Windows.Forms.StatusStrip();
             this._tsslCurrent = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslConnection = new System.Windows.Forms.ToolStripStatusLabel();
@@ -45,6 +44,7 @@
             this._tsslRowCount = new System.Windows.Forms.ToolStripStatusLabel();
             this._cmsTreeTableMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this._tsmiSelectTop1000 = new System.Windows.Forms.ToolStripMenuItem();
+            this._tsbConnect = new System.Windows.Forms.ToolStripButton();
             this._tsbNewQuery = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -146,16 +146,6 @@
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // _tsbConnect
-            // 
-            this._tsbConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this._tsbConnect.Image = global::GarudaUtil.Properties.Resources.Connected_64;
-            this._tsbConnect.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._tsbConnect.Name = "_tsbConnect";
-            this._tsbConnect.Size = new System.Drawing.Size(23, 22);
-            this._tsbConnect.Text = "Connect...";
-            this._tsbConnect.Click += new System.EventHandler(this._tsbConnect_Click);
-            // 
             // _statusStrip
             // 
             this._statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -207,7 +197,7 @@
             this._cmsTreeTableMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._tsmiSelectTop1000});
             this._cmsTreeTableMenu.Name = "_cmsTreeMenu";
-            this._cmsTreeTableMenu.Size = new System.Drawing.Size(187, 48);
+            this._cmsTreeTableMenu.Size = new System.Drawing.Size(187, 26);
             // 
             // _tsmiSelectTop1000
             // 
@@ -216,9 +206,19 @@
             this._tsmiSelectTop1000.Text = "Select Top 1000 Rows";
             this._tsmiSelectTop1000.Click += new System.EventHandler(this._tsmiSelectTop1000_Click);
             // 
+            // _tsbConnect
+            // 
+            this._tsbConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._tsbConnect.Image = global::GarudaUtil.Properties.Resources.Connected_64;
+            this._tsbConnect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tsbConnect.Name = "_tsbConnect";
+            this._tsbConnect.Size = new System.Drawing.Size(23, 22);
+            this._tsbConnect.Text = "Connect...";
+            this._tsbConnect.Click += new System.EventHandler(this._tsbConnect_Click);
+            // 
             // _tsbNewQuery
             // 
-            this._tsbNewQuery.Image = ((System.Drawing.Image)(resources.GetObject("_tsbNewQuery.Image")));
+            this._tsbNewQuery.Image = global::GarudaUtil.Properties.Resources.Create_New_Filled_50;
             this._tsbNewQuery.ImageTransparentColor = System.Drawing.Color.Magenta;
             this._tsbNewQuery.Name = "_tsbNewQuery";
             this._tsbNewQuery.Size = new System.Drawing.Size(95, 22);
