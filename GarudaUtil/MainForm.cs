@@ -16,12 +16,14 @@ namespace GarudaUtil
     public partial class MainForm : Form
     {
         PhoenixConnection _connection = null;
+        int _queryCounter = 1;
 
         public MainForm()
         {
             InitializeComponent();
 
             _tsslCurrent.Text = "Ready";
+            _tsbNewQuery.Enabled = false;
 
         }
 
@@ -38,12 +40,33 @@ namespace GarudaUtil
                     _tsslConnection.Text = frmLogin.Server;
 
                     // Add the server root to the tree
-                    TreeNode root = _treeView.Nodes.Add(frmLogin.Server);
+                    TreeNode root = null;
+                    foreach (TreeNode tn in _treeView.Nodes)
+                    {
+                        var ph = tn.Tag as PhoenixConnection;
+                        if (tn.Text == frmLogin.Server)
+                        {
+                            root = tn;
+                            break;
+                        }
+                    }
+
+                    // If not found, add new.
+                    if (null == root)
+                    {
+                        root = _treeView.Nodes.Add(frmLogin.Server);
+                    }
+
                     root.Tag = _connection;
                     root.ImageIndex = 0;
 
                     RefreshTreeTables(frmLogin);
+                    _tsbNewQuery.Enabled = true;
 
+                    if(tabControl1.TabPages.Count == 0)
+                    {
+                        _tsbNewQuery_Click(_tsbNewQuery, new EventArgs());
+                    }
                 }
             }
             catch(Exception ex)
@@ -82,28 +105,16 @@ namespace GarudaUtil
                 t.Tag = new GarudaPhoenixTable(row);
                 t.ImageIndex = 2;
                 t.SelectedImageIndex = t.ImageIndex;
+                t.ContextMenuStrip = _cmsTreeTableMenu;
             }
 
             root.Expand();
 
             // Show tables in grid view for now.
-            UpdateDataGrid(tables);
+            //UpdateDataGrid(tables);
         }
 
-        private void UpdateBusyWaitState(bool useWaitCursor, string statusText)
-        {
-            this.UseWaitCursor = useWaitCursor;
-            if(!string.IsNullOrWhiteSpace(statusText))
-            {
-                _tsslCurrent.Text = statusText;
-            }
-            else
-            {
-                _tsslCurrent.Text = "Ready";
-            }
-            
-            this.Refresh();
-        }
+
 
         private void HandleException(Exception ex)
         {
@@ -117,79 +128,30 @@ namespace GarudaUtil
             }
         }
 
-        private void _tspExecute_Click(object sender, EventArgs e)
+        
+
+        public void UpdateBusyWaitState(bool useWaitCursor, string statusText)
         {
-            Stopwatch sw = new Stopwatch();
-
-            try
+            this.UseWaitCursor = useWaitCursor;
+            if (!string.IsNullOrWhiteSpace(statusText))
             {
-                sw.Start();
-                UpdateBusyWaitState(true, "Executing...");
-                using (PhoenixCommand cmd = new PhoenixCommand(_connection))
-                {
-                    cmd.CommandText = _rtbQuery.Text;
-                    using (IDataReader dr = cmd.ExecuteReader())
-                    {
-                        DataTable dt = new DataTable();
-                        dt.Load(dr);
-
-                        UpdateDataGrid(dt);
-
-                        // How long did the command take?
-                        sw.Stop();
-                        UpdateElapsedStatus(sw, cmd);
-                    }
-                }
+                _tsslCurrent.Text = statusText;
             }
-            catch (Exception ex)
+            else
             {
-                HandleException(ex);
+                _tsslCurrent.Text = "Ready";
             }
-            finally
-            {
-                UpdateBusyWaitState(false, null);
-            }
+
+            this.Refresh();
         }
 
-        private void _tsbExecutionPlan_Click(object sender, EventArgs e)
-        {
-            Stopwatch sw = new Stopwatch();
-
-            try
-            {
-                sw.Start();
-                UpdateBusyWaitState(true, "Executing...");
-                using (PhoenixCommand cmd = new PhoenixCommand(_connection))
-                {
-                    cmd.CommandText = _rtbQuery.Text;
-                    DataTable dt = cmd.Explain();
-
-                    UpdateDataGrid(dt);
-
-                    // How long did the command take?
-                    sw.Stop();
-                    UpdateElapsedStatus(sw, cmd);
-                }
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-            finally
-            {
-                UpdateBusyWaitState(false, null);
-            }
-        }
-
-        private void UpdateElapsedStatus(Stopwatch sw, PhoenixCommand cmd)
+        public void UpdateElapsedStatus(Stopwatch sw, PhoenixCommand cmd)
         {
             _tsslElapsed.Text = string.Format("{0} [Cmd: {1}]", sw.Elapsed, cmd.Elapsed);
         }
 
-        private void UpdateDataGrid(DataTable dt)
+        public void UpdateRowCountStatus(DataTable dt)
         {
-            _dataGridView1.AutoGenerateColumns = true;
-            _dataGridView1.DataSource = dt;
             _tsslRowCount.Text = string.Format("{0} rows", dt.Rows.Count);
         }
 
@@ -212,7 +174,7 @@ namespace GarudaUtil
                 e.Node.Expand();
 
                 // Show columns in grid view for now.
-                UpdateDataGrid(columns);
+                //UpdateDataGrid(columns);
             }
         }
 
@@ -224,6 +186,45 @@ namespace GarudaUtil
                 {
                     OnTreeTableDoubleClick(e);
                 }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        private void _tsbNewQuery_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                NewQueryViewTab();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        private QueryView NewQueryViewTab()
+        {
+            TabPage tp = new TabPage(string.Format("Query{0}", _queryCounter++));
+            var qv = new QueryView(this, _connection.ConnectionString);
+            tp.Controls.Add(qv);
+            tabControl1.TabPages.Add(tp);
+            tabControl1.SelectedTab = tp;
+
+            return qv;
+        }
+
+        private void _tsmiSelectTop1000_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                QueryView qv = NewQueryViewTab();
+
+                qv.Text = string.Format("SELECT * FROM {0} LIMIT 1000", _treeView.SelectedNode.Text);
+
+                qv.ExecuteQuery();
             }
             catch (Exception ex)
             {

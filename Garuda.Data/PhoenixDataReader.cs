@@ -199,8 +199,7 @@ namespace Garuda.Data
                 row[dcColOrdinal] = col.Ordinal;
                 row[dcNullable] = Convert.ToBoolean(col.Nullable);
 
-                if(col.Type.Rep == Rep.STRING &&
-                    col.ColumnName == "PLAN")
+                if( (col.Type.Rep == Rep.STRING && col.ColumnName == "PLAN") || col.TableName == "SYSTEM.STATS" )
                 {
                     row[dcColSize] = int.MaxValue;
                 }
