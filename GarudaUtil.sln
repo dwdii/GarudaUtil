@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GarudaUtil", "GarudaUtil\GarudaUtil.csproj", "{AC801EF6-9790-4775-A26E-F21CC992E2E4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GarudaQuery", "GarudaUtil\GarudaQuery.csproj", "{AC801EF6-9790-4775-A26E-F21CC992E2E4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Garuda.Data", "Garuda.Data\Garuda.Data.csproj", "{8EBB3919-D9BF-4439-89CD-9E83CD48EF75}"
 EndProject

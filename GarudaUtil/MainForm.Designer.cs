@@ -35,8 +35,11 @@
             this._treeView = new System.Windows.Forms.TreeView();
             this._imgListTree = new System.Windows.Forms.ImageList(this.components);
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this._tabControl = new System.Windows.Forms.TabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this._tsbConnect = new System.Windows.Forms.ToolStripButton();
+            this._tsbNewQuery = new System.Windows.Forms.ToolStripButton();
+            this._tsbOpenFile = new System.Windows.Forms.ToolStripButton();
             this._statusStrip = new System.Windows.Forms.StatusStrip();
             this._tsslCurrent = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslConnection = new System.Windows.Forms.ToolStripStatusLabel();
@@ -44,8 +47,6 @@
             this._tsslRowCount = new System.Windows.Forms.ToolStripStatusLabel();
             this._cmsTreeTableMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this._tsmiSelectTop1000 = new System.Windows.Forms.ToolStripMenuItem();
-            this._tsbConnect = new System.Windows.Forms.ToolStripButton();
-            this._tsbNewQuery = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -116,7 +117,7 @@
             // 
             this.tableLayoutPanel3.ColumnCount = 1;
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.Controls.Add(this.tabControl1, 0, 1);
+            this.tableLayoutPanel3.Controls.Add(this._tabControl, 0, 1);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -126,25 +127,60 @@
             this.tableLayoutPanel3.Size = new System.Drawing.Size(571, 405);
             this.tableLayoutPanel3.TabIndex = 1;
             // 
-            // tabControl1
+            // _tabControl
             // 
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(3, 3);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(565, 399);
-            this.tabControl1.TabIndex = 0;
+            this._tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._tabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
+            this._tabControl.ItemSize = new System.Drawing.Size(75, 18);
+            this._tabControl.Location = new System.Drawing.Point(3, 3);
+            this._tabControl.Name = "_tabControl";
+            this._tabControl.SelectedIndex = 0;
+            this._tabControl.Size = new System.Drawing.Size(565, 399);
+            this._tabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
+            this._tabControl.TabIndex = 0;
+            this._tabControl.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.tabControl_DrawItem);
+            this._tabControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this._tabControl_MouseDown);
             // 
             // toolStrip1
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._tsbConnect,
+            this._tsbOpenFile,
             this._tsbNewQuery});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(860, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // _tsbConnect
+            // 
+            this._tsbConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._tsbConnect.Image = global::GarudaUtil.Properties.Resources.Connected_64;
+            this._tsbConnect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tsbConnect.Name = "_tsbConnect";
+            this._tsbConnect.Size = new System.Drawing.Size(23, 22);
+            this._tsbConnect.Text = "Connect...";
+            this._tsbConnect.Click += new System.EventHandler(this._tsbConnect_Click);
+            // 
+            // _tsbNewQuery
+            // 
+            this._tsbNewQuery.Image = global::GarudaUtil.Properties.Resources.Create_New_Filled_50;
+            this._tsbNewQuery.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tsbNewQuery.Name = "_tsbNewQuery";
+            this._tsbNewQuery.Size = new System.Drawing.Size(95, 22);
+            this._tsbNewQuery.Text = "New Query...";
+            this._tsbNewQuery.Click += new System.EventHandler(this._tsbNewQuery_Click);
+            // 
+            // _tsbOpenFile
+            // 
+            this._tsbOpenFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._tsbOpenFile.Image = global::GarudaUtil.Properties.Resources.Open_Folder_Filled_32__2_;
+            this._tsbOpenFile.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tsbOpenFile.Name = "_tsbOpenFile";
+            this._tsbOpenFile.Size = new System.Drawing.Size(23, 22);
+            this._tsbOpenFile.Text = "Open File...";
+            this._tsbOpenFile.Click += new System.EventHandler(this._tsbOpenFile_Click);
             // 
             // _statusStrip
             // 
@@ -206,25 +242,6 @@
             this._tsmiSelectTop1000.Text = "Select Top 1000 Rows";
             this._tsmiSelectTop1000.Click += new System.EventHandler(this._tsmiSelectTop1000_Click);
             // 
-            // _tsbConnect
-            // 
-            this._tsbConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this._tsbConnect.Image = global::GarudaUtil.Properties.Resources.Connected_64;
-            this._tsbConnect.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._tsbConnect.Name = "_tsbConnect";
-            this._tsbConnect.Size = new System.Drawing.Size(23, 22);
-            this._tsbConnect.Text = "Connect...";
-            this._tsbConnect.Click += new System.EventHandler(this._tsbConnect_Click);
-            // 
-            // _tsbNewQuery
-            // 
-            this._tsbNewQuery.Image = global::GarudaUtil.Properties.Resources.Create_New_Filled_50;
-            this._tsbNewQuery.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._tsbNewQuery.Name = "_tsbNewQuery";
-            this._tsbNewQuery.Size = new System.Drawing.Size(95, 22);
-            this._tsbNewQuery.Text = "New Query...";
-            this._tsbNewQuery.Click += new System.EventHandler(this._tsbNewQuery_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -259,7 +276,7 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.TreeView _treeView;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabControl _tabControl;
         private System.Windows.Forms.StatusStrip _statusStrip;
         private System.Windows.Forms.ToolStripButton _tsbConnect;
         private System.Windows.Forms.ToolStripStatusLabel _tsslCurrent;
@@ -270,6 +287,7 @@
         private System.Windows.Forms.ContextMenuStrip _cmsTreeTableMenu;
         private System.Windows.Forms.ToolStripMenuItem _tsmiSelectTop1000;
         private System.Windows.Forms.ToolStripButton _tsbNewQuery;
+        private System.Windows.Forms.ToolStripButton _tsbOpenFile;
     }
 }
 
