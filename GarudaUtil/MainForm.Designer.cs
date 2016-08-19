@@ -38,13 +38,14 @@
             this._tabControl = new System.Windows.Forms.TabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this._tsbConnect = new System.Windows.Forms.ToolStripButton();
-            this._tsbNewQuery = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this._tsbOpenFile = new System.Windows.Forms.ToolStripButton();
+            this._tsbSave = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this._tsbNewQuery = new System.Windows.Forms.ToolStripButton();
             this._statusStrip = new System.Windows.Forms.StatusStrip();
             this._tsslCurrent = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslConnection = new System.Windows.Forms.ToolStripStatusLabel();
-            this._tsslElapsed = new System.Windows.Forms.ToolStripStatusLabel();
-            this._tsslRowCount = new System.Windows.Forms.ToolStripStatusLabel();
             this._cmsTreeTableMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this._tsmiSelectTop1000 = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -145,7 +146,10 @@
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._tsbConnect,
+            this.toolStripSeparator2,
             this._tsbOpenFile,
+            this._tsbSave,
+            this.toolStripSeparator1,
             this._tsbNewQuery});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
@@ -163,14 +167,10 @@
             this._tsbConnect.Text = "Connect...";
             this._tsbConnect.Click += new System.EventHandler(this._tsbConnect_Click);
             // 
-            // _tsbNewQuery
+            // toolStripSeparator2
             // 
-            this._tsbNewQuery.Image = global::GarudaUtil.Properties.Resources.Create_New_Filled_50;
-            this._tsbNewQuery.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._tsbNewQuery.Name = "_tsbNewQuery";
-            this._tsbNewQuery.Size = new System.Drawing.Size(95, 22);
-            this._tsbNewQuery.Text = "New Query...";
-            this._tsbNewQuery.Click += new System.EventHandler(this._tsbNewQuery_Click);
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
             // _tsbOpenFile
             // 
@@ -182,13 +182,35 @@
             this._tsbOpenFile.Text = "Open File...";
             this._tsbOpenFile.Click += new System.EventHandler(this._tsbOpenFile_Click);
             // 
+            // _tsbSave
+            // 
+            this._tsbSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._tsbSave.Image = global::GarudaUtil.Properties.Resources.Save_32;
+            this._tsbSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tsbSave.Name = "_tsbSave";
+            this._tsbSave.Size = new System.Drawing.Size(23, 22);
+            this._tsbSave.Text = "Save";
+            this._tsbSave.Click += new System.EventHandler(this._tsbSave_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // _tsbNewQuery
+            // 
+            this._tsbNewQuery.Image = global::GarudaUtil.Properties.Resources.Create_New_Filled_50;
+            this._tsbNewQuery.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tsbNewQuery.Name = "_tsbNewQuery";
+            this._tsbNewQuery.Size = new System.Drawing.Size(95, 22);
+            this._tsbNewQuery.Text = "New Query...";
+            this._tsbNewQuery.Click += new System.EventHandler(this._tsbNewQuery_Click);
+            // 
             // _statusStrip
             // 
             this._statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._tsslCurrent,
-            this._tsslConnection,
-            this._tsslElapsed,
-            this._tsslRowCount});
+            this._tsslConnection});
             this._statusStrip.Location = new System.Drawing.Point(0, 430);
             this._statusStrip.Name = "_statusStrip";
             this._statusStrip.Size = new System.Drawing.Size(860, 22);
@@ -213,20 +235,6 @@
             this._tsslConnection.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this._tsslConnection.Size = new System.Drawing.Size(350, 17);
             this._tsslConnection.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // _tsslElapsed
-            // 
-            this._tsslElapsed.AutoSize = false;
-            this._tsslElapsed.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
-            this._tsslElapsed.Name = "_tsslElapsed";
-            this._tsslElapsed.Size = new System.Drawing.Size(250, 17);
-            this._tsslElapsed.Text = "00:00";
-            // 
-            // _tsslRowCount
-            // 
-            this._tsslRowCount.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
-            this._tsslRowCount.Name = "_tsslRowCount";
-            this._tsslRowCount.Size = new System.Drawing.Size(4, 17);
             // 
             // _cmsTreeTableMenu
             // 
@@ -282,12 +290,13 @@
         private System.Windows.Forms.ToolStripStatusLabel _tsslCurrent;
         private System.Windows.Forms.ToolStripStatusLabel _tsslConnection;
         private System.Windows.Forms.ImageList _imgListTree;
-        private System.Windows.Forms.ToolStripStatusLabel _tsslElapsed;
-        private System.Windows.Forms.ToolStripStatusLabel _tsslRowCount;
         private System.Windows.Forms.ContextMenuStrip _cmsTreeTableMenu;
         private System.Windows.Forms.ToolStripMenuItem _tsmiSelectTop1000;
         private System.Windows.Forms.ToolStripButton _tsbNewQuery;
         private System.Windows.Forms.ToolStripButton _tsbOpenFile;
+        private System.Windows.Forms.ToolStripButton _tsbSave;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
     }
 }
 

@@ -570,6 +570,63 @@ namespace Garuda.Data.Test
         }
 
         [TestMethod]
+        public void DataReaderFieldCountZero()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                using (IDbCommand cmd = c.CreateCommand())
+                {
+                    cmd.CommandText = "UPSERT INTO BIGTABLE (ID, MYTIMESTAMP) VALUES (502, NOW())";
+                    using (IDataReader dr = cmd.ExecuteReader())
+                    {
+                        Assert.AreEqual(0, dr.FieldCount);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void DataReaderHasRowsFalse()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                using (IDbCommand cmd = c.CreateCommand())
+                {
+                    cmd.CommandText = "UPSERT INTO BIGTABLE (ID, MYTIMESTAMP) VALUES (502, NOW())";
+                    using (PhoenixDataReader dr = cmd.ExecuteReader() as PhoenixDataReader)
+                    {
+                        Assert.AreEqual(false, dr.HasRows);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void DataReaderRecordsAffectedOne()
+        {
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                using (IDbCommand cmd = c.CreateCommand())
+                {
+                    cmd.CommandText = "UPSERT INTO BIGTABLE (ID, MYTIMESTAMP) VALUES (502, NOW())";
+                    using (IDataReader dr = cmd.ExecuteReader())
+                    {
+                        Assert.AreEqual(1, dr.RecordsAffected);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
         public void ConnectionTablesDataTable()
         {
             using (PhoenixConnection c = new PhoenixConnection())

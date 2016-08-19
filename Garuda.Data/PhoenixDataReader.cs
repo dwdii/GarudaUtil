@@ -60,7 +60,7 @@ namespace Garuda.Data
             _resultSets = new List<GarudaResultSet>();
             foreach(var res in response.Response.Results)
             {
-                GarudaResultSet grs = new GarudaResultSet(res.Signature, res.FirstFrame);
+                GarudaResultSet grs = new GarudaResultSet(res.Signature, res.FirstFrame, res.UpdateCount);
                 _resultSets.Add(grs);
             }
         }
@@ -78,7 +78,7 @@ namespace Garuda.Data
 
             _connection = connection;
 
-            GarudaResultSet grs = new GarudaResultSet(response.Signature, response.FirstFrame);
+            GarudaResultSet grs = new GarudaResultSet(response.Signature, response.FirstFrame, response.UpdateCount);
             _resultSets.Add(grs);
         }
 
@@ -129,6 +129,11 @@ namespace Garuda.Data
         {
             get
             {
+                if (null == CurrentResultSet() || null == CurrentFrame())
+                {
+                    return 0;
+                }
+
                 return CurrentResultSet().Signature.Columns.Count;
             }
         }
@@ -140,6 +145,11 @@ namespace Garuda.Data
         {
             get
             {
+                if(null == CurrentResultSet() || null == CurrentFrame())
+                {
+                    return false;
+                }
+                
                 return CurrentFrame().Rows.Count > 0;
             }
         }
@@ -158,13 +168,21 @@ namespace Garuda.Data
         /// <summary>
         /// Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
         /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
-        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public override int RecordsAffected
         {
             get
             {
-                throw new NotImplementedException();
+                ulong ra = this.CurrentResultSet().UpdateCount;
+                if(ulong.MaxValue == ra)
+                {
+                    ra = 0;
+                }
+                else if(ra > int.MaxValue)
+                {
+                    ra = int.MaxValue;
+                }
+
+                return Convert.ToInt32(ra);
             }
         }
 

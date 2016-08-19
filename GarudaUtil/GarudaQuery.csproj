@@ -154,6 +154,7 @@
     <None Include="Images\Open Folder Filled-32 %282%29.png" />
     <Content Include="Images\Origami-50.ico" />
     <Content Include="Images\Origami-50.png" />
+    <None Include="Images\Save-32.png" />
     <Content Include="Origami-50.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

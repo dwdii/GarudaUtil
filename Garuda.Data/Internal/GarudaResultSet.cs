@@ -13,10 +13,13 @@ namespace Garuda.Data.Internal
 
         public Signature Signature { get; set; }
 
-        public GarudaResultSet(Signature sig, Frame firstFrame)
+        public ulong UpdateCount { get; set; }
+
+        public GarudaResultSet(Signature sig, Frame firstFrame, ulong updateCount)
         {
             this.Signature = sig;
             this.Frames = new List<Frame>();
+            this.UpdateCount = updateCount;
             this.Frames.Add(firstFrame);
         }
     }

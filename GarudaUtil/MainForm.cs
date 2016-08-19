@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,9 +23,10 @@ namespace GarudaUtil
         {
             InitializeComponent();
 
-            _tsslCurrent.Text = "Ready";
+            _tsslCurrent.Text = Properties.Resources.StatusReady;
             _tsbNewQuery.Enabled = false;
             _tsbOpenFile.Enabled = false;
+            _tsbSave.Enabled = false;
                 
 
         }
@@ -33,7 +35,7 @@ namespace GarudaUtil
         {
             try
             {
-                UpdateBusyWaitState(true, "Connecting...");
+                UpdateBusyWaitState(true, Properties.Resources.StatusConnecting);
 
                 LoginForm frmLogin = new LoginForm();
                 if(DialogResult.OK == frmLogin.ShowDialog())
@@ -65,6 +67,7 @@ namespace GarudaUtil
                     RefreshTreeTables(frmLogin);
                     _tsbNewQuery.Enabled = true;
                     _tsbOpenFile.Enabled = true;
+                    _tsbSave.Enabled = true;
 
                     if(_tabControl.TabPages.Count == 0)
                     {
@@ -142,20 +145,10 @@ namespace GarudaUtil
             }
             else
             {
-                _tsslCurrent.Text = "Ready";
+                _tsslCurrent.Text = Properties.Resources.StatusReady;
             }
 
             this.Refresh();
-        }
-
-        public void UpdateElapsedStatus(Stopwatch sw, PhoenixCommand cmd)
-        {
-            _tsslElapsed.Text = string.Format("{0} [Cmd: {1}]", sw.Elapsed, cmd.Elapsed);
-        }
-
-        public void UpdateRowCountStatus(DataTable dt)
-        {
-            _tsslRowCount.Text = string.Format("{0} rows", dt.Rows.Count);
         }
 
         private void OnTreeTableDoubleClick(TreeNodeMouseClickEventArgs e)
@@ -200,7 +193,7 @@ namespace GarudaUtil
         {
             try
             {
-                NewQueryViewTab(null);
+                NewQueryViewTab(null, null);
             }
             catch (Exception ex)
             {
@@ -208,7 +201,7 @@ namespace GarudaUtil
             }
         }
 
-        private QueryView NewQueryViewTab(string name)
+        private QueryView NewQueryViewTab(string name, FileInfo fileInfo)
         {
             if(string.IsNullOrWhiteSpace(name))
             {
@@ -218,7 +211,7 @@ namespace GarudaUtil
             TabPage tp = new TabPage(name);
             tp.ToolTipText = name;
 
-            var qv = new QueryView(this, _connection.ConnectionString);
+            var qv = new QueryView(this, _connection.ConnectionString, fileInfo);
             tp.Controls.Add(qv);
             _tabControl.TabPages.Add(tp);
             _tabControl.SelectedTab = tp;
@@ -230,7 +223,7 @@ namespace GarudaUtil
         {
             try
             {
-                QueryView qv = NewQueryViewTab(null);
+                QueryView qv = NewQueryViewTab(null, null);
 
                 qv.Text = string.Format("SELECT * FROM {0} LIMIT 1000", _treeView.SelectedNode.Text);
 
@@ -249,6 +242,8 @@ namespace GarudaUtil
             Font bold = new Font(e.Font.FontFamily, e.Font.Size + 1, FontStyle.Bold);
 
             // Measure the tab text and if exceeds our max, then trim with ...
+            e.Graphics.FillRectangle(SystemBrushes.FromSystemColor(_tabControl.Parent.BackColor), e.Bounds);
+
             SizeF s = e.Graphics.MeasureString(this._tabControl.TabPages[e.Index].Text, e.Font);
             //e.Bounds.Inflate(Convert.ToInt32(s.Width) + 50, 0);
             string text = this._tabControl.TabPages[e.Index].Text;
@@ -290,13 +285,33 @@ namespace GarudaUtil
             {
                 OpenFileDialog ofd = new OpenFileDialog();
 
-                ofd.Filter = "SQL Files (*.sql)|*.sql|Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+                ofd.Filter = GarudaUtil.Properties.Resources.OpenFileDialogFilter;
 
                 if(DialogResult.OK == ofd.ShowDialog(this))
                 {
-                    QueryView qv = NewQueryViewTab(System.IO.Path.GetFileName(ofd.FileName));
+                    QueryView qv = NewQueryViewTab(System.IO.Path.GetFileName(ofd.FileName), 
+                        new FileInfo(ofd.FileName));
 
-                    qv.Text = System.IO.File.ReadAllText(ofd.FileName);
+                    
+                }
+            }
+            catch(Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        private void _tsbSave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if(null != _tabControl.SelectedTab)
+                {
+                    QueryView qv = _tabControl.SelectedTab.Controls[0] as QueryView;
+                    if (null != qv)
+                    {
+                        qv.Save();
+                    }
                 }
             }
             catch(Exception ex)
