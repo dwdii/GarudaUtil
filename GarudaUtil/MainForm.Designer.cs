@@ -37,8 +37,6 @@
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this._tabControl = new System.Windows.Forms.TabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this._tsbConnect = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this._tsbOpenFile = new System.Windows.Forms.ToolStripButton();
             this._tsbSave = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -48,6 +46,10 @@
             this._tsslConnection = new System.Windows.Forms.ToolStripStatusLabel();
             this._cmsTreeTableMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this._tsmiSelectTop1000 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
+            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this._tsbConnect = new System.Windows.Forms.ToolStripButton();
+            this._tsbRefreshTree = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -57,12 +59,17 @@
             this.toolStrip1.SuspendLayout();
             this._statusStrip.SuspendLayout();
             this._cmsTreeTableMenu.SuspendLayout();
+            this.toolStripContainer1.BottomToolStripPanel.SuspendLayout();
+            this.toolStripContainer1.ContentPanel.SuspendLayout();
+            this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
+            this.toolStripContainer1.SuspendLayout();
+            this.toolStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 25);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -144,33 +151,17 @@
             // 
             // toolStrip1
             // 
+            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._tsbConnect,
-            this.toolStripSeparator2,
             this._tsbOpenFile,
             this._tsbSave,
             this.toolStripSeparator1,
             this._tsbNewQuery});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Location = new System.Drawing.Point(63, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(860, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(159, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
-            // 
-            // _tsbConnect
-            // 
-            this._tsbConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this._tsbConnect.Image = global::GarudaUtil.Properties.Resources.Connected_64;
-            this._tsbConnect.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this._tsbConnect.Name = "_tsbConnect";
-            this._tsbConnect.Size = new System.Drawing.Size(23, 22);
-            this._tsbConnect.Text = "Connect...";
-            this._tsbConnect.Click += new System.EventHandler(this._tsbConnect_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
             // _tsbOpenFile
             // 
@@ -208,10 +199,11 @@
             // 
             // _statusStrip
             // 
+            this._statusStrip.Dock = System.Windows.Forms.DockStyle.None;
             this._statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._tsslCurrent,
             this._tsslConnection});
-            this._statusStrip.Location = new System.Drawing.Point(0, 430);
+            this._statusStrip.Location = new System.Drawing.Point(0, 0);
             this._statusStrip.Name = "_statusStrip";
             this._statusStrip.Size = new System.Drawing.Size(860, 22);
             this._statusStrip.TabIndex = 1;
@@ -250,14 +242,67 @@
             this._tsmiSelectTop1000.Text = "Select Top 1000 Rows";
             this._tsmiSelectTop1000.Click += new System.EventHandler(this._tsmiSelectTop1000_Click);
             // 
+            // toolStripContainer1
+            // 
+            // 
+            // toolStripContainer1.BottomToolStripPanel
+            // 
+            this.toolStripContainer1.BottomToolStripPanel.Controls.Add(this._statusStrip);
+            // 
+            // toolStripContainer1.ContentPanel
+            // 
+            this.toolStripContainer1.ContentPanel.AutoScroll = true;
+            this.toolStripContainer1.ContentPanel.Controls.Add(this.splitContainer1);
+            this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(860, 405);
+            this.toolStripContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolStripContainer1.Location = new System.Drawing.Point(0, 0);
+            this.toolStripContainer1.Name = "toolStripContainer1";
+            this.toolStripContainer1.Size = new System.Drawing.Size(860, 452);
+            this.toolStripContainer1.TabIndex = 2;
+            this.toolStripContainer1.Text = "toolStripContainer1";
+            // 
+            // toolStripContainer1.TopToolStripPanel
+            // 
+            this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
+            this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip2);
+            // 
+            // toolStrip2
+            // 
+            this.toolStrip2.Dock = System.Windows.Forms.DockStyle.None;
+            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._tsbConnect,
+            this._tsbRefreshTree});
+            this.toolStrip2.Location = new System.Drawing.Point(4, 0);
+            this.toolStrip2.Name = "toolStrip2";
+            this.toolStrip2.Size = new System.Drawing.Size(58, 25);
+            this.toolStrip2.TabIndex = 1;
+            // 
+            // _tsbConnect
+            // 
+            this._tsbConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._tsbConnect.Image = global::GarudaUtil.Properties.Resources.Connected_64;
+            this._tsbConnect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tsbConnect.Name = "_tsbConnect";
+            this._tsbConnect.Size = new System.Drawing.Size(23, 22);
+            this._tsbConnect.Text = "Connect...";
+            this._tsbConnect.Click += new System.EventHandler(this._tsbConnect_Click);
+            // 
+            // _tsbRefreshTree
+            // 
+            this._tsbRefreshTree.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this._tsbRefreshTree.Image = global::GarudaUtil.Properties.Resources.Refresh_32;
+            this._tsbRefreshTree.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._tsbRefreshTree.Name = "_tsbRefreshTree";
+            this._tsbRefreshTree.Size = new System.Drawing.Size(23, 22);
+            this._tsbRefreshTree.Text = "Refresh";
+            this._tsbRefreshTree.Click += new System.EventHandler(this._tsbRefreshTree_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(860, 452);
-            this.Controls.Add(this.splitContainer1);
-            this.Controls.Add(this._statusStrip);
-            this.Controls.Add(this.toolStrip1);
+            this.Controls.Add(this.toolStripContainer1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "Garuda Query";
@@ -272,8 +317,16 @@
             this._statusStrip.ResumeLayout(false);
             this._statusStrip.PerformLayout();
             this._cmsTreeTableMenu.ResumeLayout(false);
+            this.toolStripContainer1.BottomToolStripPanel.ResumeLayout(false);
+            this.toolStripContainer1.BottomToolStripPanel.PerformLayout();
+            this.toolStripContainer1.ContentPanel.ResumeLayout(false);
+            this.toolStripContainer1.TopToolStripPanel.ResumeLayout(false);
+            this.toolStripContainer1.TopToolStripPanel.PerformLayout();
+            this.toolStripContainer1.ResumeLayout(false);
+            this.toolStripContainer1.PerformLayout();
+            this.toolStrip2.ResumeLayout(false);
+            this.toolStrip2.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -286,7 +339,6 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.TabControl _tabControl;
         private System.Windows.Forms.StatusStrip _statusStrip;
-        private System.Windows.Forms.ToolStripButton _tsbConnect;
         private System.Windows.Forms.ToolStripStatusLabel _tsslCurrent;
         private System.Windows.Forms.ToolStripStatusLabel _tsslConnection;
         private System.Windows.Forms.ImageList _imgListTree;
@@ -295,8 +347,11 @@
         private System.Windows.Forms.ToolStripButton _tsbNewQuery;
         private System.Windows.Forms.ToolStripButton _tsbOpenFile;
         private System.Windows.Forms.ToolStripButton _tsbSave;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripContainer toolStripContainer1;
+        private System.Windows.Forms.ToolStrip toolStrip2;
+        private System.Windows.Forms.ToolStripButton _tsbConnect;
+        private System.Windows.Forms.ToolStripButton _tsbRefreshTree;
     }
 }
 

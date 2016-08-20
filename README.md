@@ -77,3 +77,9 @@ The following data types have been tested successfully:
 * long
 * float
 
+## GarudaQuery
+
+The solution also includes a Windows Forms-based user interface which uses Garuda.Data to interface
+with the Phoenix Query Server. 
+
+![Garuda Query](http://dwdii.github.io/img/GarudaQueryScreenshot.png)

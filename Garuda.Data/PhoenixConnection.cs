@@ -131,7 +131,9 @@ namespace Garuda.Data
         /// </summary>
         public void Open()
         {
-            Task.Run(() => PrivateOpenAsync()).Wait();
+            var t = Task.Factory.StartNew(() => PrivateOpenAsync().Wait());
+
+            t.Wait();
         }
 
 
@@ -253,55 +255,102 @@ namespace Garuda.Data
             ExecuteResponse tResp = null;
             GarudaExecuteResponse ourResp = new GarudaExecuteResponse();
 
-            if(null == prepared)
+            try
             {
-                try
+                if(null == prepared)
                 {
-                    // Not prepared....
-                    tStmt = await _client.CreateStatementRequestAsync(this.ConnectionId, this.Options);
+                    try
+                    {
+                        // Not prepared....
+                        tStmt = await _client.CreateStatementRequestAsync(this.ConnectionId, this.Options);
                     
-                    ourResp.StatementId = tStmt.StatementId;
+                        ourResp.StatementId = tStmt.StatementId;
 
-                    tResp = await _client.PrepareAndExecuteRequestAsync(this.ConnectionId,
-                        sql,
-                        ulong.MaxValue,
-                        ourResp.StatementId,
-                        this.Options);
+                        tResp = await _client.PrepareAndExecuteRequestAsync(this.ConnectionId,
+                            sql,
+                            ulong.MaxValue,
+                            ourResp.StatementId,
+                            this.Options);
+                    }
+                    catch (Exception)
+                    {
+                        if(null != tStmt)
+                        {
+                            InternalCloseStatementAsync(tStmt.StatementId);
+                        }
+
+                        throw;
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    InternalCloseStatementAsync(tStmt.StatementId);
+                    // Prepared and possibly with parameters.
+                    pbc.RepeatedField<TypedValue> pbParamValues = parameterValues.AsRepeatedFieldTypedValue();
 
+                    tResp = await _client.ExecuteRequestAsync(prepared.Statement, pbParamValues, 100,
+                        parameterValues.Count > 0, this.Options);
+                }
+
+                ourResp.Response = tResp;
+            }
+            catch (Exception ex)
+            {
+                if (OnInternalException(ex))
+                {
                     throw;
                 }
             }
-            else
-            {
-                // Prepared and possibly with parameters.
-                pbc.RepeatedField<TypedValue> pbParamValues = parameterValues.AsRepeatedFieldTypedValue();
-
-                tResp = await _client.ExecuteRequestAsync(prepared.Statement, pbParamValues, 100,
-                    parameterValues.Count > 0, this.Options);
-            }
-
-            ourResp.Response = tResp;
 
             return ourResp;
         }
 
         internal PrepareResponse InternalPrepareStatement(string sql)
         {
-            var tResp = Task.Factory.StartNew(() => _client.PrepareRequestAsync(this.ConnectionId, sql, ulong.MaxValue, this.Options));
-            tResp.Wait();
-            tResp.Result.Wait();
+            Task<PrepareResponse> tResp = null;
 
-            return tResp.Result.Result;
+            try
+            {
+                var t = Task.Factory.StartNew(() => _client.PrepareRequestAsync(this.ConnectionId, sql, ulong.MaxValue, this.Options));
+                t.Wait();
+
+                // Wait on the internal result also.
+                tResp = t.Result;
+                tResp.Wait();
+            }
+            catch(Exception ex)
+            {
+                if(OnInternalException(ex))
+                {
+                    throw;
+                }
+            }
+
+            return tResp.Result;
         }
+
+
 
         internal ExecuteBatchResponse InternalExecuteBatch(uint statementId, pbc::RepeatedField<UpdateBatch> updates)
         {
-            Task<ExecuteBatchResponse> tResp = Task.Factory.StartNew(() => _client.ExecuteBatchRequestAsync(this.ConnectionId, statementId, updates, this.Options)).Result;
-            
+            Task<ExecuteBatchResponse> tResp = null;
+
+            try
+            {
+                var t = Task.Factory.StartNew(() => _client.ExecuteBatchRequestAsync(this.ConnectionId, statementId, updates, this.Options));
+                t.Wait();
+
+                // Wait on the internal result also.
+                tResp = t.Result;
+                tResp.Wait();
+            }
+            catch(Exception ex)
+            {
+                if(OnInternalException(ex))
+                {
+                    throw;
+                }
+            }
+
             return tResp.Result;
         }
 
@@ -422,27 +471,45 @@ namespace Garuda.Data
             }
         }
 
+        private bool OnInternalException(Exception ex)
+        {
+            bool rethrow = true;
+            if (ex.Message.Contains("org.apache.calcite.avatica.NoSuchConnectionException"))
+            {
+                this.State = ConnectionState.Broken;
+            }
+            else if(ex.GetType() == typeof(AggregateException))
+            {
+                AggregateException ag = ex as AggregateException;
+                foreach(Exception x in ag.InnerExceptions)
+                {
+                    OnInternalException(x);
+                }
+            }
+
+            return rethrow;
+        }
+
         private async Task PrivateOpenAsync()
         {
-            if (null != _client)
+            if (null == _client)
             {
-                // Already allocated
+                // Spin up Microsoft.Phoenix.Client
+                _client = new PhoenixClient(this.Credentials);
             }
-            else
-            {
+
+            if(this.State == ConnectionState.Closed ||
+               this.State == ConnectionState.Broken)
+            { 
                 // Update state....
                 this.State = ConnectionState.Connecting;
 
                 pbc::MapField<string, string> info = new pbc::MapField<string, string>();
 
-                // Spin up Microsoft.Phoenix.Client
-                _client = new PhoenixClient(this.Credentials);
-
                 // Initiate connection
                 var tOpen = await _client.OpenConnectionRequestAsync(this.ConnectionId,
                     info,
                     this.Options);
-                //tOpen.Wait();
                 _openConnection = tOpen;
 
                 // Syncing connection

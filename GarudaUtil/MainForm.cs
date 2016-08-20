@@ -27,6 +27,7 @@ namespace GarudaUtil
             _tsbNewQuery.Enabled = false;
             _tsbOpenFile.Enabled = false;
             _tsbSave.Enabled = false;
+            _tsbRefreshTree.Enabled = false;
                 
 
         }
@@ -64,10 +65,11 @@ namespace GarudaUtil
                     root.Tag = _connection;
                     root.ImageIndex = 0;
 
-                    RefreshTreeTables(frmLogin);
+                    RefreshTreeTables();
                     _tsbNewQuery.Enabled = true;
                     _tsbOpenFile.Enabled = true;
                     _tsbSave.Enabled = true;
+                    _tsbRefreshTree.Enabled = true;
 
                     if(_tabControl.TabPages.Count == 0)
                     {
@@ -85,7 +87,7 @@ namespace GarudaUtil
             }
         }
 
-        private void RefreshTreeTables(LoginForm frmLogin)
+        private void RefreshTreeTables()
         {
             TreeNode root = _treeView.Nodes[0];
             root.Nodes.Clear();
@@ -119,8 +121,6 @@ namespace GarudaUtil
             // Show tables in grid view for now.
             //UpdateDataGrid(tables);
         }
-
-
 
         private void HandleException(Exception ex)
         {
@@ -235,6 +235,14 @@ namespace GarudaUtil
             }
         }
 
+        /// <summary>
+        /// Custom handler for drawing the tab text including Close X. 
+        /// </summary>
+        /// <remarks>
+        /// Location an dimensions of Close X must match with _tabControl_MouseDown logic.
+        /// </remarks>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tabControl_DrawItem(object sender, DrawItemEventArgs e)
         {
             //This code will render a "x" mark at the end of the Tab caption. 
@@ -259,6 +267,11 @@ namespace GarudaUtil
             e.DrawFocusRectangle();
         }
 
+        /// <summary>
+        /// Refer to tabControl_DrawItem for details.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void _tabControl_MouseDown(object sender, MouseEventArgs e)
         {
             //Looping through the controls.
@@ -291,8 +304,6 @@ namespace GarudaUtil
                 {
                     QueryView qv = NewQueryViewTab(System.IO.Path.GetFileName(ofd.FileName), 
                         new FileInfo(ofd.FileName));
-
-                    
                 }
             }
             catch(Exception ex)
@@ -313,6 +324,18 @@ namespace GarudaUtil
                         qv.Save();
                     }
                 }
+            }
+            catch(Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        private void _tsbRefreshTree_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                RefreshTreeTables();
             }
             catch(Exception ex)
             {

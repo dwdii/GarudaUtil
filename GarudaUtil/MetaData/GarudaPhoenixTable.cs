@@ -27,7 +27,11 @@ namespace GarudaUtil.MetaData
         {
             if(null == this._columns || refresh)
             {
-                _columns = new DataTable("Phoenix Columns");
+                if(c.State != ConnectionState.Open)
+                {
+                    c.Open();
+                }
+
                 using (IDbCommand cmd = c.CreateCommand())
                 {
                     cmd.CommandText = SqlColumnMetaData;
@@ -42,11 +46,11 @@ namespace GarudaUtil.MetaData
                         cmd.CommandText += SqlTableSchemaCriteria;
                         cmd.Parameters.Add(new PhoenixParameter(Row["TABLE_SCHEM"]));
                     }
-                    
 
                     cmd.Prepare();
                     using (IDataReader dr = cmd.ExecuteReader())
                     {
+                        _columns = new DataTable("Phoenix Columns");
                         _columns.BeginLoadData();
                         _columns.Load(dr);
                         _columns.EndLoadData();

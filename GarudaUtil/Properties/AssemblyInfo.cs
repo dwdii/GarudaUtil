@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GarudaUtil")]
-[assembly: AssemblyDescription("Currently, just a test app.")]
+[assembly: AssemblyTitle("Garuda Query")]
+[assembly: AssemblyDescription("Apache Phoenix Query Studio")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Daniel Dittenhafer")]
-[assembly: AssemblyProduct("GarudaUtil")]
+[assembly: AssemblyProduct("Garuda Query")]
 [assembly: AssemblyCopyright("Copyright ©  2016 Daniel Dittenhafer")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
