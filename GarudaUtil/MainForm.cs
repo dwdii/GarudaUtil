@@ -19,6 +19,17 @@ namespace GarudaUtil
         PhoenixConnection _connection = null;
         int _queryCounter = 1;
 
+        struct TreeImgNdx
+        {
+            internal const int Server = 0;
+            internal const int Table = 2;
+            internal const int Column = 4;
+            internal const int Folder = 6;
+            internal const int Key = 7;
+            internal const int Index = 8;
+
+        }
+
         public MainForm()
         {
             InitializeComponent();
@@ -63,7 +74,7 @@ namespace GarudaUtil
                     }
 
                     root.Tag = _connection;
-                    root.ImageIndex = 0;
+                    root.ImageIndex = TreeImgNdx.Server;
 
                     RefreshTreeTables();
                     _tsbNewQuery.Enabled = true;
@@ -89,6 +100,11 @@ namespace GarudaUtil
 
         private void RefreshTreeTables()
         {
+            if(_connection.State != ConnectionState.Open)
+            {
+                _connection.Open();
+            }
+
             TreeNode root = _treeView.Nodes[0];
             root.Nodes.Clear();
 
@@ -111,7 +127,7 @@ namespace GarudaUtil
 
                 TreeNode t = root.Nodes.Add(name);
                 t.Tag = new GarudaPhoenixTable(row);
-                t.ImageIndex = 2;
+                t.ImageIndex = TreeImgNdx.Table;
                 t.SelectedImageIndex = t.ImageIndex;
                 t.ContextMenuStrip = _cmsTreeTableMenu;
             }
@@ -151,21 +167,57 @@ namespace GarudaUtil
             this.Refresh();
         }
 
-        private void OnTreeTableDoubleClick(TreeNodeMouseClickEventArgs e)
+        private async void OnTreeTableDoubleClick(TreeNodeMouseClickEventArgs e)
         {
             var tmd = (GarudaPhoenixTable)e.Node.Tag;
             
             if (e.Node.Nodes.Count == 0)
             {
-                var columns = tmd.GetColumns(_connection, false);
+                TreeNode nTable = e.Node;
+
+                #region Columns Folder
+                TreeNode nColumnsFolder = e.Node.Nodes.Add("Columns");
+
+                nColumnsFolder.ImageIndex = TreeImgNdx.Folder;
+                nColumnsFolder.SelectedImageIndex = nColumnsFolder.ImageIndex;
+
+                var columns = await tmd.GetColumnsAsync(_connection, false);
                 foreach (DataRow row in columns.Rows)
                 {
                     string col = Convert.ToString(row["COLUMN_NAME"]);
-                    TreeNode t = e.Node.Nodes.Add(col);
+                    bool isPK = DBNull.Value != row["KEY_SEQ"];
+
+                    TreeNode t = nColumnsFolder.Nodes.Add(col);
                     t.Tag = row;
-                    t.ImageIndex = 4;
+                    if(isPK)
+                    {
+                        t.ImageIndex = TreeImgNdx.Key;
+                    }
+                    else
+                    {
+                        t.ImageIndex = TreeImgNdx.Column;
+                    }
+                    
                     t.SelectedImageIndex = t.ImageIndex;
                 }
+                #endregion
+
+                #region Indexes Folder
+                TreeNode nIndexesFolder = e.Node.Nodes.Add("Indexes");
+
+                nIndexesFolder.ImageIndex = TreeImgNdx.Folder;
+                nIndexesFolder.SelectedImageIndex = nIndexesFolder.ImageIndex;
+
+                var indexes = await tmd.GetIndexesAsync(_connection, false);
+                foreach (DataRow row in indexes.Rows)
+                {
+                    string col = Convert.ToString(row["TABLE_NAME"]);
+                    TreeNode t = nIndexesFolder.Nodes.Add(col);
+                    t.Tag = row;
+                    t.ImageIndex = TreeImgNdx.Index;
+                    t.SelectedImageIndex = t.ImageIndex;
+                }
+                #endregion
 
                 e.Node.Expand();
 
@@ -178,9 +230,12 @@ namespace GarudaUtil
         {
             try
             {
-                if (typeof(GarudaPhoenixTable) == e.Node.Tag.GetType())
+                if(null != e.Node.Tag)
                 {
-                    OnTreeTableDoubleClick(e);
+                    if (typeof(GarudaPhoenixTable) == e.Node.Tag.GetType())
+                    {
+                        OnTreeTableDoubleClick(e);
+                    }
                 }
             }
             catch (Exception ex)

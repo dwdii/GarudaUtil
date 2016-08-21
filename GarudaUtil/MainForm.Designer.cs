@@ -120,6 +120,9 @@
             this._imgListTree.Images.SetKeyName(3, "Origami-50.png");
             this._imgListTree.Images.SetKeyName(4, "List-52.png");
             this._imgListTree.Images.SetKeyName(5, "Training Filled-50.png");
+            this._imgListTree.Images.SetKeyName(6, "Folder-32.png");
+            this._imgListTree.Images.SetKeyName(7, "Key 2-32.png");
+            this._imgListTree.Images.SetKeyName(8, "Active Directory-32.png");
             // 
             // tableLayoutPanel3
             // 
