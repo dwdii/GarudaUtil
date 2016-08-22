@@ -176,7 +176,7 @@ namespace GarudaUtil
                 TreeNode nTable = e.Node;
 
                 #region Columns Folder
-                TreeNode nColumnsFolder = e.Node.Nodes.Add("Columns");
+                TreeNode nColumnsFolder = e.Node.Nodes.Add(Properties.Resources.TreeFolderColumns);
 
                 nColumnsFolder.ImageIndex = TreeImgNdx.Folder;
                 nColumnsFolder.SelectedImageIndex = nColumnsFolder.ImageIndex;
@@ -203,26 +203,41 @@ namespace GarudaUtil
                 #endregion
 
                 #region Indexes Folder
-                TreeNode nIndexesFolder = e.Node.Nodes.Add("Indexes");
-
-                nIndexesFolder.ImageIndex = TreeImgNdx.Folder;
-                nIndexesFolder.SelectedImageIndex = nIndexesFolder.ImageIndex;
-
                 var indexes = await tmd.GetIndexesAsync(_connection, false);
-                foreach (DataRow row in indexes.Rows)
-                {
-                    string col = Convert.ToString(row["TABLE_NAME"]);
-                    TreeNode t = nIndexesFolder.Nodes.Add(col);
-                    t.Tag = row;
-                    t.ImageIndex = TreeImgNdx.Index;
-                    t.SelectedImageIndex = t.ImageIndex;
-                }
+                TreeNewSubFolder<GarudaPhoenixIndex>(e.Node, Properties.Resources.TreeFolderIndexes, indexes, TreeImgNdx.Index, null, "INDEX_NAME");
                 #endregion
 
                 e.Node.Expand();
 
                 // Show columns in grid view for now.
                 //UpdateDataGrid(columns);
+            }
+        }
+
+        private void TreeNewSubFolder<T>(TreeNode parent, string subfolderName, DataTable items, int ndxFolderChildImg, ContextMenuStrip menu, string nameField)
+            where T : IGarudaPhoenixMetaData, new()
+        {
+            TreeNode nSubFolder = parent.Nodes.Add(subfolderName);
+
+            nSubFolder.ImageIndex = TreeImgNdx.Folder;
+            nSubFolder.SelectedImageIndex = nSubFolder.ImageIndex;
+
+            foreach (DataRow row in items.Rows)
+            {
+                string col = Convert.ToString(row[nameField]);
+                TreeNode t = nSubFolder.Nodes.Add(col);
+                IGarudaPhoenixMetaData md = new T();
+
+                md.Row = row;
+
+                t.Tag = md;
+                t.ImageIndex = ndxFolderChildImg;
+                t.SelectedImageIndex = t.ImageIndex;
+
+                if(null != menu)
+                {
+                    t.ContextMenuStrip = menu;
+                }
             }
         }
 
@@ -235,6 +250,15 @@ namespace GarudaUtil
                     if (typeof(GarudaPhoenixTable) == e.Node.Tag.GetType())
                     {
                         OnTreeTableDoubleClick(e);
+                    }
+                    else if(typeof(GarudaPhoenixIndex) == e.Node.Tag.GetType())
+                    {
+                        PhoenixIndexForm frm = new PhoenixIndexForm();
+                        GarudaPhoenixIndex ndx = e.Node.Tag as GarudaPhoenixIndex;
+                        frm.TableName = ndx.TableName;
+                        frm.IndexName = ndx.IndexName;
+                        frm.KeyColumns = ndx.GetKeyColumns(_connection);
+                        frm.ShowDialog(this);
                     }
                 }
             }
@@ -278,11 +302,18 @@ namespace GarudaUtil
         {
             try
             {
-                QueryView qv = NewQueryViewTab(null, null);
-
-                qv.Text = string.Format("SELECT * FROM {0} LIMIT 1000", _treeView.SelectedNode.Text);
-
-                qv.ExecuteQuery();
+                // Get location of context menu. This cooresponds to the point underwhich
+                // is the node we care about.
+                ToolStrip cms = _tsmiSelectTop1000.GetCurrentParent();
+                Point p = new Point(cms.Left, cms.Top);
+                var hitTest = _treeView.HitTest(_treeView.PointToClient(p));
+                if (hitTest.Node != null)
+                {
+                    // If there is a node at this location, use it's name for the query.
+                    QueryView qv = NewQueryViewTab(null, null);
+                    qv.Text = string.Format("SELECT * FROM {0} LIMIT 1000", hitTest.Node.Text);
+                    qv.ExecuteQuery();
+                }
             }
             catch (Exception ex)
             {

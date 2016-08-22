@@ -14,7 +14,7 @@ namespace GarudaUtil.MetaData
         const string SqlTableSchemaCriteria = " AND TABLE_SCHEM = :2";
         const string SqlTableSchemaNullCriteria = " AND TABLE_SCHEM IS NULL";
 
-        const string SqlIndexMetaData = "SELECT TABLE_NAME FROM SYSTEM.CATALOG WHERE TABLE_TYPE = 'i' AND DATA_TABLE_NAME = :1";
+        const string SqlIndexMetaData = "SELECT TABLE_NAME as INDEX_NAME, DATA_TABLE_NAME FROM SYSTEM.CATALOG WHERE TABLE_TYPE = 'i' AND DATA_TABLE_NAME = :1";
 
         public DataRow Row { get; }
 
@@ -71,38 +71,47 @@ namespace GarudaUtil.MetaData
         {
             if (null == this._indexes || refresh)
             {
-                if (c.State != ConnectionState.Open)
-                {
-                    c.Open();
-                }
-
-                using (IDbCommand cmd = c.CreateCommand())
-                {
-                    cmd.CommandText = SqlIndexMetaData;
-
-                    cmd.Parameters.Add(new PhoenixParameter(this.Name));
-                    if (DBNull.Value == Row["TABLE_SCHEM"])
-                    {
-                        cmd.CommandText += SqlTableSchemaNullCriteria;
-                    }
-                    else
-                    {
-                        cmd.CommandText += SqlTableSchemaCriteria;
-                        cmd.Parameters.Add(new PhoenixParameter(Row["TABLE_SCHEM"]));
-                    }
-
-                    cmd.Prepare();
-                    using (IDataReader dr = cmd.ExecuteReader())
-                    {
-                        _indexes = new DataTable(string.Format("{0} Indexes", this.Name));
-                        _indexes.BeginLoadData();
-                        _indexes.Load(dr);
-                        _indexes.EndLoadData();
-                    }
-                }
+                this._indexes = await Task.Factory.StartNew(() => GetIndexes(c));
             }
 
             return _indexes;
+        }
+
+        public DataTable GetIndexes(PhoenixConnection c)
+        {
+            DataTable indexes = null;
+
+            if (c.State != ConnectionState.Open)
+            {
+                c.Open();
+            }
+
+            using (IDbCommand cmd = c.CreateCommand())
+            {
+                cmd.CommandText = SqlIndexMetaData;
+
+                cmd.Parameters.Add(new PhoenixParameter(this.Name));
+                if (DBNull.Value == Row["TABLE_SCHEM"])
+                {
+                    cmd.CommandText += SqlTableSchemaNullCriteria;
+                }
+                else
+                {
+                    cmd.CommandText += SqlTableSchemaCriteria;
+                    cmd.Parameters.Add(new PhoenixParameter(Row["TABLE_SCHEM"]));
+                }
+
+                cmd.Prepare();
+                using (IDataReader dr = cmd.ExecuteReader())
+                {
+                    indexes = new DataTable(string.Format("{0} Indexes", this.Name));
+                    indexes.BeginLoadData();
+                    indexes.Load(dr);
+                    indexes.EndLoadData();
+                }
+            }
+
+            return indexes;
         }
     }
 }

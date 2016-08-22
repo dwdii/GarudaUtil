@@ -175,5 +175,23 @@ namespace GarudaUtil.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Columns.
+        /// </summary>
+        internal static string TreeFolderColumns {
+            get {
+                return ResourceManager.GetString("TreeFolderColumns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indexes.
+        /// </summary>
+        internal static string TreeFolderIndexes {
+            get {
+                return ResourceManager.GetString("TreeFolderIndexes", resourceCulture);
+            }
+        }
     }
 }
