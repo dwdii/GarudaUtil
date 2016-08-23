@@ -27,6 +27,7 @@ namespace GarudaUtil
             internal const int Folder = 6;
             internal const int Key = 7;
             internal const int Index = 8;
+            internal const int Schema = 6;
 
         }
 
@@ -114,6 +115,7 @@ namespace GarudaUtil
             {
                 string schema = Convert.ToString(row["TABLE_SCHEM"]);
                 string table = Convert.ToString(row["TABLE_NAME"]);
+                TreeNode nSchema = GetSchemaTreeNode(schema);
 
                 string name;
                 if (string.IsNullOrWhiteSpace(schema))
@@ -125,17 +127,40 @@ namespace GarudaUtil
                     name = string.Format("{0}.{1}", schema, table);
                 }
 
-                TreeNode t = root.Nodes.Add(name);
+                TreeNode t = nSchema.Nodes.Add(name);
                 t.Tag = new GarudaPhoenixTable(row);
                 t.ImageIndex = TreeImgNdx.Table;
                 t.SelectedImageIndex = t.ImageIndex;
                 t.ContextMenuStrip = _cmsTreeTableMenu;
+                
             }
 
             root.Expand();
 
             // Show tables in grid view for now.
             //UpdateDataGrid(tables);
+        }
+
+        private TreeNode GetSchemaTreeNode(string schema)
+        {
+            var root = _treeView.Nodes[0];
+            var nSchema = root.Nodes[schema];
+
+            if (null == nSchema)
+            {
+                if (string.IsNullOrWhiteSpace(schema))
+                {
+                    nSchema = GetSchemaTreeNode("(default)");
+                }
+                else
+                {
+                    nSchema = root.Nodes.Add(schema, schema);
+                    nSchema.ImageIndex = TreeImgNdx.Schema;
+                    nSchema.SelectedImageIndex = nSchema.ImageIndex;
+                }
+            }
+
+            return nSchema;
         }
 
         private void HandleException(Exception ex)
@@ -169,48 +194,55 @@ namespace GarudaUtil
 
         private async void OnTreeTableDoubleClick(TreeNodeMouseClickEventArgs e)
         {
-            var tmd = (GarudaPhoenixTable)e.Node.Tag;
-            
-            if (e.Node.Nodes.Count == 0)
+            try
             {
-                TreeNode nTable = e.Node;
-
-                #region Columns Folder
-                TreeNode nColumnsFolder = e.Node.Nodes.Add(Properties.Resources.TreeFolderColumns);
-
-                nColumnsFolder.ImageIndex = TreeImgNdx.Folder;
-                nColumnsFolder.SelectedImageIndex = nColumnsFolder.ImageIndex;
-
-                var columns = await tmd.GetColumnsAsync(_connection, false);
-                foreach (DataRow row in columns.Rows)
+                var tmd = (GarudaPhoenixTable)e.Node.Tag;
+            
+                if (e.Node.Nodes.Count == 0)
                 {
-                    string col = Convert.ToString(row["COLUMN_NAME"]);
-                    bool isPK = DBNull.Value != row["KEY_SEQ"];
+                    TreeNode nTable = e.Node;
 
-                    TreeNode t = nColumnsFolder.Nodes.Add(col);
-                    t.Tag = row;
-                    if(isPK)
+                    #region Columns Folder
+                    TreeNode nColumnsFolder = e.Node.Nodes.Add(Properties.Resources.TreeFolderColumns);
+
+                    nColumnsFolder.ImageIndex = TreeImgNdx.Folder;
+                    nColumnsFolder.SelectedImageIndex = nColumnsFolder.ImageIndex;
+
+                    var columns = await tmd.GetColumnsAsync(_connection, false);
+                    foreach (DataRow row in columns.Rows)
                     {
-                        t.ImageIndex = TreeImgNdx.Key;
-                    }
-                    else
-                    {
-                        t.ImageIndex = TreeImgNdx.Column;
-                    }
+                        string col = Convert.ToString(row["COLUMN_NAME"]);
+                        bool isPK = DBNull.Value != row["KEY_SEQ"];
+
+                        TreeNode t = nColumnsFolder.Nodes.Add(col);
+                        t.Tag = row;
+                        if(isPK)
+                        {
+                            t.ImageIndex = TreeImgNdx.Key;
+                        }
+                        else
+                        {
+                            t.ImageIndex = TreeImgNdx.Column;
+                        }
                     
-                    t.SelectedImageIndex = t.ImageIndex;
+                        t.SelectedImageIndex = t.ImageIndex;
+                    }
+                    #endregion
+
+                    #region Indexes Folder
+                    var indexes = await tmd.GetIndexesAsync(_connection, false);
+                    TreeNewSubFolder<GarudaPhoenixIndex>(e.Node, Properties.Resources.TreeFolderIndexes, indexes, TreeImgNdx.Index, null, "INDEX_NAME");
+                    #endregion
+
+                    e.Node.Expand();
+
+                    // Show columns in grid view for now.
+                    //UpdateDataGrid(columns);
                 }
-                #endregion
-
-                #region Indexes Folder
-                var indexes = await tmd.GetIndexesAsync(_connection, false);
-                TreeNewSubFolder<GarudaPhoenixIndex>(e.Node, Properties.Resources.TreeFolderIndexes, indexes, TreeImgNdx.Index, null, "INDEX_NAME");
-                #endregion
-
-                e.Node.Expand();
-
-                // Show columns in grid view for now.
-                //UpdateDataGrid(columns);
+            }
+            catch(Exception ex)
+            {
+                HandleException(ex);
             }
         }
 

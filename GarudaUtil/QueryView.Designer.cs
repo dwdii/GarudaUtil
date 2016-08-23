@@ -39,9 +39,9 @@
             this._tabMessages = new System.Windows.Forms.TabPage();
             this._txtMessages = new System.Windows.Forms.TextBox();
             this._statusStrip = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslElapsed = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslRowCount = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -132,7 +132,7 @@
             this._tabResults.Location = new System.Drawing.Point(4, 22);
             this._tabResults.Name = "_tabResults";
             this._tabResults.Padding = new System.Windows.Forms.Padding(3);
-            this._tabResults.Size = new System.Drawing.Size(503, 163);
+            this._tabResults.Size = new System.Drawing.Size(503, 162);
             this._tabResults.TabIndex = 0;
             this._tabResults.Text = "Results";
             this._tabResults.UseVisualStyleBackColor = true;
@@ -142,14 +142,13 @@
             this._dataGridView1.AllowUserToAddRows = false;
             this._dataGridView1.AllowUserToDeleteRows = false;
             this._dataGridView1.AllowUserToOrderColumns = true;
-            this._dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this._dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
             this._dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this._dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this._dataGridView1.Location = new System.Drawing.Point(3, 3);
             this._dataGridView1.Name = "_dataGridView1";
             this._dataGridView1.ReadOnly = true;
-            this._dataGridView1.Size = new System.Drawing.Size(497, 157);
+            this._dataGridView1.Size = new System.Drawing.Size(497, 156);
             this._dataGridView1.TabIndex = 1;
             // 
             // _tabMessages
@@ -172,6 +171,7 @@
             this._txtMessages.Multiline = true;
             this._txtMessages.Name = "_txtMessages";
             this._txtMessages.ReadOnly = true;
+            this._txtMessages.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this._txtMessages.Size = new System.Drawing.Size(497, 156);
             this._txtMessages.TabIndex = 0;
             // 
@@ -189,6 +189,12 @@
             this._statusStrip.TabIndex = 4;
             this._statusStrip.Text = "statusStrip1";
             // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.AutoSize = false;
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(200, 19);
+            // 
             // _tsslElapsed
             // 
             this._tsslElapsed.AutoSize = false;
@@ -204,12 +210,6 @@
             this._tsslRowCount.Size = new System.Drawing.Size(122, 19);
             this._tsslRowCount.Text = "0 rows";
             this._tsslRowCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // toolStripStatusLabel1
-            // 
-            this.toolStripStatusLabel1.AutoSize = false;
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(200, 19);
             // 
             // QueryView
             // 
