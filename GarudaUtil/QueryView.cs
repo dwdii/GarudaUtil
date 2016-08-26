@@ -156,6 +156,17 @@ namespace GarudaUtil
             //}
         }
 
+        //protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        //{
+        //    switch(keyData)
+        //    {
+        //        case (Keys.F5):
+        //            this.ExecuteQuery();
+        //            break;
+        //    }
+        //    return base.ProcessCmdKey(ref msg, keyData);
+        //}
+
         public void UpdateElapsedStatus(Stopwatch sw, PhoenixCommand cmd)
         {
             _tsslElapsed.Text = string.Format("{0} [Cmd: {1}]", sw.Elapsed, cmd.Elapsed);

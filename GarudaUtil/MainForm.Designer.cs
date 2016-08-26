@@ -142,7 +142,8 @@
             // 
             this._tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this._tabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
-            this._tabControl.ItemSize = new System.Drawing.Size(75, 18);
+            this._tabControl.HotTrack = true;
+            this._tabControl.ItemSize = new System.Drawing.Size(100, 18);
             this._tabControl.Location = new System.Drawing.Point(3, 3);
             this._tabControl.Name = "_tabControl";
             this._tabControl.SelectedIndex = 0;
@@ -160,7 +161,7 @@
             this._tsbSave,
             this.toolStripSeparator1,
             this._tsbNewQuery});
-            this.toolStrip1.Location = new System.Drawing.Point(63, 0);
+            this.toolStrip1.Location = new System.Drawing.Point(61, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(159, 25);
             this.toolStrip1.TabIndex = 0;
@@ -174,6 +175,7 @@
             this._tsbOpenFile.Name = "_tsbOpenFile";
             this._tsbOpenFile.Size = new System.Drawing.Size(23, 22);
             this._tsbOpenFile.Text = "Open File...";
+            this._tsbOpenFile.ToolTipText = "Open File... (Ctrl+O)";
             this._tsbOpenFile.Click += new System.EventHandler(this._tsbOpenFile_Click);
             // 
             // _tsbSave
@@ -184,6 +186,7 @@
             this._tsbSave.Name = "_tsbSave";
             this._tsbSave.Size = new System.Drawing.Size(23, 22);
             this._tsbSave.Text = "Save";
+            this._tsbSave.ToolTipText = "Save (Ctrl+S)";
             this._tsbSave.Click += new System.EventHandler(this._tsbSave_Click);
             // 
             // toolStripSeparator1
@@ -198,6 +201,7 @@
             this._tsbNewQuery.Name = "_tsbNewQuery";
             this._tsbNewQuery.Size = new System.Drawing.Size(95, 22);
             this._tsbNewQuery.Text = "New Query...";
+            this._tsbNewQuery.ToolTipText = "New Query... (Ctrl+N)";
             this._tsbNewQuery.Click += new System.EventHandler(this._tsbNewQuery_Click);
             // 
             // _statusStrip
@@ -266,8 +270,8 @@
             // 
             // toolStripContainer1.TopToolStripPanel
             // 
-            this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
             this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip2);
+            this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
             // 
             // toolStrip2
             // 
@@ -275,7 +279,7 @@
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._tsbConnect,
             this._tsbRefreshTree});
-            this.toolStrip2.Location = new System.Drawing.Point(4, 0);
+            this.toolStrip2.Location = new System.Drawing.Point(3, 0);
             this.toolStrip2.Name = "toolStrip2";
             this.toolStrip2.Size = new System.Drawing.Size(58, 25);
             this.toolStrip2.TabIndex = 1;

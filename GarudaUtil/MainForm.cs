@@ -367,15 +367,31 @@ namespace GarudaUtil
             
             Font bold = new Font(e.Font.FontFamily, e.Font.Size + 1, FontStyle.Bold);
 
-            // Measure the tab text and if exceeds our max, then trim with ...
-            e.Graphics.FillRectangle(SystemBrushes.FromSystemColor(_tabControl.Parent.BackColor), e.Bounds);
+            #region Tab Background Color
+            Brush backColorBrush = null;
 
+            switch (e.State)
+            {
+                case DrawItemState.Selected:
+                    backColorBrush = SystemBrushes.ControlLightLight;
+                    break;
+
+                default:
+                    backColorBrush = SystemBrushes.FromSystemColor(_tabControl.Parent.BackColor);
+                    break;
+            }
+
+            e.Graphics.FillRectangle(backColorBrush, e.Bounds);
+            #endregion
+
+            // Measure the tab text and if exceeds our max, then trim with ...
             SizeF s = e.Graphics.MeasureString(this._tabControl.TabPages[e.Index].Text, e.Font);
+
             //e.Bounds.Inflate(Convert.ToInt32(s.Width) + 50, 0);
             string text = this._tabControl.TabPages[e.Index].Text;
-            if (s.Width > 65)
+            if (s.Width > 80)
             {
-                text = this._tabControl.TabPages[e.Index].Text.Substring(0, 7) + "...";
+                text = this._tabControl.TabPages[e.Index].Text.Substring(0, 10) + "...";
             }
             
             e.Graphics.DrawString("x", bold, Brushes.Black, e.Bounds.Right - 15, e.Bounds.Top + 1);
@@ -459,6 +475,39 @@ namespace GarudaUtil
             {
                 HandleException(ex);
             }
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            TabPage tp = _tabControl.SelectedTab;
+            switch (keyData)
+            {
+                case (Keys.F5):
+                    if(null != tp)
+                    {
+                        QueryView qv = tp.Controls[0] as QueryView;
+                        qv.ExecuteQuery();
+                    }
+                    break;
+
+                case (Keys.Control | Keys.N):
+                    this._tsbNewQuery_Click(_tsbNewQuery, new EventArgs());
+                    break;
+
+                case (Keys.Control | Keys.O):
+                    this._tsbOpenFile_Click(_tsbNewQuery, new EventArgs());
+                    break;
+
+                case (Keys.Control | Keys.S):
+                    if (null != tp)
+                    {
+                        QueryView qv = tp.Controls[0] as QueryView;
+                        qv.Save();
+                    }
+                    break;
+
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
     }
 }

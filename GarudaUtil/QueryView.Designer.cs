@@ -103,6 +103,7 @@
             this._tspExecute.Name = "_tspExecute";
             this._tspExecute.Size = new System.Drawing.Size(67, 22);
             this._tspExecute.Text = "Execute";
+            this._tspExecute.ToolTipText = "Execute (F5)";
             this._tspExecute.Click += new System.EventHandler(this._tspExecute_Click);
             // 
             // _tsbExecutionPlan
