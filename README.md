@@ -24,8 +24,15 @@ The familiar connection string format is used for connections:
 Server=myphoenixserver.domain.com,8765;User ID=myuser;Password=mypwd;CredentialUri=http://myazurecredurl;Request Timeout=30000" 
 ```
 
-* Credentials are only used by the Microsoft.Phoenix.Client in gateway-mode (Azure), which requires port 443.
-* Request Timeout is in milliseconds.
+* Server: The DNS name of the Phoenix Query Server (for VNET mode, or standard HDP Phoenix/Hbase systems). In HDInsight gateway mode, the server itself doesn't appear to be used currently, but the port is relavant and needs to the port associated with your gateway.
+
+* User ID: Your gateway credential user name. Only specify the User ID and Password when using HDInsight gateway mode.
+
+* Password: Your gateway credential password.
+
+* CredentialUri: The protocol scheme and host of the gateway. Only specify the CredentialUri when using HDInsight gateway mode.
+
+* Request Timeout: The timeout in milliseconds of a given phoenix command or request to the phoenix server. I use 30000 in my tests and development.
 
 ### Example
 
