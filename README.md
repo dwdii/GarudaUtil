@@ -100,3 +100,14 @@ The solution also includes a Windows Forms-based user interface which uses Garud
 with the Phoenix Query Server. 
 
 ![Garuda Query](http://dwdii.github.io/img/GarudaQueryScreenshot.png)
+
+## Related Links
+
+Is there a way to connect to HBase using C#? 
+https://community.hortonworks.com/questions/25101/is-there-a-way-to-connect-to-hbase-using-c.html
+
+Use Apache Phoenix with Linux-based HBase clusters in HDinsight
+https://azure.microsoft.com/en-us/documentation/articles/hdinsight-hbase-phoenix-squirrel-linux/
+
+
+
