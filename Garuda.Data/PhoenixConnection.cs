@@ -31,6 +31,8 @@ namespace Garuda.Data
             public const string NamePhoenixTables = "Phoenix Tables";
         }
 
+        public PhoenixConnectionMode Mode { get; private set; }
+
         /// <summary>
         /// Gets or sets the ClusterCredentials object for this connection.
         /// </summary>
@@ -187,6 +189,8 @@ namespace Garuda.Data
             this.State = ConnectionState.Closed;
 
             this.ConnectionProperties = DefaultConnectionProps();
+
+            this.Mode = PhoenixConnectionMode.VNET;
         }
 
         /// <summary>
@@ -421,7 +425,11 @@ namespace Garuda.Data
             string credsUser = null;
             string credsPasswd = null;
             string credsUri = null;
+            string server = null;
+            int? port = null;
+            int? timeout = null;
 
+            // Loop over the components of the specified connections string.
             foreach (string part in parts)
             {
                 // Split the tuple
@@ -434,10 +442,10 @@ namespace Garuda.Data
                         case ("data source"):
                         case ("server"):
                             string[] serverAndPort = tuple[1].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                            this.Options.AlternativeHost = serverAndPort[0];
+                            server = serverAndPort[0];
                             if(serverAndPort.Length > 1)
                             {
-                                this.Options.Port = Convert.ToInt32(serverAndPort[1]);
+                                port = Convert.ToInt32(serverAndPort[1]);
                             }
                             break;
 
@@ -458,16 +466,66 @@ namespace Garuda.Data
 
                         case ("requesttimeout"):
                         case ("request timeout"):
-                            this.Options.TimeoutMillis = Convert.ToInt32(tuple[1]);
+                            timeout = Convert.ToInt32(tuple[1]);
+                            break;
+
+                        case ("mode"):
+                            switch(tuple[1].ToLowerInvariant())
+                            {
+                                case PhoenixConnectionModeStr.HdiGateway:
+                                    this.Mode = PhoenixConnectionMode.HDInsightGateway;
+                                    break;
+
+                                default:
+                                    this.Mode = PhoenixConnectionMode.VNET;
+                                    break;
+                            }
                             break;
                     }
                 }
             }
 
-            // Credentials
-            if (null != credsUser && null != credsPasswd && null != credsUri)
+            // Setup the connection details depending on mode.
+            if(this.Mode == PhoenixConnectionMode.VNET)
             {
-                this.Credentials = new ClusterCredentials(new Uri(credsUri), credsUser, credsPasswd);
+                // Virtual Network and non-HDI Phoenix Query Server connections.
+                this.Options = RequestOptions.GetVNetDefaultOptions();
+                this.Options.AlternativeHost = server;
+                
+                if(timeout.HasValue)
+                {
+                    this.Options.TimeoutMillis = timeout.Value;
+                }
+            }
+            else
+            {
+                // HDInsight Gateway connection details
+                this.Options = RequestOptions.GetGatewayDefaultOptions();
+
+                Uri uriCredUri;
+                if (!string.IsNullOrWhiteSpace(credsUri))
+                {
+                    uriCredUri = new Uri(credsUri);
+                }
+                else
+                {
+                    uriCredUri = new Uri(server);
+                }
+
+                this.Credentials = new ClusterCredentials(uriCredUri, credsUser, credsPasswd);
+                this.Options.AlternativeEndpoint = uriCredUri.AbsolutePath;
+                this.Options.ReceiveBufferSize = -1;
+                if (port.HasValue)
+                {
+                    this.Options.Port = port.Value;
+                }
+
+                UriBuilder builder = new UriBuilder(
+                this.Credentials.ClusterUri.Scheme,
+                this.Credentials.ClusterUri.Host,
+                this.Options.Port,
+                this.Options.AlternativeEndpoint);
+                System.Diagnostics.Trace.WriteLine(string.Format("hdi-gateway uri: {0}", builder.Uri));
             }
         }
 
