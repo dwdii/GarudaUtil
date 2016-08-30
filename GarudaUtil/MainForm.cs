@@ -113,26 +113,14 @@ namespace GarudaUtil
             DataTable tables = _connection.GetTables();
             foreach (DataRow row in tables.Rows)
             {
-                string schema = Convert.ToString(row["TABLE_SCHEM"]);
-                string table = Convert.ToString(row["TABLE_NAME"]);
-                TreeNode nSchema = GetSchemaTreeNode(schema);
+                GarudaPhoenixTable table = new GarudaPhoenixTable(row);
+                TreeNode nSchema = GetSchemaTreeNode(table.Schema);
+                TreeNode t = nSchema.Nodes.Add(table.FullName);
 
-                string name;
-                if (string.IsNullOrWhiteSpace(schema))
-                {
-                    name = table;
-                }
-                else
-                {
-                    name = string.Format("{0}.{1}", schema, table);
-                }
-
-                TreeNode t = nSchema.Nodes.Add(name);
-                t.Tag = new GarudaPhoenixTable(row);
+                t.Tag = table;
                 t.ImageIndex = TreeImgNdx.Table;
                 t.SelectedImageIndex = t.ImageIndex;
                 t.ContextMenuStrip = _cmsTreeTableMenu;
-                
             }
 
             root.Expand();
@@ -336,14 +324,12 @@ namespace GarudaUtil
             {
                 // Get location of context menu. This cooresponds to the point underwhich
                 // is the node we care about.
-                ToolStrip cms = _tsmiSelectTop1000.GetCurrentParent();
-                Point p = new Point(cms.Left, cms.Top);
-                var hitTest = _treeView.HitTest(_treeView.PointToClient(p));
-                if (hitTest.Node != null)
+                GarudaPhoenixTable table = GetTableFromTreeHitTest();
+                if (null != table)
                 {
                     // If there is a node at this location, use it's name for the query.
                     QueryView qv = NewQueryViewTab(null, null);
-                    qv.Text = string.Format("SELECT * FROM {0} LIMIT 1000", hitTest.Node.Text);
+                    qv.Text = string.Format("SELECT * FROM {0} LIMIT 1000", table.FullName);
                     qv.ExecuteQuery();
                 }
             }
@@ -353,7 +339,131 @@ namespace GarudaUtil
             }
         }
 
-        /// <summary>
+        private async void _tsmiTableScriptInsert_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Get location of context menu. This cooresponds to the point underwhich
+                // is the node we care about.
+                GarudaPhoenixTable table = GetTableFromTreeHitTest();
+                if (null != table)
+                {
+                    DataTable columns = await table.GetColumnsAsync(_connection, true);
+
+                    StringBuilder sbUpsert = new StringBuilder();
+                    StringBuilder sbValues = new StringBuilder();
+                    sbUpsert.AppendFormat("UPSERT INTO {0} (", table.FullName);
+                    for(int i = 0; i < columns.Rows.Count; i++)
+                    {
+                        DataRow col = columns.Rows[i];
+
+                        if(i > 0)
+                        {
+                            sbUpsert.Append(",");
+                            sbValues.Append(",");
+                        }
+
+                        sbUpsert.Append(col["COLUMN_NAME"]);
+                        sbValues.Append("?");
+                    }
+                    sbUpsert.AppendFormat(") VALUES ({0})", sbValues.ToString());
+
+                    // Open a new query view tab and set the text.
+                    QueryView qv = NewQueryViewTab(null, null);
+                    qv.Text = sbUpsert.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+
+        private async void _tsmiTableScriptCreate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Get location of context menu. This cooresponds to the point underwhich
+                // is the node we care about.
+                GarudaPhoenixTable table = GetTableFromTreeHitTest();
+                if (null != table)
+                {
+                    DataTable columns = await table.GetColumnsAsync(_connection, true);
+
+                    using (IDbCommand cmd = _connection.CreateCommand())
+                    {
+                        cmd.CommandText = string.Format("SELECT * FROM {0} LIMIT 0", table.FullName);
+                        using (IDataReader dr = cmd.ExecuteReader())
+                        {
+                            DataTable schemaTable = dr.GetSchemaTable();
+
+                            StringBuilder sbCreate = new StringBuilder();
+                            sbCreate.AppendFormat("CREATE TABLE {0} (", table.FullName);
+                            sbCreate.AppendLine();
+                            for (int i = 0; i < schemaTable.Rows.Count; i++)
+                            {
+                                DataRow col = schemaTable.Rows[i];
+                                string dataType = dr.GetDataTypeName(i);
+                                string colName = col["ColumnName"].ToString();
+                                bool isPK =  table.IsColumnPrimaryKey(columns, colName);
+
+                                if (i > 0)
+                                {
+                                    sbCreate.AppendLine(",");
+                                }
+
+                                // Column name and data type, with size for varchars
+                                sbCreate.AppendFormat("\t{0} {1}", colName, dataType);
+                                if("VARCHAR" == dataType)
+                                {
+                                    sbCreate.AppendFormat("({0})", col["ColumnSize"]);
+                                }
+
+                                // Nullable?
+                                if(!Convert.ToBoolean(col["AllowDBNull"]))
+                                {
+                                    sbCreate.AppendFormat(" NOT");
+                                }
+                                sbCreate.AppendFormat(" NULL");
+
+                                // Primary key?
+                                if(isPK)
+                                {
+                                    sbCreate.Append(" PRIMARY KEY");
+                                }
+                            }
+                            sbCreate.AppendLine();
+                            sbCreate.AppendFormat(")");
+
+                            // Open a new query view tab and set the text.
+                            QueryView qv = NewQueryViewTab(null, null);
+                            qv.Text = sbCreate.ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        private GarudaPhoenixTable GetTableFromTreeHitTest()
+        {
+            GarudaPhoenixTable table = null;
+            ToolStrip cms = _cmsTreeTableMenu;
+            Point p = new Point(cms.Left, cms.Top);
+            var hitTest = _treeView.HitTest(_treeView.PointToClient(p));
+            if (hitTest.Node != null)
+            {
+                table = (GarudaPhoenixTable)hitTest.Node.Tag;
+            }
+
+            return table;
+        }
+
+         /// <summary>
         /// Custom handler for drawing the tab text including Close X. 
         /// </summary>
         /// <remarks>
@@ -509,5 +619,6 @@ namespace GarudaUtil
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
+
     }
 }

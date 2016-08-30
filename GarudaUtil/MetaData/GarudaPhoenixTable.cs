@@ -22,12 +22,49 @@ namespace GarudaUtil.MetaData
 
         private DataTable _indexes = null;
 
+        private string _fullName = null;
+
         public GarudaPhoenixTable(DataRow row)
         {
             this.Row = row;
         }
 
         public string Name { get { return Row["TABLE_NAME"].ToString(); } }
+
+        public string Schema { get { return Row["TABLE_SCHEM"].ToString(); } }
+
+        public string FullName
+        {
+            get
+            {
+                if(null == _fullName)
+                {
+                    if (string.IsNullOrWhiteSpace(this.Schema))
+                    {
+                        _fullName = this.Name;
+                    }
+                    else
+                    {
+                        _fullName = string.Format("{0}.{1}", this.Schema, this.Name);
+                    }
+                }
+
+                return _fullName;
+            }
+        }
+
+        public bool IsColumnPrimaryKey(DataTable dt, string columnName)
+        {
+            foreach(DataRow row in dt.Rows)
+            {
+                if(row["COLUMN_NAME"].ToString() == columnName)
+                {
+                    return DBNull.Value != row["KEY_SEQ"];
+                }
+            }
+
+            return false;
+        }
 
         public async Task<DataTable> GetColumnsAsync(PhoenixConnection c, bool refresh)
         {

@@ -50,6 +50,9 @@
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this._tsbConnect = new System.Windows.Forms.ToolStripButton();
             this._tsbRefreshTree = new System.Windows.Forms.ToolStripButton();
+            this.scriptTableAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._tsmiTableScriptInsert = new System.Windows.Forms.ToolStripMenuItem();
+            this._tsmiTableScriptCreate = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -238,9 +241,10 @@
             // _cmsTreeTableMenu
             // 
             this._cmsTreeTableMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._tsmiSelectTop1000});
+            this._tsmiSelectTop1000,
+            this.scriptTableAsToolStripMenuItem});
             this._cmsTreeTableMenu.Name = "_cmsTreeMenu";
-            this._cmsTreeTableMenu.Size = new System.Drawing.Size(187, 26);
+            this._cmsTreeTableMenu.Size = new System.Drawing.Size(187, 70);
             // 
             // _tsmiSelectTop1000
             // 
@@ -304,6 +308,29 @@
             this._tsbRefreshTree.Text = "Refresh";
             this._tsbRefreshTree.Click += new System.EventHandler(this._tsbRefreshTree_Click);
             // 
+            // scriptTableAsToolStripMenuItem
+            // 
+            this.scriptTableAsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._tsmiTableScriptCreate,
+            this._tsmiTableScriptInsert});
+            this.scriptTableAsToolStripMenuItem.Name = "scriptTableAsToolStripMenuItem";
+            this.scriptTableAsToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.scriptTableAsToolStripMenuItem.Text = "Script Table as";
+            // 
+            // _tsmiTableScriptInsert
+            // 
+            this._tsmiTableScriptInsert.Name = "_tsmiTableScriptInsert";
+            this._tsmiTableScriptInsert.Size = new System.Drawing.Size(152, 22);
+            this._tsmiTableScriptInsert.Text = "UPSERT ";
+            this._tsmiTableScriptInsert.Click += new System.EventHandler(this._tsmiTableScriptInsert_Click);
+            // 
+            // _tsmiTableScriptCreate
+            // 
+            this._tsmiTableScriptCreate.Name = "_tsmiTableScriptCreate";
+            this._tsmiTableScriptCreate.Size = new System.Drawing.Size(152, 22);
+            this._tsmiTableScriptCreate.Text = "CREATE";
+            this._tsmiTableScriptCreate.Click += new System.EventHandler(this._tsmiTableScriptCreate_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -359,6 +386,9 @@
         private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.ToolStripButton _tsbConnect;
         private System.Windows.Forms.ToolStripButton _tsbRefreshTree;
+        private System.Windows.Forms.ToolStripMenuItem scriptTableAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem _tsmiTableScriptInsert;
+        private System.Windows.Forms.ToolStripMenuItem _tsmiTableScriptCreate;
     }
 }
 

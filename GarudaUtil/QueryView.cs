@@ -71,13 +71,14 @@ namespace GarudaUtil
 
             try
             {
-                if(_connection.State != ConnectionState.Open)
+                // Clear the messages.
+                _txtMessages.Clear();
+
+                // Reopen connection if needed.
+                if (_connection.State != ConnectionState.Open)
                 {
                     _connection.Open();
                 }
-
-                // Clear the messages.
-                _txtMessages.Clear();
 
                 sw.Start();
                 _mainForm.UpdateBusyWaitState(true, Properties.Resources.StatusExecuting);
@@ -143,7 +144,12 @@ namespace GarudaUtil
 
         private void HandleException(Exception ex)
         {
-            _txtMessages.AppendText(ex.ToString());
+            string msg = ex.ToString();
+
+            // Fix up the encoded java linefeed/tab combo
+            msg = msg.Replace("\\n\\t", "\r\n\t");
+
+            _txtMessages.AppendText(msg);
             _tabControl1.SelectedTab = _tabMessages;
             
             //if (typeof(AggregateException) == ex.GetType())
