@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GarudaUtil.MetaData
+namespace Garuda.Data.MetaData
 {
-    interface IGarudaPhoenixMetaData
+    public interface IGarudaPhoenixMetaData
     {
         DataRow Row { get; set; }
     }

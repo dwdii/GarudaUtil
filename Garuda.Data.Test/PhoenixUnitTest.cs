@@ -6,6 +6,7 @@ using System.Text;
 using System.Diagnostics;
 using System.IO;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace Garuda.Data.Test
 {
@@ -721,7 +722,121 @@ namespace Garuda.Data.Test
             }
         }
 
+        [TestMethod]
+        public void MetaDataGarudaPhoenixTableConstructor()
+        {
+            string expectedTable = "BIGTABLE";
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+               
+                DataTable dt = c.GetTables();
+                foreach(DataRow row in dt.Rows)
+                {
+                    var tbl = new Garuda.Data.MetaData.GarudaPhoenixTable(row);
+                    if(row["TABLE_NAME"].ToString() == expectedTable)
+                    {
+                        Assert.IsNotNull(tbl.Row);
+                        Assert.IsInstanceOfType(tbl.Row, typeof(DataRow));
 
+                        Assert.IsNotNull(tbl.Name);
+                        Assert.AreEqual(expectedTable, tbl.Name);
+
+                        Assert.IsNotNull(tbl.FullName);
+                        Assert.AreEqual(expectedTable, tbl.FullName);
+
+                        Assert.IsNotNull(tbl.Schema);
+                        Assert.AreEqual(string.Empty, tbl.Schema);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void MetaDataGarudaPhoenixTableGetColumns()
+        {
+            string expectedTable = "BIGTABLE";
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                DataTable dt = c.GetTables();
+                foreach (DataRow row in dt.Rows)
+                {
+                    if (row["TABLE_NAME"].ToString() == expectedTable)
+                    {
+                        var tbl = new Garuda.Data.MetaData.GarudaPhoenixTable(row);
+
+                        DataTable dtCols = tbl.GetColumns(c);
+                        Assert.IsNotNull(dtCols);
+                        Assert.IsNotNull(dtCols.Rows);
+                        Assert.IsTrue(dtCols.Rows.Count > 0);
+
+                        Assert.IsNotNull(dtCols.Columns);
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        [TestMethod]
+        public void MetaDataGarudaPhoenixTableGetIndexes()
+        {
+            string expectedTable = "BIGTABLE";
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                DataTable dt = c.GetTables();
+                foreach (DataRow row in dt.Rows)
+                {
+                    if (row["TABLE_NAME"].ToString() == expectedTable)
+                    {
+                        var tbl = new Garuda.Data.MetaData.GarudaPhoenixTable(row);
+
+                        DataTable dtCols = tbl.GetIndexes(c);
+                        Assert.IsNotNull(dtCols);
+                        Assert.IsNotNull(dtCols.Rows);
+                        Assert.IsTrue(dtCols.Rows.Count > 0);
+
+                        Assert.IsNotNull(dtCols.Columns);
+                        break;
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void MetaDataGarudaPhoenixTableGenerateUpsertStatement()
+        {
+            string expectedTable = "BIGTABLE";
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                DataTable dt = c.GetTables();
+                foreach (DataRow row in dt.Rows)
+                {
+                    if (row["TABLE_NAME"].ToString() == expectedTable)
+                    {
+                        var tbl = new Garuda.Data.MetaData.GarudaPhoenixTable(row);
+
+                        Task<string> tUpsert = tbl.GenerateUpsertStatementAsync(c);
+                        tUpsert.Wait();
+
+                        Assert.IsNotNull(tUpsert.Result);
+                        Assert.IsTrue(tUpsert.Result.StartsWith("UPSERT INTO"));
+                        TestContext.WriteLine(tUpsert.Result);
+                        break;
+                    }
+                }
+            }
+        }
 
         #region Private Methods
 

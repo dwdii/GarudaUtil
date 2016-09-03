@@ -1,5 +1,5 @@
 ﻿using Garuda.Data;
-using GarudaUtil.MetaData;
+using Garuda.Data.MetaData;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -246,9 +246,10 @@ namespace GarudaUtil
             {
                 string col = Convert.ToString(row[nameField]);
                 TreeNode t = nSubFolder.Nodes.Add(col);
-                IGarudaPhoenixMetaData md = new T();
-
-                md.Row = row;
+                IGarudaPhoenixMetaData md = new T()
+                {
+                    Row = row
+                };
 
                 t.Tag = md;
                 t.ImageIndex = ndxFolderChildImg;
@@ -348,29 +349,11 @@ namespace GarudaUtil
                 GarudaPhoenixTable table = GetTableFromTreeHitTest();
                 if (null != table)
                 {
-                    DataTable columns = await table.GetColumnsAsync(_connection, true);
-
-                    StringBuilder sbUpsert = new StringBuilder();
-                    StringBuilder sbValues = new StringBuilder();
-                    sbUpsert.AppendFormat("UPSERT INTO {0} (", table.FullName);
-                    for(int i = 0; i < columns.Rows.Count; i++)
-                    {
-                        DataRow col = columns.Rows[i];
-
-                        if(i > 0)
-                        {
-                            sbUpsert.Append(",");
-                            sbValues.Append(",");
-                        }
-
-                        sbUpsert.Append(col["COLUMN_NAME"]);
-                        sbValues.Append("?");
-                    }
-                    sbUpsert.AppendFormat(") VALUES ({0})", sbValues.ToString());
+                    string strUpsert = await table.GenerateUpsertStatementAsync(this._connection);
 
                     // Open a new query view tab and set the text.
                     QueryView qv = NewQueryViewTab(null, null);
-                    qv.Text = sbUpsert.ToString();
+                    qv.Text = strUpsert;
                 }
             }
             catch (Exception ex)

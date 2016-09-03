@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GarudaUtil.MetaData
+namespace Garuda.Data.MetaData
 {
-    class GarudaPhoenixTable
+    public class GarudaPhoenixTable
     {
         const string SqlColumnMetaData = "SELECT COLUMN_NAME, COLUMN_FAMILY, COLUMN_SIZE, COLUMN_DEF, ARRAY_SIZE, BUFFER_LENGTH, DATA_TYPE, IS_AUTOINCREMENT, IS_NULLABLE, NULLABLE, STORE_NULLS, IS_ROW_TIMESTAMP, ORDINAL_POSITION, PK_NAME, SQL_DATA_TYPE, SOURCE_DATA_TYPE, KEY_SEQ  FROM SYSTEM.CATALOG WHERE COLUMN_NAME IS NOT NULL AND TABLE_NAME = :1";
         const string SqlTableSchemaCriteria = " AND TABLE_SCHEM = :2";
@@ -68,40 +68,49 @@ namespace GarudaUtil.MetaData
 
         public async Task<DataTable> GetColumnsAsync(PhoenixConnection c, bool refresh)
         {
-            if(null == this._columns || refresh)
+            if (null == this._columns || refresh)
             {
-                if(c.State != ConnectionState.Open)
-                {
-                    c.Open();
-                }
-
-                using (IDbCommand cmd = c.CreateCommand())
-                {
-                    cmd.CommandText = SqlColumnMetaData;
-
-                    cmd.Parameters.Add(new PhoenixParameter(this.Name));
-                    if(DBNull.Value == Row["TABLE_SCHEM"])
-                    {
-                        cmd.CommandText += SqlTableSchemaNullCriteria;
-                    }
-                    else
-                    {
-                        cmd.CommandText += SqlTableSchemaCriteria;
-                        cmd.Parameters.Add(new PhoenixParameter(Row["TABLE_SCHEM"]));
-                    }
-
-                    cmd.Prepare();
-                    using (IDataReader dr = cmd.ExecuteReader())
-                    {
-                        _columns = new DataTable(string.Format("{0} Columns", this.Name));
-                        _columns.BeginLoadData();
-                        _columns.Load(dr);
-                        _columns.EndLoadData();
-                    }
-                }
+                this._columns = await Task.Factory.StartNew(() => GetColumns(c));
             }
 
             return _columns;
+        }
+
+        public DataTable GetColumns(PhoenixConnection c)
+        {
+            DataTable columns = null;
+
+            if (c.State != ConnectionState.Open)
+            {
+                c.Open();
+            }
+
+            using (IDbCommand cmd = c.CreateCommand())
+            {
+                cmd.CommandText = SqlColumnMetaData;
+
+                cmd.Parameters.Add(new PhoenixParameter(this.Name));
+                if(DBNull.Value == Row["TABLE_SCHEM"])
+                {
+                    cmd.CommandText += SqlTableSchemaNullCriteria;
+                }
+                else
+                {
+                    cmd.CommandText += SqlTableSchemaCriteria;
+                    cmd.Parameters.Add(new PhoenixParameter(Row["TABLE_SCHEM"]));
+                }
+
+                cmd.Prepare();
+                using (IDataReader dr = cmd.ExecuteReader())
+                {
+                    columns = new DataTable(string.Format("{0} Columns", this.Name));
+                    columns.BeginLoadData();
+                    columns.Load(dr);
+                    columns.EndLoadData();
+                }
+            }
+
+            return columns;
         }
 
         public async Task<DataTable> GetIndexesAsync(PhoenixConnection c, bool refresh)
@@ -149,6 +158,31 @@ namespace GarudaUtil.MetaData
             }
 
             return indexes;
+        }
+
+        public async Task<string> GenerateUpsertStatementAsync(PhoenixConnection c)
+        {
+            DataTable columns = await this.GetColumnsAsync(c, true);
+            StringBuilder sbUpsert = new StringBuilder();
+            StringBuilder sbValues = new StringBuilder();
+
+            sbUpsert.AppendFormat("UPSERT INTO {0} (", this.FullName);
+            for (int i = 0; i < columns.Rows.Count; i++)
+            {
+                DataRow col = columns.Rows[i];
+
+                if (i > 0)
+                {
+                    sbUpsert.Append(",");
+                    sbValues.Append(",");
+                }
+
+                sbUpsert.Append(col["COLUMN_NAME"]);
+                sbValues.Append("?");
+            }
+            sbUpsert.AppendFormat(") VALUES ({0})", sbValues.ToString());
+
+            return sbUpsert.ToString();
         }
     }
 }

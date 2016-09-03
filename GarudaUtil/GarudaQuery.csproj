@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <IsWebBootstrapper>true</IsWebBootstrapper>
-    <PublishUrl>publish\</PublishUrl>
+    <PublishUrl>C:\Code\DotNet\GarudaUtil\GarudaUtil\publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -23,12 +23,12 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>http://dwdii.github.io/apps/GarudaQuery/</InstallUrl>
+    <InstallUrl>http://dwdii.github.com/</InstallUrl>
     <ProductName>Garuda Query</ProductName>
     <PublisherName>Daniel Dittenhafer</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>5</ApplicationRevision>
+    <ApplicationRevision>6</ApplicationRevision>
     <ApplicationVersion>0.5.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -117,9 +117,6 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MetaData\GarudaPhoenixIndex.cs" />
-    <Compile Include="MetaData\GarudaPhoenixTable.cs" />
-    <Compile Include="MetaData\IGarudaPhoenixMetaData.cs" />
     <Compile Include="PhoenixIndexForm.cs">
       <SubType>Form</SubType>
     </Compile>

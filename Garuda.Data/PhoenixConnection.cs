@@ -252,6 +252,19 @@ namespace Garuda.Data
             return response;
         }
 
+        //internal ResultSetResponse InternalTableTypesRequest()
+        //{
+        //    ResultSetResponse response = null;
+
+        //    Task<ResultSetResponse> tResp = _client.TableTypesRequestAsync(this.ConnectionId, this.Options);
+
+        //    tResp.Wait();
+
+        //    response = tResp.Result;
+
+        //    return response;
+        //}
+
         internal async Task<GarudaExecuteResponse> InternalExecuteRequestAsync(PrepareResponse prepared, string sql, 
             PhoenixParameterCollection parameterValues)
         {
@@ -272,7 +285,7 @@ namespace Garuda.Data
 
                         tResp = await _client.PrepareAndExecuteRequestAsync(this.ConnectionId,
                             sql,
-                            ulong.MaxValue,
+                            uint.MaxValue,
                             ourResp.StatementId,
                             this.Options);
                     }
@@ -291,7 +304,7 @@ namespace Garuda.Data
                     // Prepared and possibly with parameters.
                     pbc.RepeatedField<TypedValue> pbParamValues = parameterValues.AsRepeatedFieldTypedValue();
 
-                    tResp = await _client.ExecuteRequestAsync(prepared.Statement, pbParamValues, 100,
+                    tResp = await _client.ExecuteRequestAsync(prepared.Statement, pbParamValues, uint.MaxValue,
                         parameterValues.Count > 0, this.Options);
                 }
 
@@ -514,7 +527,7 @@ namespace Garuda.Data
 
                 this.Credentials = new ClusterCredentials(uriCredUri, credsUser, credsPasswd);
                 this.Options.AlternativeEndpoint = uriCredUri.AbsolutePath;
-                this.Options.ReceiveBufferSize = -1;
+                //this.Options.ReceiveBufferSize = -1;
                 if (port.HasValue)
                 {
                     this.Options.Port = port.Value;

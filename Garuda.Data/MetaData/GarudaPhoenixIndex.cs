@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GarudaUtil.MetaData
+namespace Garuda.Data.MetaData
 {
-    class GarudaPhoenixIndex : IGarudaPhoenixMetaData
+    public class GarudaPhoenixIndex : IGarudaPhoenixMetaData
     {
         const string SqlKeyColumnMetaData = "SELECT COLUMN_DEF, DATA_TYPE FROM SYSTEM.CATALOG WHERE COLUMN_NAME IS NOT NULL AND KEY_SEQ IS NOT NULL AND TABLE_NAME = :1 ORDER BY KEY_SEQ";
 
