@@ -264,11 +264,21 @@ namespace Garuda.Data
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Gets a string representing the data type of the specified column.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override string GetDataTypeName(int ordinal)
         {
             return CurrentResultSet().Signature.Columns[ordinal].Type.Name;
         }
 
+        /// <summary>
+        /// Gets the value of the specified column as a DateTime object.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override DateTime GetDateTime(int ordinal)
         {
             return (DateTime)GetValue(ordinal);
@@ -279,6 +289,11 @@ namespace Garuda.Data
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Gets the value of the specified column as a double-precision floating point number.
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
         public override double GetDouble(int ordinal)
         {
             return (double)GetValue(ordinal);

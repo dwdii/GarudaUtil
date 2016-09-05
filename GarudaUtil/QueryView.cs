@@ -37,7 +37,7 @@ namespace GarudaUtil
             this.Dock = DockStyle.Fill;
         }
 
-        public string Text
+        public override string Text
         {
             get { return _rtbQuery.Text; }
             set { _rtbQuery.Text = value; }

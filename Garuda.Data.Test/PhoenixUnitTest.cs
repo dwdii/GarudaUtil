@@ -748,6 +748,7 @@ namespace Garuda.Data.Test
 
                         Assert.IsNotNull(tbl.Schema);
                         Assert.AreEqual(string.Empty, tbl.Schema);
+                        break;
                     }
                 }
             }
@@ -947,7 +948,6 @@ namespace Garuda.Data.Test
         private long QueryAllRows(IDbConnection c, string table, int logResults)
         {
             long recCount = 0;
-            object oVal = null;
             StringBuilder line = new StringBuilder();
 
             // Query for data... should get one rows.

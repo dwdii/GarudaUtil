@@ -260,7 +260,10 @@ namespace Garuda.Data
         //   Dispose(false);
         // }
 
-        // This code added to correctly implement the disposable pattern.
+        /// <summary>
+        /// Releases all resources used by this instance.
+        /// </summary>
+        /// <remarks>This code added to correctly implement the disposable pattern.</remarks>
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.

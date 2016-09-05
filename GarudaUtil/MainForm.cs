@@ -277,7 +277,7 @@ namespace GarudaUtil
                         PhoenixIndexForm frm = new PhoenixIndexForm();
                         GarudaPhoenixIndex ndx = e.Node.Tag as GarudaPhoenixIndex;
                         frm.TableName = ndx.TableName;
-                        frm.IndexName = ndx.IndexName;
+                        frm.IndexName = ndx.Name;
                         frm.KeyColumns = ndx.GetKeyColumns(_connection);
                         frm.ShowDialog(this);
                     }
