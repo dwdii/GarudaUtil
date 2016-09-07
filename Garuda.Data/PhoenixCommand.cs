@@ -16,7 +16,7 @@ namespace Garuda.Data
     /// <summary>
     /// The PhoenixCommand class encapsulates an SQL command that can be executed on a Phoenix query server.
     /// </summary>
-    public class PhoenixCommand : IDbCommand
+    public sealed class PhoenixCommand : IDbCommand
     {
         #region Private Data Members
         private GarudaExecuteResponse _response = null;
@@ -228,7 +228,7 @@ namespace Garuda.Data
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

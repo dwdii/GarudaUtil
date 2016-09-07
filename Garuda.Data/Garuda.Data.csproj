@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS GPB3alpha</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="Internal\GarudaExecuteResponse.cs" />
     <Compile Include="Internal\GarudaResultSet.cs" />
+    <Compile Include="Internal\GarudaRep.cs" />
     <Compile Include="MetaData\GarudaPhoenixIndex.cs" />
     <Compile Include="MetaData\GarudaPhoenixTable.cs" />
     <Compile Include="MetaData\IGarudaPhoenixMetaData.cs" />

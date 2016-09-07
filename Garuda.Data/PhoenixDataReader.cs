@@ -217,7 +217,7 @@ namespace Garuda.Data
                 row[dcColOrdinal] = col.Ordinal;
                 row[dcNullable] = Convert.ToBoolean(col.Nullable);
 
-                if( (col.Type.Rep == Rep.STRING && col.ColumnName == "PLAN") || col.TableName == "SYSTEM.STATS" )
+                if( (col.Type.Rep == GarudaRep.String && col.ColumnName == "PLAN") || col.TableName == "SYSTEM.STATS" )
                 {
                     row[dcColSize] = int.MaxValue;
                 }
@@ -420,29 +420,29 @@ namespace Garuda.Data
 
             switch (val.Type)
             {
-                case Rep.STRING:
+                case GarudaRep.String:
                     o = val.StringValue;
                     break;
 
-                case Rep.BYTE_STRING:
+                case GarudaRep.ByteString:
                     o = val.BytesValues.ToString();
                     break;
 
-                case Rep.PRIMITIVE_DOUBLE:
-                case Rep.DOUBLE:
+                case GarudaRep.PrimitiveDouble:
+                case GarudaRep.Double:
                     o = val.DoubleValue;
                     break;
 
-                case Rep.BOOLEAN:
+                case GarudaRep.Boolean:
                     o = val.BoolValue;
                     break;
 
-                case Rep.BYTE:
-                case Rep.SHORT:
-                case Rep.PRIMITIVE_SHORT:
-                case Rep.INTEGER:
-                case Rep.LONG:
-                case Rep.NUMBER:
+                case GarudaRep.Byte:
+                case GarudaRep.Short:
+                case GarudaRep.PrimitiveShort:
+                case GarudaRep.Integer:
+                case GarudaRep.Long:
+                case GarudaRep.Number:
                     o = val.NumberValue;
                     if(val.NumberValue == 0 && val.DoubleValue != 0)
                     {
@@ -452,11 +452,11 @@ namespace Garuda.Data
                     }
                     break;
 
-                case Rep.NULL:
+                case GarudaRep.Null:
                     o = DBNull.Value;
                     break;
 
-                case Rep.ARRAY:
+                case GarudaRep.Array:
                     o = DBNull.Value;
                     break;
 
@@ -466,7 +466,7 @@ namespace Garuda.Data
             }
 
             // Chronotypes
-            if(Rep.NULL != val.Type)
+            if(GarudaRep.Null != val.Type)
             {
                 switch (GetDataTypeName(ordinal))
                 {

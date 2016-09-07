@@ -1,4 +1,5 @@
 ﻿using Apache.Phoenix;
+using Garuda.Data.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -122,7 +123,7 @@ namespace Garuda.Data
             if(val == null)
             {
                 tv.Null = true;
-                tv.Type = Rep.NULL;
+                tv.Type = GarudaRep.Null;
             }
             else
             {
@@ -135,27 +136,27 @@ namespace Garuda.Data
                     pt == typeof(ushort))
                 {
                     tv.NumberValue = Convert.ToInt64(val);
-                    tv.Type = Rep.LONG;
+                    tv.Type = GarudaRep.Long;
                 }
                 else if(pt == typeof(float) || pt == typeof(double))
                 {
                     tv.DoubleValue = Convert.ToDouble(val);
-                    tv.Type = Rep.DOUBLE;
+                    tv.Type = GarudaRep.Double;
                 }
                 else if (pt == typeof(string))
                 {
                     tv.StringValue = Convert.ToString(val);
-                    tv.Type = Rep.STRING;
+                    tv.Type = GarudaRep.String;
                 }
                 else if(pt == typeof(DateTime))
                 {
                     tv.NumberValue = Convert.ToInt64(Convert.ToDateTime(val).Subtract(PhoenixParameter.Constants.Epoch).TotalMilliseconds);
-                    tv.Type = Rep.JAVA_SQL_TIMESTAMP;
+                    tv.Type = GarudaRep.JavaSqlTimestamp;
                 }
                 else if (val == DBNull.Value)
                 {
                     tv.Null = true;
-                    tv.Type = Rep.NULL;
+                    tv.Type = GarudaRep.Null;
                 }
             }
 

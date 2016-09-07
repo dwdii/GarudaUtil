@@ -1,4 +1,5 @@
 ﻿using Apache.Phoenix;
+using Garuda.Data.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,32 +18,32 @@ namespace Garuda.Data
 
         static PhoenixDataTypeMap()
         {
-            _map.Add(Rep.LONG, typeof(long));
-            _map.Add(Rep.PRIMITIVE_LONG, typeof(long));
-            _map.Add(Rep.BIG_INTEGER, typeof(long));
+            _map.Add(GarudaRep.Long, typeof(long));
+            _map.Add(GarudaRep.PrimitiveLong, typeof(long));
+            _map.Add(GarudaRep.BigInteger, typeof(long));
 
-            _map.Add(Rep.INTEGER, typeof(int));
-            _map.Add(Rep.PRIMITIVE_INT, typeof(int));
+            _map.Add(GarudaRep.Integer, typeof(int));
+            _map.Add(GarudaRep.PrimitiveInt, typeof(int));
 
-            _map.Add(Rep.SHORT, typeof(short));
-            _map.Add(Rep.PRIMITIVE_SHORT, typeof(short));
+            _map.Add(GarudaRep.Short, typeof(short));
+            _map.Add(GarudaRep.PrimitiveShort, typeof(short));
 
-            _map.Add(Rep.STRING, typeof(string));
-            _map.Add(Rep.BYTE_STRING, typeof(string));
+            _map.Add(GarudaRep.String, typeof(string));
+            _map.Add(GarudaRep.ByteString, typeof(string));
 
 
-            _map.Add(Rep.BOOLEAN, typeof(bool));
-            _map.Add(Rep.PRIMITIVE_BOOLEAN, typeof(bool));
+            _map.Add(GarudaRep.Boolean, typeof(bool));
+            _map.Add(GarudaRep.PrimitiveBoolean, typeof(bool));
 
-            _map.Add(Rep.FLOAT, typeof(float));
-            _map.Add(Rep.PRIMITIVE_FLOAT, typeof(float));
+            _map.Add(GarudaRep.Float, typeof(float));
+            _map.Add(GarudaRep.PrimitiveFloat, typeof(float));
 
-            _map.Add(Rep.DOUBLE, typeof(double));
-            _map.Add(Rep.PRIMITIVE_DOUBLE, typeof(double));
+            _map.Add(GarudaRep.Double, typeof(double));
+            _map.Add(GarudaRep.PrimitiveDouble, typeof(double));
 
-            _map.Add(Rep.PRIMITIVE_BYTE, typeof(byte));
+            _map.Add(GarudaRep.PrimitiveByte, typeof(byte));
 
-            _map.Add(Rep.ARRAY, typeof(Array));
+            _map.Add(GarudaRep.Array, typeof(Array));
 
 
             _dateTypes.Add("TIMESTAMP");
@@ -68,7 +69,7 @@ namespace Garuda.Data
             {
                 t = typeof(TimeSpan);
             }
-            else if(Rep.OBJECT == rep)
+            else if(GarudaRep.Object == rep)
             {
                 switch(typeName)
                 {
@@ -91,7 +92,7 @@ namespace Garuda.Data
 
         public static Rep GetPhoenixRep(Type type)
         {
-            Rep rep = Rep.NULL;
+            Rep rep = GarudaRep.Null;
             foreach (var k in _map)
             {
                 if (k.Value == type)
