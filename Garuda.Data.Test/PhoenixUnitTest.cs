@@ -315,6 +315,18 @@ namespace Garuda.Data.Test
                 pFuncs);
         }
 
+        //[TestMethod]
+        //public void CommandPrepareWith1String1UlongMaxParamsTest()
+        //{
+        //    int rowsToInsert = 10;
+        //    List<Func<object>> pFuncs = new List<Func<object>>();
+        //    pFuncs.Add(() => string.Format("N{0}", DateTime.Now.ToString("hmmss")));
+        //    pFuncs.Add(() => ulong.MaxValue);
+
+        //    PreparedCmdParameterTest(rowsToInsert,
+        //        "UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 19, 14, :2, 45, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), 1.2 / .4)",
+        //        pFuncs);
+        //}
 
         [TestMethod]
         public void CommandPrepareWith1String1FloatParamsTest()
@@ -326,6 +338,18 @@ namespace Garuda.Data.Test
 
             PreparedCmdParameterTest(rowsToInsert,
                 "UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, :1, 19, 14, 87, 45, CURRENT_TIME(), CURRENT_DATE(), '2016-07-25 22:28:00',  CURRENT_TIME(), :2)",
+                pFuncs);
+        }
+
+        [TestMethod]
+        public void CommandPrepareWithDateTimeParamsTest()
+        {
+            int rowsToInsert = 10;
+            List<Func<object>> pFuncs = new List<Func<object>>();
+            pFuncs.Add(() => DateTime.Now);
+
+            PreparedCmdParameterTest(rowsToInsert,
+                "UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber, MyInt, MyUint, MyUlong, MyTingInt, MyTime, MyDate, MyTimestamp, MyUnsignedTime, MyFloat) VALUES (NEXT VALUE FOR garuda.testsequence, 'N123JB', 19, 14, 87, 45, CURRENT_TIME(), CURRENT_DATE(), :1,  CURRENT_TIME(), 3.14159)",
                 pFuncs);
         }
 
@@ -416,6 +440,40 @@ namespace Garuda.Data.Test
 
                 sw.Stop();
                 WriteBulkCopyPerf(dt.Rows.Count, sw.ElapsedMilliseconds);
+
+                // How many rows did we get back?
+                this.TestContext.WriteLine("Bulk Copy Rows: {0}", dt.Rows.Count);
+                this.TestContext.WriteLine("Bulk Copy Time: {0}ms", sw.ElapsedMilliseconds);
+
+                // More than zero?
+                Assert.IsTrue(dt.Rows.Count > 0);
+            }
+        }
+
+        [TestMethod]
+        public void BulkCopyTest2_Salted3Table()
+        {
+            Stopwatch sw = new Stopwatch();
+            using (PhoenixConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                string tableName = CreateBulkCopyTableIfNotExists(c, false, 3);
+                string nextValueForSequence = string.Format("NEXT VALUE FOR garuda.{0}", SequenceNameForTable(tableName));
+                PhoenixBulkCopy bc = new PhoenixBulkCopy(c);
+                DataTable dt = ConvertCSVtoDataTable(System.Configuration.ConfigurationManager.AppSettings["BulkCopyCsvTestFile"]);
+
+                // Query the table and measure performance
+                sw.Start();
+
+                bc.DestinationTableName = tableName;
+                bc.ColumnMappings.Add("ID", new PhoenixBulkCopyColumnMapping(nextValueForSequence));
+                bc.BatchSize = 100;
+                bc.WriteToServer(dt);
+
+                sw.Stop();
+                WriteBulkCopyPerf(dt.Rows.Count, sw.ElapsedMilliseconds, "BulkCopySalted3PerfFile");
 
                 // How many rows did we get back?
                 this.TestContext.WriteLine("Bulk Copy Rows: {0}", dt.Rows.Count);
@@ -884,9 +942,9 @@ namespace Garuda.Data.Test
             File.AppendAllText(file, string.Format("{0},{1},{2}\r\n", DateTime.Now.ToString(), rows, milliseconds));
         }
 
-        private void WriteBulkCopyPerf(long rows, long milliseconds)
+        private void WriteBulkCopyPerf(long rows, long milliseconds, string filenameSetting = "BulkCopyPerfFile")
         {
-            string file = System.Configuration.ConfigurationManager.AppSettings["BulkCopyPerfFile"];
+            string file = System.Configuration.ConfigurationManager.AppSettings[filenameSetting];
             if (!File.Exists(file))
             {
                 File.AppendAllText(file, "Timestamp,Rows,Duration(ms)\r\n");
@@ -1049,11 +1107,24 @@ namespace Garuda.Data.Test
                 true, dropIfExists);
         }
 
-        private static void CreateBulkCopyTableIfNotExists(IDbConnection phConn, bool dropIfExists)
+        private static string CreateBulkCopyTableIfNotExists(IDbConnection phConn, bool dropIfExists, int saltBuckets = 0)
         {
-            ReCreateTestTableIfNotExists(phConn, "BulkCopyTest",
-                "CREATE TABLE IF NOT EXISTS BulkCopyTest (ID BIGINT PRIMARY KEY, AircraftIcaoNumber varchar(16), LruFlightKey varchar(64), MyTimestamp TIMESTAMP )",
+            string tableName = "BulkCopyTest";
+            string createTable = "CREATE TABLE IF NOT EXISTS {0} (ID BIGINT PRIMARY KEY, AircraftIcaoNumber varchar(16), LruFlightKey varchar(64), MyTimestamp TIMESTAMP )";
+
+            if (saltBuckets > 0)
+            {
+                tableName += string.Format("_{0}", saltBuckets);
+                createTable += string.Format(" SALT_BUCKETS = {0}", saltBuckets);
+            }
+
+            createTable = string.Format(createTable, tableName);
+
+            ReCreateTestTableIfNotExists(phConn, tableName,
+                createTable,
                 true, dropIfExists);
+
+            return tableName;
         }
 
         private static void ReCreateTestTableIfNotExists(IDbConnection phConn, string table, string createStmt, bool createSequence, bool dropIfExists)
@@ -1075,7 +1146,7 @@ namespace Garuda.Data.Test
             }
 
             bool bCreateSequence = true;
-            string seqName = string.Format("{0}Sequence", table);
+            string seqName = SequenceNameForTable(table);
             using (IDbCommand cmd = phConn.CreateCommand())
             {
 
@@ -1102,6 +1173,11 @@ namespace Garuda.Data.Test
                     cmd.ExecuteNonQuery();
                 }
             }
+        }
+
+        private static string SequenceNameForTable(string tableName)
+        {
+            return string.Format("{0}Sequence", tableName);
         }
 
         private string ConnectionString()

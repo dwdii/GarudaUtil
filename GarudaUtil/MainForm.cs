@@ -603,5 +603,19 @@ namespace GarudaUtil
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        private void MainForm_Shown(object sender, EventArgs e)
+        {
+            try
+            {
+                // Show the version/build in the title bar.
+                System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+                this.Text = string.Format("Garuda Query v{0}", fvi.FileVersion);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
     }
 }

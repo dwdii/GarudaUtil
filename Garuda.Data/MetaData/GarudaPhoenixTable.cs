@@ -75,6 +75,13 @@ namespace Garuda.Data.MetaData
             }
         }
 
+        /// <summary>
+        /// For the specified column appearing in the specified DataTable, is
+        /// it a primary key column? 
+        /// </summary>
+        /// <param name="dt">The DataTable returned from <see cref="GetColumns(PhoenixConnection)"/>GetColumns</param>.
+        /// <param name="columnName">The column name for which the primary key status is desired.</param>
+        /// <returns></returns>
         public bool IsColumnPrimaryKey(DataTable dt, string columnName)
         {
             foreach(DataRow row in dt.Rows)

@@ -53,7 +53,7 @@ namespace GarudaUtil
         {
             _dataGridView1.AutoGenerateColumns = true;
             _dataGridView1.DataSource = dt;
-            for(int i = 0; i < dt.Columns.Count; i++)
+            for(int i = 0; i < _dataGridView1.Columns.Count; i++)
             {
                 if(_dataGridView1.Columns[i].ValueType == typeof(DateTime))
                 {

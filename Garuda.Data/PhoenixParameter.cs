@@ -131,12 +131,22 @@ namespace Garuda.Data
                 if (pt == typeof(int) || 
                     pt == typeof(long) ||
                     pt == typeof(uint) || 
-                    pt == typeof(ulong) ||
                     pt == typeof(short) ||
                     pt == typeof(ushort))
                 {
                     tv.NumberValue = Convert.ToInt64(val);
                     tv.Type = GarudaRep.Long;
+                }
+                else if (pt == typeof(ulong))
+                {
+                    ulong ulVal =  Convert.ToUInt64(val);
+                    tv.NumberValue = (long)ulVal;
+                    tv.Type = GarudaRep.Long;
+                }
+                else if(pt == typeof(byte[]))
+                {
+                    tv.BytesValues = Google.Protobuf.ByteString.CopyFrom(val as byte[]);
+                    tv.Type = GarudaRep.ByteString;
                 }
                 else if(pt == typeof(float) || pt == typeof(double))
                 {

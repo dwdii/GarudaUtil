@@ -90,9 +90,27 @@ UPSERT INTO GARUDATEST (ID, AircraftIcaoNumber) VALUES (NEXT VALUE FOR garuda.te
 The following data types have been tested successfully:
 
 * string
+* short
 * int
+* uint
 * long
 * float
+* DateTime (timestamp)
+
+### Known Issues / Deficiencies
+
+Phoenix's [BINARY](https://phoenix.apache.org/language/datatypes.html#binary_type), VARBINARY and 
+[ARRAY](https://phoenix.apache.org/array_type.html) data types are 
+not yet handled. 
+
+Phoenix's [UNSIGNED_LONG](https://phoenix.apache.org/language/datatypes.html#unsigned_long_type) is not supported. 
+This appears to be an underlying issue with the Microsoft Phoenix Client's Avatica mapping using a long data types
+for integer related data types. An issue/question needs to be opened with the [hdinsight-phoenix-sharp](https://github.com/Azure/hdinsight-phoenix-sharp)
+project to get their input and understand possible resolutions.
+
+The PhoenixDataReader GetByte, GetBytes, GetChar, GetChars, GetDecimal, GetGuid and 
+GetEnumerator methods are not implemented yet.
+
 
 ## GarudaQuery
 

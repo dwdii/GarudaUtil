@@ -46,13 +46,13 @@
             this._tsslConnection = new System.Windows.Forms.ToolStripStatusLabel();
             this._cmsTreeTableMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this._tsmiSelectTop1000 = new System.Windows.Forms.ToolStripMenuItem();
+            this.scriptTableAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._tsmiTableScriptCreate = new System.Windows.Forms.ToolStripMenuItem();
+            this._tsmiTableScriptInsert = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this._tsbConnect = new System.Windows.Forms.ToolStripButton();
             this._tsbRefreshTree = new System.Windows.Forms.ToolStripButton();
-            this.scriptTableAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._tsmiTableScriptInsert = new System.Windows.Forms.ToolStripMenuItem();
-            this._tsmiTableScriptCreate = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -244,7 +244,7 @@
             this._tsmiSelectTop1000,
             this.scriptTableAsToolStripMenuItem});
             this._cmsTreeTableMenu.Name = "_cmsTreeMenu";
-            this._cmsTreeTableMenu.Size = new System.Drawing.Size(187, 70);
+            this._cmsTreeTableMenu.Size = new System.Drawing.Size(187, 48);
             // 
             // _tsmiSelectTop1000
             // 
@@ -252,6 +252,29 @@
             this._tsmiSelectTop1000.Size = new System.Drawing.Size(186, 22);
             this._tsmiSelectTop1000.Text = "Select Top 1000 Rows";
             this._tsmiSelectTop1000.Click += new System.EventHandler(this._tsmiSelectTop1000_Click);
+            // 
+            // scriptTableAsToolStripMenuItem
+            // 
+            this.scriptTableAsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._tsmiTableScriptCreate,
+            this._tsmiTableScriptInsert});
+            this.scriptTableAsToolStripMenuItem.Name = "scriptTableAsToolStripMenuItem";
+            this.scriptTableAsToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.scriptTableAsToolStripMenuItem.Text = "Script Table as";
+            // 
+            // _tsmiTableScriptCreate
+            // 
+            this._tsmiTableScriptCreate.Name = "_tsmiTableScriptCreate";
+            this._tsmiTableScriptCreate.Size = new System.Drawing.Size(117, 22);
+            this._tsmiTableScriptCreate.Text = "CREATE";
+            this._tsmiTableScriptCreate.Click += new System.EventHandler(this._tsmiTableScriptCreate_Click);
+            // 
+            // _tsmiTableScriptInsert
+            // 
+            this._tsmiTableScriptInsert.Name = "_tsmiTableScriptInsert";
+            this._tsmiTableScriptInsert.Size = new System.Drawing.Size(117, 22);
+            this._tsmiTableScriptInsert.Text = "UPSERT ";
+            this._tsmiTableScriptInsert.Click += new System.EventHandler(this._tsmiTableScriptInsert_Click);
             // 
             // toolStripContainer1
             // 
@@ -308,29 +331,6 @@
             this._tsbRefreshTree.Text = "Refresh";
             this._tsbRefreshTree.Click += new System.EventHandler(this._tsbRefreshTree_Click);
             // 
-            // scriptTableAsToolStripMenuItem
-            // 
-            this.scriptTableAsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._tsmiTableScriptCreate,
-            this._tsmiTableScriptInsert});
-            this.scriptTableAsToolStripMenuItem.Name = "scriptTableAsToolStripMenuItem";
-            this.scriptTableAsToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
-            this.scriptTableAsToolStripMenuItem.Text = "Script Table as";
-            // 
-            // _tsmiTableScriptInsert
-            // 
-            this._tsmiTableScriptInsert.Name = "_tsmiTableScriptInsert";
-            this._tsmiTableScriptInsert.Size = new System.Drawing.Size(152, 22);
-            this._tsmiTableScriptInsert.Text = "UPSERT ";
-            this._tsmiTableScriptInsert.Click += new System.EventHandler(this._tsmiTableScriptInsert_Click);
-            // 
-            // _tsmiTableScriptCreate
-            // 
-            this._tsmiTableScriptCreate.Name = "_tsmiTableScriptCreate";
-            this._tsmiTableScriptCreate.Size = new System.Drawing.Size(152, 22);
-            this._tsmiTableScriptCreate.Text = "CREATE";
-            this._tsmiTableScriptCreate.Click += new System.EventHandler(this._tsmiTableScriptCreate_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -340,6 +340,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "Garuda Query";
+            this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();

@@ -31,6 +31,10 @@ namespace Garuda.Data
             public const string NamePhoenixTables = "Phoenix Tables";
         }
 
+        /// <summary>
+        /// Indicates the current connection mode of this connection. 
+        /// For example HD Insight Gateway mode vs VNET mode.
+        /// </summary>
         public PhoenixConnectionMode Mode { get; private set; }
 
         /// <summary>
