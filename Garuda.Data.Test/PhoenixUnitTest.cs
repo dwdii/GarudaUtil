@@ -897,6 +897,44 @@ namespace Garuda.Data.Test
             }
         }
 
+        [TestMethod]
+        public void CollectionItemGet()
+        {
+            PhoenixParameterCollection c = new PhoenixParameterCollection();
+            PhoenixParameter pp = new PhoenixParameter();
+            string expectedValue = "test";
+            string paramName = "1";
+
+            pp.ParameterName = paramName;
+            pp.Value = expectedValue;
+            c.Add(pp);
+
+            PhoenixParameter pp1 = c[paramName] as PhoenixParameter;
+
+            Assert.IsNotNull(pp1);
+            Assert.AreEqual(expectedValue, pp1.Value);
+        }
+
+        [TestMethod]
+        public void CollectionItemSet()
+        {
+            PhoenixParameterCollection c = new PhoenixParameterCollection();
+            PhoenixParameter pp = new PhoenixParameter();
+            string expectedValue = "test";
+            string expectedValue2 = "aDiffValue";
+            string paramName = "1";
+
+            pp.ParameterName = paramName;
+            pp.Value = expectedValue;
+            c.Add(pp);
+
+            c[paramName] = expectedValue2;
+
+            Assert.IsNotNull(pp);
+            Assert.AreEqual(expectedValue2, pp.Value);
+        }
+
+
         #region Private Methods
 
         /// <summary>

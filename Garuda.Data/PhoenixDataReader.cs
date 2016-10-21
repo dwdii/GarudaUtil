@@ -244,21 +244,49 @@ namespace Garuda.Data
             return (bool)GetValue(ordinal);
         }
 
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         public override byte GetByte(int ordinal)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         public override char GetChar(int ordinal)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <param name="dataOffset"></param>
+        /// <param name="buffer"></param>
+        /// <param name="bufferOffset"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
         {
             throw new NotImplementedException();
@@ -284,6 +312,12 @@ namespace Garuda.Data
             return (DateTime)GetValue(ordinal);
         }
 
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <param name="ordinal"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         public override decimal GetDecimal(int ordinal)
         {
             throw new NotImplementedException();
@@ -299,6 +333,11 @@ namespace Garuda.Data
             return (double)GetValue(ordinal);
         }
 
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         public override IEnumerator GetEnumerator()
         {
             throw new NotImplementedException();

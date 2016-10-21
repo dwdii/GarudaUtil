@@ -12,19 +12,32 @@ namespace Garuda.Data
 {
     public class PhoenixParameterCollection : List<PhoenixParameter>, IDataParameterCollection
     {
+        /// <summary>
+        /// Gets or sets the parameter at the specified index.
+        /// </summary>
+        /// <param name="parameterName"></param>
+        /// <returns></returns>
         public object this[string parameterName]
         {
             get
             {
-                throw new NotImplementedException();
+                return this.Find(x => x.ParameterName == parameterName);
             }
 
             set
             {
-                throw new NotImplementedException();
+                PhoenixParameter pp = (PhoenixParameter)this.Find(x => x.ParameterName == parameterName);
+                if(null != pp)
+                {
+                    pp.Value = value;
+                }
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the IList has a fixed size
+        /// </summary>
+        /// <exception cref="System.NotImplementedException"></exception>
         public bool IsFixedSize
         {
             get

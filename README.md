@@ -23,7 +23,7 @@ The familiar connection string format is used for connections:
 #### VNET / Apache Phoenix direct connections
 
 ```
-Server=myphoenixserver.domain.com,8765;User ID=myuser;Password=mypwd;CredentialUri=http://myazurecredurl;Request Timeout=30000" 
+Server=myphoenixserver.domain.com,8765;User ID=myuser;Password=mypwd;Request Timeout=30000" 
 ```
 
 #### HDInsight Gateway connections
@@ -37,8 +37,6 @@ Server=https://mycluster.azurehdinsight.net/hbasephoenix0/;User ID=myuser;Passwo
 * User ID: Your gateway credential user name. Only specify the User ID and Password when using HDInsight gateway mode.
 
 * Password: Your gateway credential password.
-
-* CredentialUri: Deprecated. The protocol scheme and host of the gateway. Only specify the CredentialUri when using HDInsight gateway mode.
 
 * Request Timeout: The timeout in milliseconds of a given phoenix command or request to the phoenix server. I use 30000 in my tests and development.
 
@@ -127,5 +125,7 @@ https://community.hortonworks.com/questions/25101/is-there-a-way-to-connect-to-h
 Use Apache Phoenix with Linux-based HBase clusters in HDinsight
 https://azure.microsoft.com/en-us/documentation/articles/hdinsight-hbase-phoenix-squirrel-linux/
 
+How to connect to HBase / Hadoop Database using C#
+http://stackoverflow.com/questions/17866600/how-to-connect-to-hbase-hadoop-database-using-c-sharp/39217348#39217348
 
 
