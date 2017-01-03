@@ -145,7 +145,7 @@ namespace Garuda.Data
                 }
                 else if(pt == typeof(byte[]))
                 {
-                    tv.BytesValues = Google.Protobuf.ByteString.CopyFrom(val as byte[]);
+                    tv.BytesValue = Google.Protobuf.ByteString.CopyFrom(val as byte[]);
                     tv.Type = GarudaRep.ByteString;
                 }
                 else if(pt == typeof(float) || pt == typeof(double))

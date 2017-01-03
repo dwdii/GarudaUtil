@@ -464,7 +464,7 @@ namespace Garuda.Data
                     break;
 
                 case GarudaRep.ByteString:
-                    o = val.BytesValues.ToString();
+                    o = val.BytesValue.ToString();
                     break;
 
                 case GarudaRep.PrimitiveDouble:
