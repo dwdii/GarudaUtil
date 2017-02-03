@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>$version$</version>
+    <version>$version$-beta</version>
     <title>$title$</title>
     <authors>Daniel Dittenhafer</authors>
     <owners>$author$</owners>
@@ -12,17 +12,23 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A .NET Framework System.Data implementation for Apache Phoenix including IDbConnection, IDbCommand, IDbTransaction and IDataReader.</description>
     <releaseNotes>
-      
-      * Upgraded to Microsoft.Phoenix.Client 1.1 and Google Protocol Buffer 3.0 released versions
+      Beta
+
+      * Upgraded to Microsoft.Phoenix.Client 2.0 and Google Protocol Buffer 3.1 released versions
+      * Support for Hortonworks HDP 2.5 (HBASE 1.1.2 / Phoenix 4.7)
+      * Discontinued support for Hortonworks HDP 2.4
+      Thanks to @RonMuth for the Microsoft.Phoenix.Client 2.0 upgrade changes!
+
+      Please submit issues to the project repo: https://github.com/dwdii/GarudaUtil/issues
+
+      Prior Releates Notes:
       * Phoenix table and index meta data classes added to assembly.
       * ConnectionString enhanced to better handle HDInsight Gateway mode.
-      * Tested (briefly) with Azure HDInsight Hbase Cluster 3.4 and Gateway mode connection
       * PhoenixConnection broken connection state handling
       * PhoenixDataReader::FieldCount and HasRows handle no result set gracefully
       * PhoenixDataReader:RecordsAffected available when ExecuteDataReader used for UPSERT statements.
       * PhoenixCommand::Explain, PhoenixConnection::GetTables methods added
       * Fixed GetSchemaTable column data types, compatible with DataGridView
-      * Tested against Hortonworks HDP 2.4 (HBASE 1.1.2 / Phoenix 4.4)
       * Improved async handling with UI threads.
       * PhoenixDataReader::GetSchemaTable and support for DataTable::Load
       * Bulk copy functionality introduced
@@ -31,16 +37,12 @@
       * Initial support for transactions via PhoenixTransaction class
       * Improved data type handling in PhoenixDataReader
       * PhoenixDataReader now fetching next row set automatically once initial row set has been read.
-
-
-      Please submit issues to the project repo: https://github.com/dwdii/GarudaUtil/issues
     </releaseNotes>
-    <copyright>Copyright 2016 Daniel Dittenhafer</copyright>
+    <copyright>Copyright 2016-2017 Daniel Dittenhafer</copyright>
     <tags>Apache Phoenix HBase Hadoop</tags>
     <dependencies>
-      <dependency id="Google.ProtoBuf" version="3.0.0" />
-      <dependency id="Microsoft.Phoenix.Client" version="1.1.0" />
-      <dependency id="EnterpriseLibrary.TransientFaultHandling" version="6.0.1304" />
+      <dependency id="Google.ProtoBuf" version="3.1.0" />
+      <dependency id="Microsoft.Phoenix.Client" version="2.0.0" />
     </dependencies>
   </metadata>
   <files>
