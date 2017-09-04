@@ -74,7 +74,7 @@ namespace GarudaUtil
 
                 }
 
-                conStr.Append("Request Timeout=30000;");
+                conStr.Append("Request Timeout=60000;");
 
 
                 this.Server = _cbServer.Text;

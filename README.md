@@ -29,10 +29,15 @@ Server=myphoenixserver.domain.com,8765;User ID=myuser;Password=mypwd;Request Tim
 #### HDInsight Gateway connections
 
 ```
+# HDI 3.4
 Server=https://mycluster.azurehdinsight.net/hbasephoenix0/;User ID=myuser;Password=mypwd;Mode=hdi-gateway;Request Timeout=30000
+
+# HDI 3.6
+Server=https://mycluster.azurehdinsight.net/hbasephoenix/;User ID=myuser;Password=mypwd;Mode=hdi-gateway;Request Timeout=30000
 ```
 
-* Server: The DNS name of the Phoenix Query Server (for VNET mode, or standard HDP Phoenix/Hbase systems). In HDInsight gateway mode, specify the complete URL including worker node reference: hbasephoenixN where N specify the work node index. For example hbasephoenix0 is worker node 0.
+* Server: The DNS name of the Phoenix Query Server (for VNET mode, or standard HDP Phoenix/Hbase systems). 
+** In HDInsight gateway mode, specify the complete URL. For HDI 3.4 this should include the worker node reference: hbasephoenixN where N specify the work node index. For example hbasephoenix0 is worker node 0. For HDI 3.6, simply hbasephoenix without the worker node reference.
 
 * User ID: Your gateway credential user name. Only specify the User ID and Password when using HDInsight gateway mode.
 

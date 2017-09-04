@@ -277,6 +277,36 @@ namespace Garuda.Data.Test
         }
 
         [TestMethod]
+        public void CommandPrepareCreateIndexBigTableTest()
+        {
+            using (IDbConnection c = new PhoenixConnection())
+            {
+                c.ConnectionString = this.ConnectionString();
+                c.Open();
+
+                CreateBigTestTableIfNotExists(c, false);
+
+                // DROP INDEX NDX_BIGTBL_TEST ON BIGTABLE
+                //using (IDbTransaction tx = c.BeginTransaction())
+                {
+                    using (IDbCommand cmd = c.CreateCommand())
+                    {
+                        //cmd.Transaction = tx;
+                        cmd.CommandText = string.Format("CREATE INDEX NDX_BigTbl_Test ON bigtable (LruFlightKey)");
+                        //cmd.Prepare();
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    //tx.Commit();
+                }
+
+                // Should really verify the index was created.
+                Assert.IsTrue(true);
+            }
+        }
+
+
+        [TestMethod]
         public void CommandPrepareWith2StringParamsTest()
         {
             int rowsToInsert = 10;
