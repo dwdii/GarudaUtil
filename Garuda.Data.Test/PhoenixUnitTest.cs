@@ -287,23 +287,26 @@ namespace Garuda.Data.Test
                 CreateBigTestTableIfNotExists(c, false);
 
                 // DROP INDEX NDX_BIGTBL_TEST ON BIGTABLE
-                //using (IDbTransaction tx = c.BeginTransaction())
+                DropIndexIfExists(c, "NDX_BigTbl_Test", "bigtable");
+
+                using (IDbTransaction tx = c.BeginTransaction())
                 {
                     using (IDbCommand cmd = c.CreateCommand())
                     {
-                        //cmd.Transaction = tx;
+                        cmd.Transaction = tx;
                         cmd.CommandText = string.Format("CREATE INDEX NDX_BigTbl_Test ON bigtable (LruFlightKey)");
-                        //cmd.Prepare();
+                        cmd.Prepare();
                         cmd.ExecuteNonQuery();
                     }
 
-                    //tx.Commit();
+                    tx.Commit();
                 }
 
                 // Should really verify the index was created.
                 Assert.IsTrue(true);
             }
         }
+
 
 
         [TestMethod]
@@ -1165,6 +1168,19 @@ namespace Garuda.Data.Test
                     cmd.CommandText = "CREATE SEQUENCE garuda.testsequence";
                     cmd.ExecuteNonQuery();
                 }
+            }
+        }
+
+        private void DropIndexIfExists(IDbConnection phConn, string index, string table)
+        {
+            using (IDbCommand cmd = phConn.CreateCommand())
+            {
+                try
+                {
+                    cmd.CommandText = string.Format("DROP INDEX {0} ON {1}", index, table);
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception) { }
             }
         }
 

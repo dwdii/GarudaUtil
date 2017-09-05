@@ -393,12 +393,17 @@ namespace Garuda.Data
 			this.ConnectionProperties.AutoCommit = autoCommit;
 			this.ConnectionProperties.TransactionIsolation = isolationLevel;
 			this.ConnectionProperties.IsDirty = true;
-			Task<ConnectionSyncResponse> tResp = Task.Factory.StartNew(() => _client.ConnectionSyncRequestAsync(this.ConnectionId,
-					this.ConnectionProperties,
-					this.Options)).Result;
-			tResp.Wait();
 
-			return tResp.Result;
+			//Task<ConnectionSyncResponse> tResp = Task.Factory.StartNew(() => _client.ConnectionSyncRequestAsync(this.ConnectionId,
+			//		this.ConnectionProperties,
+			//		this.Options)).Result;
+			//tResp.Wait();
+
+            var tResp = RetryAwaitable<Task<ConnectionSyncResponse>>(async delegate () {
+                return await _client.ConnectionSyncRequestAsync(this.ConnectionId, this.ConnectionProperties, this.Options); });
+            tResp.Wait();
+
+            return tResp.Result;
 		}
 
 		internal void CommitTransaction()
@@ -582,6 +587,10 @@ namespace Garuda.Data
 						info,
 						this.Options);
 				_openConnection = tOpen;
+                if(null == _openConnection)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("{0} is unexpected null.", nameof(_openConnection)));
+                }
 
 				// Syncing connection
 				ConnectionProperties connProperties = new ConnectionProperties
@@ -595,7 +604,25 @@ namespace Garuda.Data
 					Schema = "",
 					IsDirty = true
 				};
-				await _client.ConnectionSyncRequestAsync(this.ConnectionId, connProperties, this.Options);
+
+                var tResp = await RetryAwaitable<Task<ConnectionSyncResponse>>(async delegate() { return await _client.ConnectionSyncRequestAsync(this.ConnectionId, connProperties, this.Options); });
+
+                //int retryCount = 0;
+                //do
+                //{
+                //    try
+                //    {
+                //        var tResp = await _client.ConnectionSyncRequestAsync(this.ConnectionId, connProperties, this.Options);
+                //        break;
+                //    }
+                //    catch(Exception)
+                //    {
+                //        retryCount++;
+                //    }
+                    
+                //}
+                //while (retryCount < 2);
+				
 
 				// Connected.
 				this.State = ConnectionState.Open;
@@ -603,8 +630,35 @@ namespace Garuda.Data
 		}
 		#endregion
 
-		#region IDisposable Support
-		private bool disposedValue = false; // To detect redundant calls
+        private T RetryAwaitable<T>(Func<T> pFunc)
+        {
+            int retryCount = 0;
+            T tResp = default(T);
+            int maxRetry = 10;
+
+            do
+            {
+                try
+                {
+                    tResp = pFunc();
+                    break;
+                }
+                catch (Exception)
+                {
+                    retryCount++;
+                    if(retryCount > maxRetry)
+                    {
+                        throw;
+                    }
+                }
+            }
+            while (retryCount < maxRetry);
+
+            return tResp;
+        }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
 
 		private void Dispose(bool disposing)
 		{
