@@ -153,14 +153,22 @@ namespace GarudaUtil
 
         private void HandleException(Exception ex)
         {
+            string typeName = null;
+            string message = null;
+
             if(typeof(AggregateException) == ex.GetType())
             {
-                MessageBox.Show(this, ex.InnerException.Message, ex.InnerException.GetType().Name);
+                message = ex.InnerException.Message;
+                typeName = ex.InnerException.GetType().Name;
             }
             else
             {
-                MessageBox.Show(this, ex.Message, ex.GetType().Name);
+                message = ex.Message;
+                typeName = ex.GetType().Name;
             }
+
+            MessageBox.Show(this, message, typeName);
+            System.Diagnostics.Trace.TraceError(message);
         }
 
         

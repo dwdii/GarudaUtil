@@ -26,7 +26,7 @@ namespace Garuda.Data
 
 		internal struct Constants
 		{
-			public const string SqlSelectTableMetaData = "SELECT TABLE_SCHEM, TABLE_NAME, TABLE_TYPE FROM SYSTEM.CATALOG WHERE TABLE_TYPE IS NOT NULL";
+			public const string SqlSelectTableMetaData = "SELECT TABLE_SCHEM, TABLE_NAME, TABLE_TYPE FROM SYSTEM.CATALOG WHERE TABLE_TYPE IS NOT NULL AND TABLE_TYPE IN ('u', 's')";
 
 			public const string NamePhoenixTables = "Phoenix Tables";
 		}
@@ -287,7 +287,10 @@ namespace Garuda.Data
 
 						ourResp.StatementId = tStmt.StatementId;
 						
-						tResp = await _client.PrepareAndExecuteRequestAsync(this.ConnectionId, sql, ourResp.StatementId, long.MaxValue, int.MaxValue, this.Options);
+						tResp = await _client.PrepareAndExecuteRequestAsync(this.ConnectionId, sql, ourResp.StatementId, 
+                            long.MaxValue, 
+                            int.MaxValue, 
+                            this.Options);
 					}
 					catch (Exception)
 					{
