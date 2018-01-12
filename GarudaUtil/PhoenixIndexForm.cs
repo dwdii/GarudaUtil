@@ -58,6 +58,10 @@ namespace GarudaUtil
                     //siDataType.Text = dt.ToString();
                     //lvi.SubItems.Add(siDataType);
 
+                    ListViewItem.ListViewSubItem siKeySeq = new ListViewItem.ListViewSubItem();
+                    siKeySeq.Text = Convert.ToInt32(r["KEY_SEQ"]).ToString();
+                    lvi.SubItems.Add(siKeySeq);
+
                     _lvKeyCols.Items.Add(lvi);
                 }
             }

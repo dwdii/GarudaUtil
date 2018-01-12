@@ -14,10 +14,15 @@ namespace GarudaUtil
 {
     public partial class LoginForm : Form
     {
-        private const string RegPath = "SOFTWARE\\Garuda.Data\\Connections";
+        private const string RegPath_Connections = "SOFTWARE\\Garuda.Data\\Connections";
+        private const string RegPath_LastConnection = "SOFTWARE\\Garuda.Data\\Connections\\Last";
+        private const string LastServer = "LastServer";
+        private const string LastMode = "LastMode";
+        private const string LastUsername = "LastUsername";
 
         ModeItem _modeVnet = new ModeItem("VNET / Apache Phoenix", PhoenixConnectionModeStr.Vnet);
         ModeItem _modeHdiGateway = new ModeItem("HDInsight Gateway", PhoenixConnectionModeStr.HdiGateway);
+        Dictionary<string, ModeItem> _modeOptions = new Dictionary<string, ModeItem>();
 
         public string Server { get; set; }
 
@@ -47,8 +52,14 @@ namespace GarudaUtil
         {
             InitializeComponent();
 
-            _cbMode.Items.Add(_modeVnet);
-            _cbMode.Items.Add(_modeHdiGateway);
+            _modeOptions.Add(_modeHdiGateway.Key, _modeHdiGateway);
+            _modeOptions.Add(_modeVnet.Key, _modeVnet);
+
+            foreach(ModeItem mi in _modeOptions.Values)
+            {
+                _cbMode.Items.Add(mi);
+
+            }
             _cbMode.SelectedItem = _cbMode.Items[0];
         }
 
@@ -85,7 +96,7 @@ namespace GarudaUtil
 
                 if(this.Connection.State == ConnectionState.Open)
                 {
-                    AddServerToListIfNotExists();
+                    SaveFormState();
                 }
 
                 this.DialogResult = DialogResult.OK;
@@ -96,42 +107,15 @@ namespace GarudaUtil
             }
         }
 
-        private void HandleException(Exception ex)
-        {
-            string msg = ex.Message;
-            if(ex.InnerException != null)
-            {
-                msg = string.Format("{0}\r\n\r\n{1}", ex.Message, ex.InnerException.Message);
-            }
-
-            System.Diagnostics.Trace.WriteLine(ex);
-
-            MessageBox.Show(this, msg, ex.GetType().Name);
-        }
-
         private void LoginForm_Shown(object sender, EventArgs e)
         {
             try
             {
-                RegistryKey rk = Registry.CurrentUser.CreateSubKey(RegPath);
-                foreach(string name in rk.GetValueNames())
-                {
-                    _cbServer.Items.Add(rk.GetValue(name));
-                }
+                LoadFormState();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HandleException(ex);
-            }
-        }
-
-        private void AddServerToListIfNotExists()
-        {
-            if(!_cbServer.Items.Contains(this.Server))
-            {
-                RegistryKey rk = Registry.CurrentUser.CreateSubKey(RegPath);
-                string strName = string.Format("Connection{0}", rk.ValueCount);
-                rk.SetValue(strName, this.Server);
             }
         }
 
@@ -142,10 +126,86 @@ namespace GarudaUtil
                 _txtUserId.Enabled = _cbMode.SelectedItem == _modeHdiGateway;
                 _txtPasswd.Enabled = _cbMode.SelectedItem == _modeHdiGateway;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HandleException(ex);
             }
         }
+
+        private void LoadFormState()
+        {
+            // Load Server Strings
+            using (RegistryKey rk = Registry.CurrentUser.CreateSubKey(RegPath_Connections))
+            {
+                foreach (string name in rk.GetValueNames())
+                {
+                    _cbServer.Items.Add(rk.GetValue(name));
+                }
+            }
+
+            // Load Last Connection info
+            using (RegistryKey rk = Registry.CurrentUser.CreateSubKey(RegPath_LastConnection))
+            {
+                object oLastMode = rk.GetValue(LastMode);
+                ModeItem modeItem = null;
+                
+                // Server string
+                _cbServer.SelectedItem = rk.GetValue(LastServer);
+                if(null == _cbServer.SelectedItem && _cbServer.Items.Count > 0)
+                {
+                    _cbServer.SelectedItem = _cbServer.Items[0];
+                }
+
+                // Mode?
+                if(null != oLastMode && _modeOptions.ContainsKey(oLastMode.ToString()))
+                {
+                    // Set Mode
+                    modeItem = _modeOptions[oLastMode.ToString()];
+                    _cbMode.SelectedItem = modeItem;
+                    if (modeItem.Key == PhoenixConnectionModeStr.HdiGateway)
+                    {
+                        // For HDI, set user id.
+                        _txtUserId.Text = rk.GetValue(LastUsername).ToString();
+                        if (_txtUserId.Text.Length > 0)
+                        {
+                            _txtPasswd.Focus();
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SaveFormState()
+        {
+            using (RegistryKey rk = Registry.CurrentUser.CreateSubKey(RegPath_Connections))
+            {
+                if (!_cbServer.Items.Contains(this.Server))
+                {
+                    string strName = string.Format("Connection{0}", rk.ValueCount);
+                    rk.SetValue(strName, this.Server);
+                }
+            }
+
+            using (RegistryKey rk = Registry.CurrentUser.CreateSubKey(RegPath_LastConnection))
+            {
+                rk.SetValue(LastServer, this.Server);
+                rk.SetValue(LastMode, (_cbMode.SelectedItem as ModeItem).Key);
+                rk.SetValue(LastUsername, this._txtUserId.Text);
+            }
+        }
+
+        private void HandleException(Exception ex)
+        {
+            string msg = ex.Message;
+            if (ex.InnerException != null)
+            {
+                msg = string.Format("{0}\r\n\r\n{1}", ex.Message, ex.InnerException.Message);
+            }
+
+            System.Diagnostics.Trace.WriteLine(ex);
+
+            MessageBox.Show(this, msg, ex.GetType().Name);
+        }
+
     }
 }

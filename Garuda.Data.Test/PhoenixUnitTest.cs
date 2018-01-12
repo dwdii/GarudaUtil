@@ -295,7 +295,7 @@ namespace Garuda.Data.Test
                     {
                         cmd.Transaction = tx;
                         cmd.CommandText = string.Format("CREATE INDEX NDX_BigTbl_Test ON bigtable (LruFlightKey)");
-                        cmd.Prepare();
+                        //cmd.Prepare(); // In HDI 3.6, CREATE INDEX seems to not like to be Prepared.
                         cmd.ExecuteNonQuery();
                     }
 

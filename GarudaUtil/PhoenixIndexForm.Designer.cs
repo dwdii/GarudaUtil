@@ -43,6 +43,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this._lvIncludedCols = new System.Windows.Forms.ListView();
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
@@ -95,7 +96,8 @@
             // _lvKeyCols
             // 
             this._lvKeyCols.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1});
+            this.columnHeader1,
+            this.columnHeader3});
             this.tableLayoutPanel1.SetColumnSpan(this._lvKeyCols, 2);
             this._lvKeyCols.Dock = System.Windows.Forms.DockStyle.Fill;
             this._lvKeyCols.FullRowSelect = true;
@@ -220,6 +222,10 @@
             this.columnHeader2.Text = "Not Implemented Yet";
             this.columnHeader2.Width = 145;
             // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "Key Seq";
+            // 
             // PhoenixIndexForm
             // 
             this.AcceptButton = this._btnOK;
@@ -259,5 +265,6 @@
         private System.Windows.Forms.ListView _lvIncludedCols;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ColumnHeader columnHeader3;
     }
 }
