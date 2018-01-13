@@ -94,7 +94,7 @@ namespace GarudaUtil
                         }
 
                         UpdateDataGrid(dt);
-                        _txtMessages.AppendText(string.Format("{0} record(s) affected", dr.RecordsAffected));
+                        _txtMessages.AppendText(string.Format("{0} record(s) affected\r\n", dr.RecordsAffected));
 
                         // How long did the command take?
                         sw.Stop();
