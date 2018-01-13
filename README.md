@@ -49,7 +49,7 @@ Server=https://mycluster.azurehdinsight.net/hbasephoenix/;User ID=myuser;Passwor
 
 ### Example
 
- Refer the the GarudaUtil Program.cs file for a more complete example.
+ Refer the the [GarudaUtil Program.cs file](https://github.com/dwdii/GarudaUtil/blob/master/GarudaUtil/Program.cs) for a more complete example.
 
  ```{csharp}
 using (IDbConnection phConn = new PhoenixConnection())
