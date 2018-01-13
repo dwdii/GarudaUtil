@@ -616,14 +616,22 @@ namespace GarudaUtil
             try
             {
                 // Show the version/build in the title bar.
-                System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-                this.Text = string.Format("Garuda Query v{0}", fvi.FileVersion);
+                UpdateTitleBarVersion();
+
+                // Fire the connect event by default
+                _tsbConnect_Click(_tsbConnect, new EventArgs());
             }
             catch (Exception ex)
             {
                 HandleException(ex);
             }
+        }
+
+        private void UpdateTitleBarVersion()
+        {
+            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+            this.Text = string.Format("Garuda Query v{0}", fvi.FileVersion);
         }
     }
 }
