@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Daniel Dittenhafer")]
 [assembly: AssemblyProduct("Garuda.Data")]
-[assembly: AssemblyCopyright("Copyright © 2016-2017 Daniel Dittenhafer")]
+[assembly: AssemblyCopyright("Copyright © 2016-2018 Daniel Dittenhafer")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

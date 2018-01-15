@@ -15,9 +15,8 @@
       Beta
 
       * Upgraded to Microsoft.Phoenix.Client 2.0 and Google Protocol Buffer 3.1 released versions
-      * Support for Hortonworks HDP 2.5 (HBASE 1.1.2 / Phoenix 4.7)
-      * Discontinued support for Hortonworks HDP 2.4
-      Thanks to @RonMuth for the Microsoft.Phoenix.Client 2.0 upgrade changes!
+      * Support for Azure HDInsight Hbase Cluster 3.6 and Gateway  mode connection
+      * Discontinued support (breaking changes!) for Hortonworks HDP 2.4 and Azure HDInsight Hbase Cluster 3.4
 
       Please submit issues to the project repo: https://github.com/dwdii/GarudaUtil/issues
 
@@ -38,8 +37,8 @@
       * Improved data type handling in PhoenixDataReader
       * PhoenixDataReader now fetching next row set automatically once initial row set has been read.
     </releaseNotes>
-    <copyright>Copyright 2016-2017 Daniel Dittenhafer</copyright>
-    <tags>Apache Phoenix HBase Hadoop</tags>
+    <copyright>Copyright 2016-2018 Daniel Dittenhafer</copyright>
+    <tags>Apache Phoenix HBase Hadoop .net</tags>
     <dependencies>
       <dependency id="Google.ProtoBuf" version="3.1.0" />
       <dependency id="Microsoft.Phoenix.Client" version="2.0.0" />

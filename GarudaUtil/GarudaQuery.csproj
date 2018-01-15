@@ -28,8 +28,8 @@
     <PublisherName>Daniel Dittenhafer</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>0.7.0.%2a</ApplicationVersion>
+    <ApplicationRevision>4</ApplicationRevision>
+    <ApplicationVersion>0.8.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <ExcludeDeploymentUrl>true</ExcludeDeploymentUrl>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -162,7 +162,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Garuda.Data\Garuda.Data.csproj">
