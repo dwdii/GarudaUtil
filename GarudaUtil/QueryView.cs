@@ -142,6 +142,37 @@ namespace GarudaUtil
             }
         }
 
+        private void _copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CopyResultsToClipboard(DataGridViewClipboardCopyMode.EnableWithoutHeaderText);
+        }
+
+        private void _copyWithColumnHeadersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CopyResultsToClipboard(DataGridViewClipboardCopyMode.EnableAlwaysIncludeHeaderText);
+        }
+
+        private void CopyResultsToClipboard(DataGridViewClipboardCopyMode mode)
+        {
+            if (this._dataGridView1
+                .GetCellCount(DataGridViewElementStates.Selected) > 0)
+            {
+                try
+                {
+                    this._dataGridView1.ClipboardCopyMode = mode;
+
+                    // Add the selection to the clipboard.
+                    Clipboard.SetDataObject(
+                        this._dataGridView1.GetClipboardContent());
+                }
+                catch (System.Runtime.InteropServices.ExternalException ex)
+                {
+                    HandleException(ex);
+                }
+            }
+
+        }
+
         private void HandleException(Exception ex)
         {
             string msg = ex.ToString();
@@ -149,7 +180,7 @@ namespace GarudaUtil
             // Fix up the encoded java linefeed/tab combo
             msg = msg.Replace("\\n\\t", "\r\n\t");
 
-            _txtMessages.AppendText(msg);
+            AppendMessage(msg);
             _tabControl1.SelectedTab = _tabMessages;
             
             //if (typeof(AggregateException) == ex.GetType())
@@ -183,6 +214,11 @@ namespace GarudaUtil
             _tsslRowCount.Text = string.Format("{0} rows", dt.Rows.Count);
         }
 
+        public void AppendMessage(string s)
+        {
+            _txtMessages.AppendText(s);
+        }
+
         internal void Save()
         {
             DialogResult dr = DialogResult.OK;
@@ -208,5 +244,6 @@ namespace GarudaUtil
                 File.WriteAllText(_fileInfo.FullName, this.Text);
             }
         }
+
     }
 }

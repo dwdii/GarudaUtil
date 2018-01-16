@@ -36,6 +36,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this._rtbQuery = new System.Windows.Forms.RichTextBox();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
@@ -50,6 +51,11 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslElapsed = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslRowCount = new System.Windows.Forms.ToolStripStatusLabel();
+            this._cmsResultsGridMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this._copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._copyWithColumnHeadersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this._SaveResultsAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -60,6 +66,7 @@
             ((System.ComponentModel.ISupportInitialize)(this._dataGridView1)).BeginInit();
             this._tabMessages.SuspendLayout();
             this._statusStrip.SuspendLayout();
+            this._cmsResultsGridMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer2
@@ -152,13 +159,18 @@
             this._dataGridView1.AllowUserToDeleteRows = false;
             this._dataGridView1.AllowUserToOrderColumns = true;
             this._dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
+            this._dataGridView1.BackgroundColor = System.Drawing.SystemColors.Window;
+            this._dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this._dataGridView1.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableAlwaysIncludeHeaderText;
+            this._dataGridView1.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this._dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this._dataGridView1.ContextMenuStrip = this._cmsResultsGridMenu;
             this._dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this._dataGridView1.Location = new System.Drawing.Point(3, 3);
             this._dataGridView1.Name = "_dataGridView1";
             this._dataGridView1.ReadOnly = true;
-            this._dataGridView1.RowHeadersVisible = false;
+            this._dataGridView1.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            this._dataGridView1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this._dataGridView1.Size = new System.Drawing.Size(497, 156);
             this._dataGridView1.TabIndex = 1;
             // 
@@ -222,6 +234,44 @@
             this._tsslRowCount.Text = "0 rows";
             this._tsslRowCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // _cmsResultsGridMenu
+            // 
+            this._cmsResultsGridMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._copyToolStripMenuItem,
+            this._copyWithColumnHeadersToolStripMenuItem,
+            this.toolStripSeparator1,
+            this._SaveResultsAsMenuItem});
+            this._cmsResultsGridMenu.Name = "_cmsResultsGridMenu";
+            this._cmsResultsGridMenu.Size = new System.Drawing.Size(249, 76);
+            // 
+            // _copyToolStripMenuItem
+            // 
+            this._copyToolStripMenuItem.Name = "_copyToolStripMenuItem";
+            this._copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this._copyToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this._copyToolStripMenuItem.Text = "Copy";
+            this._copyToolStripMenuItem.Click += new System.EventHandler(this._copyToolStripMenuItem_Click);
+            // 
+            // _copyWithColumnHeadersToolStripMenuItem
+            // 
+            this._copyWithColumnHeadersToolStripMenuItem.Name = "_copyWithColumnHeadersToolStripMenuItem";
+            this._copyWithColumnHeadersToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.C)));
+            this._copyWithColumnHeadersToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this._copyWithColumnHeadersToolStripMenuItem.Text = "Copy with Headers";
+            this._copyWithColumnHeadersToolStripMenuItem.Click += new System.EventHandler(this._copyWithColumnHeadersToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(245, 6);
+            // 
+            // _SaveResultsAsMenuItem
+            // 
+            this._SaveResultsAsMenuItem.Name = "_SaveResultsAsMenuItem";
+            this._SaveResultsAsMenuItem.Size = new System.Drawing.Size(248, 22);
+            this._SaveResultsAsMenuItem.Text = "Save Results As...";
+            // 
             // QueryView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -244,6 +294,7 @@
             this._tabMessages.PerformLayout();
             this._statusStrip.ResumeLayout(false);
             this._statusStrip.PerformLayout();
+            this._cmsResultsGridMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -265,5 +316,10 @@
         private System.Windows.Forms.ToolStripStatusLabel _tsslElapsed;
         private System.Windows.Forms.ToolStripStatusLabel _tsslRowCount;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ContextMenuStrip _cmsResultsGridMenu;
+        private System.Windows.Forms.ToolStripMenuItem _copyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem _copyWithColumnHeadersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem _SaveResultsAsMenuItem;
     }
 }
