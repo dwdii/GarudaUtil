@@ -484,6 +484,17 @@ namespace Garuda.Data.Test
         }
 
         [TestMethod]
+        public void BulkCopyTest2_Salted3Table_Looped()
+        {
+            int total = 10;
+            for(int i = 0; i < total; i++)
+            {
+                BulkCopyTest2_Salted3Table();
+            }
+            
+        }
+
+        [TestMethod]
         public void BulkCopyTest2_Salted3Table()
         {
             Stopwatch sw = new Stopwatch();
