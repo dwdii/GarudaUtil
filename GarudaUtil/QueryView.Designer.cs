@@ -152,11 +152,13 @@
             this._dataGridView1.AllowUserToDeleteRows = false;
             this._dataGridView1.AllowUserToOrderColumns = true;
             this._dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
+            this._dataGridView1.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableAlwaysIncludeHeaderText;
             this._dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this._dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this._dataGridView1.Location = new System.Drawing.Point(3, 3);
             this._dataGridView1.Name = "_dataGridView1";
             this._dataGridView1.ReadOnly = true;
+            this._dataGridView1.RowHeadersVisible = false;
             this._dataGridView1.Size = new System.Drawing.Size(497, 156);
             this._dataGridView1.TabIndex = 1;
             // 
