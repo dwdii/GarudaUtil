@@ -133,4 +133,6 @@ https://azure.microsoft.com/en-us/documentation/articles/hdinsight-hbase-phoenix
 How to connect to HBase / Hadoop Database using C#
 http://stackoverflow.com/questions/17866600/how-to-connect-to-hbase-hadoop-database-using-c-sharp/39217348#39217348
 
+What are the Hadoop components and versions available with HDInsight?
+https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-component-versioning
 
