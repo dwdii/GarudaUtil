@@ -45,17 +45,17 @@
             this._tabControl1 = new System.Windows.Forms.TabControl();
             this._tabResults = new System.Windows.Forms.TabPage();
             this._dataGridView1 = new System.Windows.Forms.DataGridView();
+            this._cmsResultsGridMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this._copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._copyWithColumnHeadersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this._SaveResultsAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._tabMessages = new System.Windows.Forms.TabPage();
             this._txtMessages = new System.Windows.Forms.TextBox();
             this._statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslElapsed = new System.Windows.Forms.ToolStripStatusLabel();
             this._tsslRowCount = new System.Windows.Forms.ToolStripStatusLabel();
-            this._cmsResultsGridMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this._copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._copyWithColumnHeadersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this._SaveResultsAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -64,9 +64,9 @@
             this._tabControl1.SuspendLayout();
             this._tabResults.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._dataGridView1)).BeginInit();
+            this._cmsResultsGridMenu.SuspendLayout();
             this._tabMessages.SuspendLayout();
             this._statusStrip.SuspendLayout();
-            this._cmsResultsGridMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer2
@@ -174,6 +174,45 @@
             this._dataGridView1.Size = new System.Drawing.Size(497, 156);
             this._dataGridView1.TabIndex = 1;
             // 
+            // _cmsResultsGridMenu
+            // 
+            this._cmsResultsGridMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._copyToolStripMenuItem,
+            this._copyWithColumnHeadersToolStripMenuItem,
+            this.toolStripSeparator1,
+            this._SaveResultsAsMenuItem});
+            this._cmsResultsGridMenu.Name = "_cmsResultsGridMenu";
+            this._cmsResultsGridMenu.Size = new System.Drawing.Size(249, 98);
+            // 
+            // _copyToolStripMenuItem
+            // 
+            this._copyToolStripMenuItem.Name = "_copyToolStripMenuItem";
+            this._copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this._copyToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this._copyToolStripMenuItem.Text = "Copy";
+            this._copyToolStripMenuItem.Click += new System.EventHandler(this._copyToolStripMenuItem_Click);
+            // 
+            // _copyWithColumnHeadersToolStripMenuItem
+            // 
+            this._copyWithColumnHeadersToolStripMenuItem.Name = "_copyWithColumnHeadersToolStripMenuItem";
+            this._copyWithColumnHeadersToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.C)));
+            this._copyWithColumnHeadersToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this._copyWithColumnHeadersToolStripMenuItem.Text = "Copy with Headers";
+            this._copyWithColumnHeadersToolStripMenuItem.Click += new System.EventHandler(this._copyWithColumnHeadersToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(245, 6);
+            // 
+            // _SaveResultsAsMenuItem
+            // 
+            this._SaveResultsAsMenuItem.Name = "_SaveResultsAsMenuItem";
+            this._SaveResultsAsMenuItem.Size = new System.Drawing.Size(248, 22);
+            this._SaveResultsAsMenuItem.Text = "Save Results As...";
+            this._SaveResultsAsMenuItem.Click += new System.EventHandler(this._SaveResultsAsMenuItem_Click);
+            // 
             // _tabMessages
             // 
             this._tabMessages.Controls.Add(this._txtMessages);
@@ -234,44 +273,6 @@
             this._tsslRowCount.Text = "0 rows";
             this._tsslRowCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // _cmsResultsGridMenu
-            // 
-            this._cmsResultsGridMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._copyToolStripMenuItem,
-            this._copyWithColumnHeadersToolStripMenuItem,
-            this.toolStripSeparator1,
-            this._SaveResultsAsMenuItem});
-            this._cmsResultsGridMenu.Name = "_cmsResultsGridMenu";
-            this._cmsResultsGridMenu.Size = new System.Drawing.Size(249, 76);
-            // 
-            // _copyToolStripMenuItem
-            // 
-            this._copyToolStripMenuItem.Name = "_copyToolStripMenuItem";
-            this._copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this._copyToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
-            this._copyToolStripMenuItem.Text = "Copy";
-            this._copyToolStripMenuItem.Click += new System.EventHandler(this._copyToolStripMenuItem_Click);
-            // 
-            // _copyWithColumnHeadersToolStripMenuItem
-            // 
-            this._copyWithColumnHeadersToolStripMenuItem.Name = "_copyWithColumnHeadersToolStripMenuItem";
-            this._copyWithColumnHeadersToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.C)));
-            this._copyWithColumnHeadersToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
-            this._copyWithColumnHeadersToolStripMenuItem.Text = "Copy with Headers";
-            this._copyWithColumnHeadersToolStripMenuItem.Click += new System.EventHandler(this._copyWithColumnHeadersToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(245, 6);
-            // 
-            // _SaveResultsAsMenuItem
-            // 
-            this._SaveResultsAsMenuItem.Name = "_SaveResultsAsMenuItem";
-            this._SaveResultsAsMenuItem.Size = new System.Drawing.Size(248, 22);
-            this._SaveResultsAsMenuItem.Text = "Save Results As...";
-            // 
             // QueryView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -290,11 +291,11 @@
             this._tabControl1.ResumeLayout(false);
             this._tabResults.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this._dataGridView1)).EndInit();
+            this._cmsResultsGridMenu.ResumeLayout(false);
             this._tabMessages.ResumeLayout(false);
             this._tabMessages.PerformLayout();
             this._statusStrip.ResumeLayout(false);
             this._statusStrip.PerformLayout();
-            this._cmsResultsGridMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

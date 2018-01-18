@@ -20,6 +20,22 @@ namespace GarudaUtil
         PhoenixConnection _connection = null;
         FileInfo _fileInfo = null;
 
+        struct Constants
+        {
+            internal const string DataGridView_DateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
+            internal struct Messages
+            {
+                internal const string RecordsAffected = "{0} record(s) affected\r\n";
+            }
+
+            internal struct SaveResultsAs
+            {
+                internal const string DefaultFileNameFormat = "{0}.csv";
+                internal const string SaveResultsAsFilter = "CSV Files (*.csv)|*.csv|All files (*.*)|*.*";
+            }
+
+        }
+
         public QueryView(MainForm mainForm, string connectionString, FileInfo fileInfo)
         {
             InitializeComponent();
@@ -57,7 +73,7 @@ namespace GarudaUtil
             {
                 if(_dataGridView1.Columns[i].ValueType == typeof(DateTime))
                 {
-                    _dataGridView1.Columns[i].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss.fff";
+                    _dataGridView1.Columns[i].DefaultCellStyle.Format = Constants.DataGridView_DateTimeFormat ;
                 }
             }
 
@@ -94,7 +110,7 @@ namespace GarudaUtil
                         }
 
                         UpdateDataGrid(dt);
-                        _txtMessages.AppendText(string.Format("{0} record(s) affected\r\n", dr.RecordsAffected));
+                        _txtMessages.AppendText(string.Format(Constants.Messages.RecordsAffected, dr.RecordsAffected));
 
                         // How long did the command take?
                         sw.Stop();
@@ -144,12 +160,89 @@ namespace GarudaUtil
 
         private void _copyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CopyResultsToClipboard(DataGridViewClipboardCopyMode.EnableWithoutHeaderText);
+            try
+            {
+                CopyResultsToClipboard(DataGridViewClipboardCopyMode.EnableWithoutHeaderText);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
         }
 
         private void _copyWithColumnHeadersToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CopyResultsToClipboard(DataGridViewClipboardCopyMode.EnableAlwaysIncludeHeaderText);
+            try
+            {
+                CopyResultsToClipboard(DataGridViewClipboardCopyMode.EnableAlwaysIncludeHeaderText);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        private void _SaveResultsAsMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog dlg = new SaveFileDialog();
+
+                dlg.CheckFileExists = false;
+                dlg.CheckPathExists = true;
+                dlg.Filter = Constants.SaveResultsAs.SaveResultsAsFilter;
+                dlg.FilterIndex = 0;
+                dlg.FileName = string.Format(Constants.SaveResultsAs.DefaultFileNameFormat, this.Parent.Text);
+
+                if(DialogResult.OK == dlg.ShowDialog(this))
+                {
+                    WriteCsv(_dataGridView1.DataSource as DataTable, dlg.FileName);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Small CSV export helper
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="path"></param>
+        /// <seealso cref="https://stackoverflow.com/a/41748634/2604144"/>
+        public static void WriteCsv(DataTable dt, string path)
+        {
+            using (var sw = new StreamWriter(path))
+            {
+                sw.WriteLine(string.Join(",", dt.Columns.Cast<DataColumn>().Select(dc => string.Format("\"{0}\"", dc.ColumnName))));
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    for (int i = 0; i < dt.Columns.Count; i++)
+                    {
+                        if (!Convert.IsDBNull(dr[i]))
+                        {
+                            string value = dr[i].ToString().Trim();
+                            if (value.Contains(','))
+                            {
+                                value = String.Format("\"{0}\"", value);
+                                sw.Write(value);
+                            }
+                            else
+                            {
+                                sw.Write(dr[i].ToString().Trim());
+                            }
+                        }
+                        if (i < dt.Columns.Count - 1)
+                        {
+                            sw.Write(",");
+                        }
+                    }
+                    sw.Write(sw.NewLine);
+                }
+            }
         }
 
         private void CopyResultsToClipboard(DataGridViewClipboardCopyMode mode)
@@ -157,18 +250,11 @@ namespace GarudaUtil
             if (this._dataGridView1
                 .GetCellCount(DataGridViewElementStates.Selected) > 0)
             {
-                try
-                {
                     this._dataGridView1.ClipboardCopyMode = mode;
 
                     // Add the selection to the clipboard.
                     Clipboard.SetDataObject(
                         this._dataGridView1.GetClipboardContent());
-                }
-                catch (System.Runtime.InteropServices.ExternalException ex)
-                {
-                    HandleException(ex);
-                }
             }
 
         }
@@ -244,6 +330,5 @@ namespace GarudaUtil
                 File.WriteAllText(_fileInfo.FullName, this.Text);
             }
         }
-
     }
 }
