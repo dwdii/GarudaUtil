@@ -1,8 +1,6 @@
 # GarudaUtil
 
-[![License](https://img.shields.io/badge/license-APACHE-red.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-
-[![NuGet Pre Release](https://img.shields.io/nuget/vpre/Garuda.Data.svg)](https://www.nuget.org/packages/Garuda.Data/)
+[![License](https://img.shields.io/badge/license-APACHE-red.svg)](http://www.apache.org/licenses/LICENSE-2.0) [![Build status](https://ci.appveyor.com/api/projects/status/qbqybwea43plruyo/branch/master?svg=true)](https://ci.appveyor.com/project/dwdii/garudautil/branch/master) [![NuGet Pre Release](https://img.shields.io/nuget/vpre/Garuda.Data.svg)](https://www.nuget.org/packages/Garuda.Data/)
 
 ## Garuda.Data
 
